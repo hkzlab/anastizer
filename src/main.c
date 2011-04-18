@@ -6,6 +6,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#define TOT_WTS 1;
+static WTrap wt[TOT_WTS];
+
 void main_mouseHandler(int event, int x, int y, int flags, void *param);
 
 int main(int argc, char *argv[]) {
