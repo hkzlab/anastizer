@@ -1,6 +1,7 @@
 #include "common/defs.h"
 #include "common/win_names.h"
 #include "utils/utils.h"
+#include "warptrap/wtrap.h"
 
 #include <stdio.h>
 #include <stdlib.h>

@@ -4,7 +4,7 @@ BINDIR=bin
 CFLAGS=-O2 -Isrc/ -I/usr/include/opencv/ -g -std=c99 -Wextra
 LDFLAGS=  -lm -lcv -lcvaux -lhighgui
 
-MODULES=$(BINDIR)/main.o $(BINDIR)/utils.o
+MODULES=$(BINDIR)/main.o $(BINDIR)/utils.o $(BINDIR)/wtrap.o
 
 PROGNAME=picdefo
 
@@ -19,6 +19,9 @@ $(BINDIR)/main.o:	$(SRCDIR)/main.c
 
 $(BINDIR)/utils.o:	$(SRCDIR)/utils/utils.c
 	gcc -c $(CFLAGS) $(SRCDIR)/utils/utils.c -o $(BINDIR)/utils.o
+
+$(BINDIR)/wtrap.o:	$(SRCDIR)/warptrap/wtrap.c
+	gcc -c $(CFLAGS) $(SRCDIR)/warptrap/wtrap.c -o $(BINDIR)/wtrap.o
 
 bin/$(PROGNAME):	$(MODULES)
 	gcc $(CFLAGS) $(MODULES) $(LDFLAGS) -o $(BINDIR)/$(PROGNAME)
