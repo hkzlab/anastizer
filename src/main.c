@@ -42,10 +42,10 @@ int main(int argc, char *argv[]) {
 	cvNamedWindow(MAIN_WIN, CV_WINDOW_AUTOSIZE); 
 
 	// Show resized image
-	update_wt_win(MAIN_WIN, mw_img, wt, cvScalar(0, 255, 0, 0));
+	update_wt_win(MAIN_WIN, mw_img, wt, cvScalar(0, 0, 255, 0));
 
 	// Register mouse handler for main window
-	cvSetMouseCallback(MAIN_WIN, main_mouseHandler, NULL);
+	cvSetMouseCallback(MAIN_WIN, main_mouseHandler, (void*)mw_img);
 
 	// wait for a key
   	cvWaitKey(0);
@@ -61,15 +61,48 @@ int main(int argc, char *argv[]) {
 
 void main_mouseHandler(int event, int x, int y, int flags, void *param) {
 	static Uint8 lb_down = 0;
+	static Sint32 curnode = -1;
+
+	static int oldx, oldy;
+	int xdiff, ydiff;
 
 	switch(event) {
 		case CV_EVENT_LBUTTONDOWN:
+			check_wtrap_point(x, y, &wt[0], &curnode);
 			lb_down = 1;
+			oldx = x;
+			oldy = y;
 			break;
 		case CV_EVENT_LBUTTONUP:
 			lb_down = 0;
+			if (curnode >= 0); // And in this case we should update a preview window...
+			curnode = -1;
 			break;
 		case CV_EVENT_MOUSEMOVE:
+			if (curnode < 0 || !lb_down) break;
+
+			xdiff = x - oldx;
+			ydiff = y - oldy;
+
+			if (curnode == 0) {
+				wt[0].a.x += xdiff;
+				wt[0].a.y += ydiff;
+			} else if (curnode == 1) {
+				wt[0].b.x += xdiff;
+				wt[0].b.y += ydiff;
+			} else if (curnode == 2) {
+				wt[0].c.x += xdiff;
+				wt[0].c.y += ydiff;
+			} else if (curnode == 3) {
+				wt[0].d.x += xdiff;
+				wt[0].d.y += ydiff;
+			}
+
+			oldx = x;
+			oldy = y;
+
+			update_wt_win(MAIN_WIN, (IplImage*)param, wt, cvScalar(0, 0, 255, 0));
+
 			break;
 		default:
 			break;
@@ -81,22 +114,20 @@ void main_mouseHandler(int event, int x, int y, int flags, void *param) {
 void init_wts(void) {
 	Uint16 i;
 
-	Sint32 x = 10;
-	Sint32 y = 5;
+	Sint32 x = 40;
+	Sint32 y = 20;
 
 	for (i = 0; i < TOT_WTS; i++) {
 		wt[i].a.x = x;
 		wt[i].a.y = y;
 
-		wt[i].b.x = x + 30;
+		wt[i].b.x = x + 90;
 		wt[i].b.y = y;
 
-		wt[i].c.x = x + 30;
-		wt[i].c.y = y + 30;
+		wt[i].c.x = x + 90;
+		wt[i].c.y = y + 180;
 
 		wt[i].d.x = x;
-		wt[i].d.y = y + 30;
-
-		x += 50;
+		wt[i].d.y = y + 180;
 	}
 }
