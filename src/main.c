@@ -6,9 +6,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define TOT_WTS 1;
+#define TOT_WTS 1
 static WTrap wt[TOT_WTS];
 
+void init_wts(void);
 void main_mouseHandler(int event, int x, int y, int flags, void *param);
 
 int main(int argc, char *argv[]) {
@@ -28,6 +29,8 @@ int main(int argc, char *argv[]) {
 		fprintf(stdout, "Loaded image %s\n", argv[1]);
 	}
 
+	init_wts();
+
 	nwidth = oimg->width;
 	nheight = oimg->height;
 
@@ -39,7 +42,7 @@ int main(int argc, char *argv[]) {
 	cvNamedWindow(MAIN_WIN, CV_WINDOW_AUTOSIZE); 
 
 	// Show resized image
-	cvShowImage(MAIN_WIN, mw_img);
+	update_wt_win(MAIN_WIN, mw_img, wt, cvScalar(0, 255, 0, 0));
 
 	// Register mouse handler for main window
 	cvSetMouseCallback(MAIN_WIN, main_mouseHandler, NULL);
@@ -58,4 +61,27 @@ int main(int argc, char *argv[]) {
 
 void main_mouseHandler(int event, int x, int y, int flags, void *param) {
 	return;
+}
+
+void init_wts(void) {
+	Uint16 i;
+
+	Sint32 x = 10;
+	Sint32 y = 5;
+
+	for (i = 0; i < TOT_WTS; i++) {
+		wt[i].a.x = x;
+		wt[i].a.y = y;
+
+		wt[i].b.x = x + 30;
+		wt[i].b.y = y;
+
+		wt[i].c.x = x + 30;
+		wt[i].c.y = y + 30;
+
+		wt[i].d.x = x;
+		wt[i].d.y = y + 30;
+
+		x += 50;
+	}
 }
