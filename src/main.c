@@ -60,6 +60,19 @@ int main(int argc, char *argv[]) {
 }
 
 void main_mouseHandler(int event, int x, int y, int flags, void *param) {
+	static Uint8 lb_down = 0;
+
+	switch(event) {
+		case CV_EVENT_LBUTTONDOWN:
+			lb_down = 1;
+			break;
+		case CV_EVENT_LBUTTONUP:
+			lb_down = 0;
+			break;
+		default:
+			break;
+	}
+
 	return;
 }
 
