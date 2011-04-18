@@ -69,6 +69,8 @@ void main_mouseHandler(int event, int x, int y, int flags, void *param) {
 		case CV_EVENT_LBUTTONUP:
 			lb_down = 0;
 			break;
+		case CV_EVENT_MOUSEMOVE:
+			break;
 		default:
 			break;
 	}

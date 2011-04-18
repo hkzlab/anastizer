@@ -9,5 +9,6 @@ typedef struct {
 
 void draw_wtrap(IplImage *in, WTrap *wt, CvScalar s);
 void update_wt_win(char *win, IplImage *in, WTrap *wt, CvScalar s);
+void check_wtrap_point(Sint32 x, Sint32 y, WTrap *wt, Sint32 *node);
 
 #endif /* _WTRAP_HEADER_ */
