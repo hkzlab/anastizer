@@ -75,7 +75,7 @@ void main_mouseHandler(int event, int x, int y, int flags, void *param) {
 			break;
 		case CV_EVENT_LBUTTONUP:
 			lb_down = 0;
-			if (curnode >= 0); // And in this case we should update a preview window...
+			//if (curnode >= 0); // And in this case we should update a preview window...
 			curnode = -1;
 			break;
 		case CV_EVENT_MOUSEMOVE:
