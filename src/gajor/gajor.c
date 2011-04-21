@@ -29,7 +29,7 @@ void free_ivector(int *v, long nl, long nh)
 	free((FREE_ARG)(v + nl - NR_END));
 }
 
-float **matrix(long nrl, long nrh, long ncl, long nch)
+float **create_nr_matrix(long nrl, long nrh, long ncl, long nch)
 /* allocate a float matrix with subscript range m[nrl..nrh][ncl..nch] */
 {
 	long i, nrow=nrh-nrl+1,ncol=nch-ncl+1;
@@ -53,7 +53,7 @@ float **matrix(long nrl, long nrh, long ncl, long nch)
 	return m;
 }
 
-float **convert_matrix(float *a, long nrl, long nrh, long ncl, long nch)
+float **convert_matrix_to_nr(float *a, long nrl, long nrh, long ncl, long nch)
 /* allocate a float matrix m[nrl..nrh][ncl..nch] that points to the matrix
 declared in the standard C manner as a[nrow][ncol], where nrow=nrh-nrl+1
 and ncol=nch-ncl+1. The routine should be called with the address
@@ -75,7 +75,20 @@ and ncol=nch-ncl+1. The routine should be called with the address
 	return m;
 }
 
-void free_matrix(float **m, long nrl, long nrh, long ncl, long nch)
+float *convert_nr_to_matrix(float **mnr, long w, long h) {
+	float *m = (float*)malloc(sizeof(float) * w * h);
+
+	long i, j;
+
+	for (i = 0; i < h; i++)
+		for (j = 0; j < w; j++) {
+			m[i * w + j] = mnr[i][j];
+		}
+
+	return m;
+}
+
+void free_nr_matrix(float **m, long nrl, long nrh, long ncl, long nch)
 /* free a float matrix allocated by matrix() */
 {
 	free((FREE_ARG) (m[nrl]+ncl-NR_END));
