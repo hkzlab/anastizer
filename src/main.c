@@ -121,15 +121,66 @@ void main_mouseHandler(int event, int x, int y, int flags, void *param) {
 			if (curnode == 0) {
 				wt[0].a.x += xdiff;
 				wt[0].a.y += ydiff;
+
+				if(wt[0].a.x > wt[0].b.x - 10)
+					wt[0].a.x = wt[0].b.x - 10;
+
+				if(wt[0].a.x > wt[0].c.x - 10)
+					wt[0].a.x = wt[0].c.x - 10;
+
+				if(wt[0].a.y > wt[0].d.y - 10)
+					wt[0].a.y = wt[0].d.y - 10;
+
+				if(wt[0].a.y > wt[0].c.y - 10)
+					wt[0].a.y = wt[0].c.y - 10;
+
 			} else if (curnode == 1) {
 				wt[0].b.x += xdiff;
 				wt[0].b.y += ydiff;
+
+				if(wt[0].a.x + 10 > wt[0].b.x)
+					wt[0].b.x = wt[0].a.x + 10;
+
+				if(wt[0].d.x + 10 > wt[0].b.x)
+					wt[0].b.x = wt[0].d.x + 10;
+				
+				if(wt[0].b.y > wt[0].c.y - 10)
+					wt[0].b.y = wt[0].c.y - 10;
+
+				if(wt[0].b.y > wt[0].d.y - 10)
+					wt[0].b.y = wt[0].d.y - 10;
+
 			} else if (curnode == 2) {
 				wt[0].c.x += xdiff;
 				wt[0].c.y += ydiff;
+
+				if(wt[0].d.x + 10 > wt[0].c.x)
+					wt[0].c.x = wt[0].d.x + 10;
+
+				if(wt[0].a.x + 10 > wt[0].c.x)
+					wt[0].c.x = wt[0].a.x + 10;
+
+				if(wt[0].b.y + 10 > wt[0].c.y)
+					wt[0].c.y = wt[0].b.y + 10;
+
+				if(wt[0].a.y + 10 > wt[0].c.y)
+					wt[0].c.y = wt[0].a.y + 10;
+
 			} else if (curnode == 3) {
 				wt[0].d.x += xdiff;
 				wt[0].d.y += ydiff;
+
+				if(wt[0].d.x > wt[0].c.x - 10)
+					wt[0].d.x = wt[0].c.x - 10;
+
+				if(wt[0].d.x > wt[0].b.x - 10)
+					wt[0].d.x = wt[0].b.x - 10;
+
+				if(wt[0].a.y + 10 > wt[0].d.y)
+					wt[0].d.y = wt[0].a.y + 10;
+
+				if(wt[0].b.y + 10 > wt[0].d.y)
+					wt[0].d.y = wt[0].b.y + 10;
 			}
 
 			oldx = x;
