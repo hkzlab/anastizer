@@ -1,5 +1,6 @@
 #include "common/defs.h"
 #include "common/win_names.h"
+#include "gajor/gajor.h"
 #include "utils/utils.h"
 #include "warptrap/wtrap.h"
 
