@@ -18,6 +18,39 @@ int main(int argc, char *argv[]) {
 	IplImage *oimg; // Original image;
 	IplImage *mw_img; // Main window resized image
 
+#if 0
+	float **ma, **mb;
+	Uint32 mw, mh;
+	ma = create_nr_matrix(1, 3, 1, 3);
+	mb = create_nr_matrix(1, 3, 1, 3);
+
+	for (mh = 1; mh <= 3; mh++)
+		for (mw = 1; mw <= 3; mw++) {
+			if (mh != mw) {
+				ma[mh][mw] = 0;
+				mb[mh][mw] = 0;
+			} else {
+				ma[mh][mw] = 1;
+				mb[mh][mw] = 1;				
+			}
+		}
+
+	ma[1][1] = 2;
+	ma[2][2] = 2;
+
+	gaussj(ma, 3, mb, 3);
+
+	for (mh = 1; mh <= 3; mh++) {
+		for (mw = 1; mw <= 3; mw++) {
+				fprintf(stdout, "%f ", ma[mh][mw]);
+		}
+		fprintf(stdout, "\n");
+	}
+
+	free_nr_matrix(ma, 1, 3, 1, 3);
+	free_nr_matrix(mb, 1, 3, 1, 3);
+#endif
+
 	if (argc < 2) {
 		fprintf(stdout, "%s [imagefile]\n", argv[0]);
 		return 1;
