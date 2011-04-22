@@ -215,6 +215,11 @@ void main_mouseHandler(int event, int x, int y, int flags, void *param) {
 			oldy = y;
 
 			update_wt_win(MAIN_WIN, (IplImage*)param, wt, cvScalar(0, 0, 255, 0));
+			
+#ifndef _SLOW_SYSTEM_
+			invt[0] = build_transf_mat(&wt[0], invt[0], oimg, mw_img, prv_img->width, prv_img->height);
+			update_preview_win(prv_img, oimg, invt[0], &wt[0]);
+#endif
 
 			break;
 		default:
