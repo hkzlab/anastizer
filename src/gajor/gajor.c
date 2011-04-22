@@ -1,6 +1,9 @@
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <assert.h>
+
+#include "gajor.h"
 
 #define NR_END 1
 #define FREE_ARG char*
@@ -51,6 +54,29 @@ float **create_nr_matrix(long nrl, long nrh, long ncl, long nch)
 
 	/* return pointer to array of pointers to rows */
 	return m;
+}
+
+float **matrix_nr_product(float **m1, long nrl1, long nrh1, long ncl1, long nch1, float **m2, long nrl2, long nrh2, long ncl2, long nch2) {
+	assert(m1);
+	assert(m2);
+	assert(nch1 - ncl1 == nrh2 - nrl2);
+	assert(nrl1 == 1 && ncl1 == 1 && nrl2 == 1 && ncl2 == 1);
+
+	float **dm = create_nr_matrix(nrl1, nrh1, ncl2, nch2);
+
+	unsigned int i, j, r;
+	float sum;
+
+	for (i = nrl1; i < nrh1; i++ )
+		for (j = ncl2; j < nch2; j++) {
+			sum = 0;
+			for (r = ncl1; r < nch1; r++) {
+				sum += m1[i][r] * m2[r][j];
+			}
+			dm[i][j] = sum;
+		}
+
+	return dm;
 }
 
 float **convert_matrix_to_nr(float *a, long nrl, long nrh, long ncl, long nch)
