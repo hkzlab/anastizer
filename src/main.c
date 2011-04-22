@@ -89,6 +89,7 @@ int main(int argc, char *argv[]) {
 	// Destroy windows
 	cvDestroyWindow(MAIN_WIN);
 	cvDestroyWindow(PREV_WIN);
+//	cvDestroyAllWindows();
 
 	cvReleaseImage(&oimg); // Release greyscale image
 	cvReleaseImage(&mw_img); 
