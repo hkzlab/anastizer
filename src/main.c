@@ -59,7 +59,7 @@ int main(int argc, char *argv[]) {
 	nwidth = oimg->width;
 	nheight = oimg->height;
 
-	recalc_img_size(&nwidth, &nheight, 512);
+	recalc_img_size(&nwidth, &nheight, PREV_H);
 	mw_img = cvCreateImage(cvSize(nwidth , nheight), oimg->depth, oimg->nChannels); // Create a resized image
 	cvResize(oimg, mw_img, CV_INTER_NN); // Resize
 	prv_img = cvCreateImage(cvSize(PREV_W, PREV_H), oimg->depth, oimg->nChannels);
@@ -102,9 +102,11 @@ int main(int argc, char *argv[]) {
 void prev_mouseHandler(int event, int x, int y, int flags, void *param) {
 	IplImage *gimg;
 	IplImage *mimg;
+	IplImage *rprev;
 
 	int sres;
 	Uint8 cur_chan;
+	Uint32 nwidth, nheight;
 
 	switch(event) {
 		case CV_EVENT_LBUTTONDBLCLK:
@@ -127,6 +129,15 @@ void prev_mouseHandler(int event, int x, int y, int flags, void *param) {
 			spot_neighbour_dist(mimg, 50, 20, Conn8);
 			spot_neighbour_dist(mimg, 400, 45, Conn8);
 
+			// Show it...
+			nwidth = mimg->width;
+			nheight = mimg->height;
+			recalc_img_size(&nwidth, &nheight, PREV_H);
+			rprev = cvCreateImage(cvSize(nwidth , nheight), mimg->depth, mimg->nChannels); // Create a resized image
+			cvResize(mimg, rprev, CV_INTER_NN); // Resize
+
+			cvShowImage(PREV_WIN, rprev);
+
 			// Save it...
 			fprintf(stdout, "saving to %s ...", dest_file);
 			sres = cvSaveImage(dest_file, mimg, 0);
@@ -135,9 +146,11 @@ void prev_mouseHandler(int event, int x, int y, int flags, void *param) {
 				fprintf(stdout, "OK!\n\n");
 			else
 				fprintf(stdout, "Not saved!!!\n\n");
+	
 
 			cvReleaseImage(&gimg);
 			cvReleaseImage(&mimg);
+			cvReleaseImage(&rprev);
 
 			break;
 	}
@@ -324,6 +337,7 @@ void update_preview_win(IplImage *pim, IplImage *oim, CvMat* tm, WTrap *wt) {
 }
 
 void prv_trk_bgr_handler(int pos) {
+	invt[0] = build_transf_mat(&wt[0], invt[0], oimg, mw_img, prv_img->width, prv_img->height);
 	update_preview_win(prv_img, oimg, invt[0], &wt[0]);
 }
 
