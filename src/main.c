@@ -110,6 +110,7 @@ void prev_mouseHandler(int event, int x, int y, int flags, void *param) {
 
 	switch(event) {
 		case CV_EVENT_LBUTTONDBLCLK:
+		case CV_EVENT_RBUTTONDBLCLK:
 			cur_chan = cvGetTrackbarPos(PREV_TRK_BGR, PREV_WIN);
 			invt[0] = build_transf_mat(&wt[0], invt[0], oimg, mw_img, prv_img->width * 4, prv_img->height * 4);
 			gimg = return_warped_img(oimg, invt[0], &wt[0], prv_img->width * 4, prv_img->height * 4, cur_chan);
@@ -137,20 +138,20 @@ void prev_mouseHandler(int event, int x, int y, int flags, void *param) {
 			cvResize(mimg, rprev, CV_INTER_NN); // Resize
 
 			cvShowImage(PREV_WIN, rprev);
+			
+			if (event == CV_EVENT_RBUTTONDBLCLK) { // or Save it...
+				fprintf(stdout, "saving to %s ...", dest_file);
+				sres = cvSaveImage(dest_file, mimg, 0);
 
-			// Save it...
-			fprintf(stdout, "saving to %s ...", dest_file);
-			sres = cvSaveImage(dest_file, mimg, 0);
-
-			if (sres)
-				fprintf(stdout, "OK!\n\n");
-			else
-				fprintf(stdout, "Not saved!!!\n\n");
-	
+				if (sres)
+					fprintf(stdout, "OK!\n\n");
+				else
+					fprintf(stdout, "Not saved!!!\n\n");	
+			}
 
 			cvReleaseImage(&gimg);
-			cvReleaseImage(&mimg);
 			cvReleaseImage(&rprev);
+			cvReleaseImage(&mimg);
 
 			break;
 	}
