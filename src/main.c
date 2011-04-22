@@ -100,6 +100,8 @@ void prev_mouseHandler(int event, int x, int y, int flags, void *param) {
 			sdest = return_warped_img(oimg, invt[0], &wt[0], prv_img->width * 4, prv_img->height * 4);
 
 			// Save it...
+			fprintf(stdout, "saving...\n");
+			cvSaveImage("out.png", sdest, 0);
 
 			cvReleaseImage(&sdest);
 
