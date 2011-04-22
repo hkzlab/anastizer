@@ -20,6 +20,8 @@ static IplImage *mw_img;
 
 void init_wts(void);
 void main_mouseHandler(int event, int x, int y, int flags, void *param);
+void prv_trk_bgr_handler(int pos);
+
 CvMat *build_transf_mat(WTrap *w, CvMat *mm, IplImage *or, IplImage *pw, Uint32 dwidth, Uint32 dheight);
 void update_preview_win(IplImage *pim, IplImage *oim, CvMat* tm, WTrap *wt);
 
@@ -50,12 +52,13 @@ int main(int argc, char *argv[]) {
 	recalc_img_size(&nwidth, &nheight, 512);
 	mw_img = cvCreateImage(cvSize(nwidth , nheight), oimg->depth, oimg->nChannels); // Create a resized image
 	cvResize(oimg, mw_img, CV_INTER_NN); // Resize
-
 	prv_img = cvCreateImage(cvSize(PREV_W, PREV_H), oimg->depth, oimg->nChannels);
 
 	// Create main window
 	cvNamedWindow(MAIN_WIN, CV_WINDOW_AUTOSIZE); 
 	cvNamedWindow(PREV_WIN, CV_WINDOW_AUTOSIZE); 
+
+	cvCreateTrackbar(PREV_TRK_BGR, PREV_WIN, NULL, 2, prv_trk_bgr_handler);
 
 	for (i = 0; i < TOT_WTS; i++)
 		invt[i] = build_transf_mat(&wt[i], invt[i], oimg, mw_img, prv_img->width, prv_img->height);
@@ -206,7 +209,6 @@ void main_mouseHandler(int event, int x, int y, int flags, void *param) {
 					wt[0].b.y += ydiff;
 					wt[0].c.y += ydiff;
 					wt[0].d.y += ydiff;
-
 				}
 
 			}
@@ -290,5 +292,13 @@ void update_preview_win(IplImage *pim, IplImage *oim, CvMat* tm, WTrap *wt) {
 
 	cvWarpPerspective(oim, pim, tm, /*CV_INTER_LINEAR +*/ CV_WARP_FILL_OUTLIERS + CV_WARP_INVERSE_MAP, cvScalarAll(0));
 
-	cvShowImage(PREV_WIN, pim);
+	IplImage *mono = gray_from_colour(pim, cvGetTrackbarPos(PREV_TRK_BGR, PREV_WIN));
+
+	cvShowImage(PREV_WIN, mono);
+
+	cvReleaseImage(&mono);
+}
+
+void prv_trk_bgr_handler(int pos) {
+	update_preview_win(prv_img, oimg, invt[0], &wt[0]);
 }

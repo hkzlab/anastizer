@@ -4,4 +4,6 @@
 #define MAIN_WIN "Current Picture"
 #define PREV_WIN "Preview"
 
+#define PREV_TRK_BGR "BGR"
+
 #endif /* _WIN_NAMES_HEADER_ */
