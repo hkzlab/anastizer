@@ -10,49 +10,20 @@
 #define TOT_WTS 1
 static WTrap wt[TOT_WTS];
 
+#define PREV_H 800
+#define PREV_W 300
+float **invt;
+
 void init_wts(void);
 void main_mouseHandler(int event, int x, int y, int flags, void *param);
+float **build_transf_mat(WTrap *w);
 
 int main(int argc, char *argv[]) {
 	Uint32 nwidth, nheight;
 	IplImage *oimg; // Original image;
 	IplImage *mw_img; // Main window resized image
 
-#if 0
-	float **ma, **mb, **md;
-	Uint32 mw, mh;
-	ma = create_ident_matrix(1, 3, 1, 3);
-	mb = create_ident_matrix(1, 3, 1, 3);
-
-	for (mh = 1; mh <= 3; mh++)
-		for (mw = 1; mw <= 3; mw++) {
-			if (mh != mw) {
-				ma[mh][mw] = 0;
-				mb[mh][mw] = 0;
-			} else {
-				ma[mh][mw] = 1;
-				mb[mh][mw] = 1;				
-			}
-		}
-
-	ma[2][3] = 1;
-	mb[1][3] = 1;
-	mb[3][1] = 1;
-
-
-	md = matrix_nr_product(ma, 1, 3, 1, 3, mb, 1, 3, 1, 3);
-
-	for (mh = 1; mh <= 3; mh++) {
-		for (mw = 1; mw <= 3; mw++) {
-				fprintf(stdout, "%f ", md[mh][mw]);
-		}
-		fprintf(stdout, "\n");
-	}
-
-	free_nr_matrix(ma, 1, 3, 1, 3);
-	free_nr_matrix(mb, 1, 3, 1, 3);
-	free_nr_matrix(md, 1, 3, 1, 3);
-#endif
+	invt = NULL;
 
 	if (argc < 2) {
 		fprintf(stdout, "%s [imagefile]\n", argv[0]);
@@ -112,7 +83,11 @@ void main_mouseHandler(int event, int x, int y, int flags, void *param) {
 			break;
 		case CV_EVENT_LBUTTONUP:
 			lb_down = 0;
-			//if (curnode >= 0); // And in this case we should update a preview window...
+			if (curnode >= 0) { // And in this case we should update a preview window...
+				if(invt) free_nr_matrix(invt, 1, 4, 1, 4);
+				invt = build_transf_mat(&wt[0]);
+			}
+
 			curnode = -1;
 			break;
 		case CV_EVENT_MOUSEMOVE:
@@ -197,6 +172,12 @@ void main_mouseHandler(int event, int x, int y, int flags, void *param) {
 	}
 
 	return;
+}
+
+float **build_transf_mat(WTrap *w) {
+	// SEE cvWarpPerspectiveQMatrix
+	// here: http://www.comp.leeds.ac.uk/vision/opencv/opencvref_cv.html
+	return NULL;
 }
 
 void init_wts(void) {
