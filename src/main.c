@@ -10,8 +10,8 @@
 #define TOT_WTS 1
 static WTrap wt[TOT_WTS];
 
-#define PREV_H 800
-#define PREV_W 550
+#define PREV_H 512
+#define PREV_W 352
 CvMat *invt[TOT_WTS];
 
 static IplImage *oimg; // Original image;
@@ -20,7 +20,7 @@ static IplImage *mw_img;
 
 void init_wts(void);
 void main_mouseHandler(int event, int x, int y, int flags, void *param);
-CvMat *build_transf_mat(WTrap *w, CvMat *mm, IplImage *or, IplImage *pw);
+CvMat *build_transf_mat(WTrap *w, CvMat *mm, IplImage *or, IplImage *pw, Uint32 dwidth, Uint32 dheight);
 void update_preview_win(IplImage *pim, IplImage *oim, CvMat* tm, WTrap *wt);
 
 int main(int argc, char *argv[]) {
@@ -47,7 +47,7 @@ int main(int argc, char *argv[]) {
 	nwidth = oimg->width;
 	nheight = oimg->height;
 
-	recalc_img_size(&nwidth, &nheight, 800);
+	recalc_img_size(&nwidth, &nheight, 512);
 	mw_img = cvCreateImage(cvSize(nwidth , nheight), oimg->depth, oimg->nChannels); // Create a resized image
 	cvResize(oimg, mw_img, CV_INTER_NN); // Resize
 
@@ -58,7 +58,7 @@ int main(int argc, char *argv[]) {
 	cvNamedWindow(PREV_WIN, CV_WINDOW_AUTOSIZE); 
 
 	for (i = 0; i < TOT_WTS; i++)
-		invt[i] = build_transf_mat(&wt[i], invt[i], oimg, mw_img);
+		invt[i] = build_transf_mat(&wt[i], invt[i], oimg, mw_img, prv_img->width, prv_img->height);
 
 	update_preview_win(prv_img, oimg, invt[0], &wt[0]);
 
@@ -102,7 +102,7 @@ void main_mouseHandler(int event, int x, int y, int flags, void *param) {
 		case CV_EVENT_LBUTTONUP:
 			lb_down = 0;
 			if (curnode >= 0) { // And in this case we should update a preview window...
-				invt[0] = build_transf_mat(&wt[0], invt[0], oimg, mw_img);
+				invt[0] = build_transf_mat(&wt[0], invt[0], oimg, mw_img, prv_img->width, prv_img->height);
 				update_preview_win(prv_img, oimg, invt[0], &wt[0]);
 			}
 			
@@ -192,7 +192,7 @@ void main_mouseHandler(int event, int x, int y, int flags, void *param) {
 	return;
 }
 
-CvMat *build_transf_mat(WTrap *w, CvMat *mm, IplImage *or, IplImage *pw) {
+CvMat *build_transf_mat(WTrap *w, CvMat *mm, IplImage *or, IplImage *pw, Uint32 dwidth, Uint32 dheight) {
 	// SEE cvWarpPerspectiveQMatrix
 	// here: http://www.comp.leeds.ac.uk/vision/opencv/opencvref_cv.html
 
@@ -215,12 +215,12 @@ CvMat *build_transf_mat(WTrap *w, CvMat *mm, IplImage *or, IplImage *pw) {
 
 	dst[0].x = 0;
 	dst[0].y = 0;
-	dst[1].x = PREV_W;
+	dst[1].x = dwidth;
 	dst[1].y = 0;
-	dst[2].x = PREV_W;
-	dst[2].y = PREV_H;
+	dst[2].x = dwidth;
+	dst[2].y = dheight;
 	dst[3].x = 0;
-	dst[3].y = PREV_H;
+	dst[3].y = dheight;
 
 	return cvWarpPerspectiveQMatrix(dst, src, mm);
 }
