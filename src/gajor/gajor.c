@@ -67,10 +67,10 @@ float **matrix_nr_product(float **m1, long nrl1, long nrh1, long ncl1, long nch1
 	unsigned int i, j, r;
 	float sum;
 
-	for (i = nrl1; i < nrh1; i++ )
-		for (j = ncl2; j < nch2; j++) {
+	for (i = nrl1; i <= nrh1; i++ )
+		for (j = ncl2; j <= nch2; j++) {
 			sum = 0;
-			for (r = ncl1; r < nch1; r++) {
+			for (r = ncl1; r <= nch1; r++) {
 				sum += m1[i][r] * m2[r][j];
 			}
 			dm[i][j] = sum;
