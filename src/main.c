@@ -19,10 +19,10 @@ int main(int argc, char *argv[]) {
 	IplImage *mw_img; // Main window resized image
 
 #if 0
-	float **ma, **mb;
+	float **ma, **mb, **md;
 	Uint32 mw, mh;
-	ma = create_nr_matrix(1, 3, 1, 3);
-	mb = create_nr_matrix(1, 3, 1, 3);
+	ma = create_ident_matrix(1, 3, 1, 3);
+	mb = create_ident_matrix(1, 3, 1, 3);
 
 	for (mh = 1; mh <= 3; mh++)
 		for (mw = 1; mw <= 3; mw++) {
@@ -35,20 +35,23 @@ int main(int argc, char *argv[]) {
 			}
 		}
 
-	ma[1][1] = 2;
-	ma[2][2] = 2;
+	ma[2][3] = 1;
+	mb[1][3] = 1;
+	mb[3][1] = 1;
 
-	gaussj(ma, 3, mb, 3);
+
+	md = matrix_nr_product(ma, 1, 3, 1, 3, mb, 1, 3, 1, 3);
 
 	for (mh = 1; mh <= 3; mh++) {
 		for (mw = 1; mw <= 3; mw++) {
-				fprintf(stdout, "%f ", ma[mh][mw]);
+				fprintf(stdout, "%f ", md[mh][mw]);
 		}
 		fprintf(stdout, "\n");
 	}
 
 	free_nr_matrix(ma, 1, 3, 1, 3);
 	free_nr_matrix(mb, 1, 3, 1, 3);
+	free_nr_matrix(md, 1, 3, 1, 3);
 #endif
 
 	if (argc < 2) {

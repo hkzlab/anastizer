@@ -203,19 +203,29 @@ float **clone_nr_matrix(float **m, long nrl, long nrh, long ncl, long nch) {
 	return md;
 }
 
+float **get_matrix_inverse(float **m, float n) {
+	assert(m);
+
+	long nrh = n - 1;
+	long nch = nrh;
+
+	float **mc = clone_nr_matrix(m, 1, nrh, 1, nch);
+	float **id = create_ident_matrix(1, nrh, 1, nch);
+	
+	gaussj(mc, nrh, id, nch);
+
+	free_nr_matrix(id, 1, nrh, 1, nch);
+
+	return mc;
+}
+
 float **get_transf_matrix(float **ma, float **mb, long n) {
 	long nrh = n - 1;
 	long nch = nrh;
-	float **id = create_ident_matrix(1, nrh, 1, nch);
-	float **mac = clone_nr_matrix(ma, 1, nrh, 1, nch);
-	float **tm;
-
-	gaussj(mac, n, id, n);
-
-	tm = matrix_nr_product(mac, 1, nrh, 1, nch, mb, 1, nrh, 1, nch);
+	float **mac = get_matrix_inverse(ma, n);
+	float **tm = matrix_nr_product(mac, 1, nrh, 1, nch, mb, 1, nrh, 1, nch);
 	
 	free_nr_matrix(mac, 1, nrh, 1, nch);
-	free_nr_matrix(id, 1, nrh, 1, nch);
 
 	return tm;
 }
