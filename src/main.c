@@ -313,14 +313,14 @@ void init_wts(void) {
 		wt[i].a.x = x;
 		wt[i].a.y = y;
 
-		wt[i].b.x = x + 40;
+		wt[i].b.x = x + 120;
 		wt[i].b.y = y;
 
-		wt[i].c.x = x + 40;
-		wt[i].c.y = y + 40;
+		wt[i].c.x = x + 120;
+		wt[i].c.y = y + 210;
 
 		wt[i].d.x = x;
-		wt[i].d.y = y + 40;
+		wt[i].d.y = y + 210;
 	}
 }
 
