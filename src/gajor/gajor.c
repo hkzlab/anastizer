@@ -173,3 +173,49 @@ void gaussj(float **a, int n, float **b, int m) {
 	free_ivector(indxr, 1, n);
 	free_ivector(indxc, 1, n);
 }
+
+float **create_ident_matrix(long nrl, long nrh, long ncl, long nch) {
+	float **id = create_nr_matrix(nrl, nrh, ncl, nch);
+
+	unsigned int mh, mw;
+
+	for (mh = nrl; mh <= nrh; mh++)
+		for (mw = ncl; mw <= nch; mw++) {
+			if (mh != mw) 
+				id[mh][mw] = 0;
+			else
+				id[mh][mw] = 1;
+		}
+
+	return id;
+}
+
+float **clone_nr_matrix(float **m, long nrl, long nrh, long ncl, long nch) {
+	float **md = create_nr_matrix(nrl, nrh, ncl, nch);
+
+	unsigned int mh, mw;
+
+	for (mh = nrl; mh <= nrh; mh++)
+		for (mw = ncl; mw <= nch; mw++) {
+			md[mh][mw] = m[mh][mw];
+		}
+
+	return md;
+}
+
+float **get_transf_matrix(float **ma, float **mb, long n) {
+	long nrh = n - 1;
+	long nch = nrh;
+	float **id = create_ident_matrix(1, nrh, 1, nch);
+	float **mac = clone_nr_matrix(ma, 1, nrh, 1, nch);
+	float **tm;
+
+	gaussj(mac, n, id, n);
+
+	tm = matrix_nr_product(mac, 1, nrh, 1, nch, mb, 1, nrh, 1, nch);
+	
+	free_nr_matrix(mac, 1, nrh, 1, nch);
+	free_nr_matrix(id, 1, nrh, 1, nch);
+
+	return tm;
+}

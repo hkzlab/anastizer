@@ -8,4 +8,8 @@ float *convert_nr_to_matrix(float **mnr, long w, long h);
 void free_nr_matrix(float **m, long nrl, long nrh, long ncl, long nch);
 void gaussj(float **a, int n, float **b, int m);
 
+float **create_ident_matrix(long nrl, long nrh, long ncl, long nch);
+float **clone_nr_matrix(float **m, long nrl, long nrh, long ncl, long nch);
+float **get_transf_matrix(float **ma, float **mb, long n);
+
 #endif
