@@ -11,5 +11,6 @@ void gaussj(float **a, int n, float **b, int m);
 float **create_ident_matrix(long nrl, long nrh, long ncl, long nch);
 float **clone_nr_matrix(float **m, long nrl, long nrh, long ncl, long nch);
 float **get_transf_matrix(float **ma, float **mb, long n);
+float **get_matrix_inverse(float **m, float n);
 
 #endif
