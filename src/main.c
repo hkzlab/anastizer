@@ -11,17 +11,22 @@
 static WTrap wt[TOT_WTS];
 
 #define PREV_H 800
-#define PREV_W 300
+#define PREV_W 550
 CvMat *invt[TOT_WTS];
+
+static IplImage *prv_img;
+static IplImage *mw_img;
 
 void init_wts(void);
 void main_mouseHandler(int event, int x, int y, int flags, void *param);
 CvMat *build_transf_mat(WTrap *w, CvMat *mm);
+void update_preview_win(IplImage *pim, IplImage *oim, CvMat* tm, WTrap *wt);
 
 int main(int argc, char *argv[]) {
 	Uint32 nwidth, nheight;
 	IplImage *oimg; // Original image;
-	IplImage *mw_img; // Main window resized image
+	mw_img; // Main window resized image
+	prv_img = cvCreateImage(cvSize(PREV_W, PREV_H), 8, 1);
 	Uint32 i;
 
 	if (argc < 2) {
@@ -55,6 +60,8 @@ int main(int argc, char *argv[]) {
 	for (i = 0; i < TOT_WTS; i++)
 		invt[i] = build_transf_mat(&wt[i], invt[i]);
 
+	update_preview_win(prv_img, mw_img, invt[0], &wt[0]);
+
 	// Show resized image
 	update_wt_win(MAIN_WIN, mw_img, wt, cvScalar(0, 0, 255, 0));
 
@@ -69,7 +76,8 @@ int main(int argc, char *argv[]) {
 	cvDestroyWindow(PREV_WIN);
 
 	cvReleaseImage(&oimg); // Release greyscale image
-	cvReleaseImage(&mw_img);  
+	cvReleaseImage(&mw_img); 
+	cvReleaseImage(&prv_img);  
 
 	for (i = 0; i < TOT_WTS; i++)
 		cvReleaseMat(&invt[i]);
@@ -93,8 +101,10 @@ void main_mouseHandler(int event, int x, int y, int flags, void *param) {
 			break;
 		case CV_EVENT_LBUTTONUP:
 			lb_down = 0;
-			if (curnode >= 0) // And in this case we should update a preview window...
+			if (curnode >= 0) { // And in this case we should update a preview window...
 				invt[0] = build_transf_mat(&wt[0], invt[0]);
+				update_preview_win(prv_img, mw_img, invt[0], &wt[0]);
+			}
 			
 			curnode = -1;
 			break;
@@ -207,7 +217,7 @@ CvMat *build_transf_mat(WTrap *w, CvMat *mm) {
 	dst[3].x = 0;
 	dst[3].y = PREV_H;
 
-	return cvWarpPerspectiveQMatrix(src, dst, mm);
+	return cvWarpPerspectiveQMatrix(dst, src, mm);
 }
 
 void init_wts(void) {
@@ -220,13 +230,47 @@ void init_wts(void) {
 		wt[i].a.x = x;
 		wt[i].a.y = y;
 
-		wt[i].b.x = x + 90;
+		wt[i].b.x = x + 40;
 		wt[i].b.y = y;
 
-		wt[i].c.x = x + 90;
-		wt[i].c.y = y + 180;
+		wt[i].c.x = x + 40;
+		wt[i].c.y = y + 40;
 
 		wt[i].d.x = x;
-		wt[i].d.y = y + 180;
+		wt[i].d.y = y + 40;
 	}
+}
+
+void update_preview_win(IplImage *pim, IplImage *oim, CvMat* tm, WTrap *wt) {
+	assert(pim);
+	assert(oim);
+	assert(tm);
+
+	Sint32 x, y, z;
+	float ox, oy, oz;
+	Sint32 dx, dy;
+
+	Uint8 *oim_dat = oim->imageData;
+	Uint8 *pim_dat = pim->imageData;
+
+	z = 0;
+	for (y = 0; y < pim->height; y++)
+		for (x = 0; x < pim->width; x++) {
+			ox = cvmGet(tm, 0, 0) * x + cvmGet(tm, 0, 1) * y +  cvmGet(tm, 0, 2) * z;
+			oy = cvmGet(tm, 1, 0) * x + cvmGet(tm, 1, 1) * y +  cvmGet(tm, 1, 2) * z;
+			oz = cvmGet(tm, 2, 0) * x + cvmGet(tm, 2, 1) * y +  cvmGet(tm, 2, 2) * z;
+
+			dx = roundf(ox);
+			dy = roundf(oy);
+			
+			dx += wt->a.x;
+			dy += wt->a.y;
+
+			if (dx >= 0 && dx < oim->width && dy >= 0 && dy < oim->height)
+				pim_dat[(y * pim->widthStep) + (x * pim->nChannels) + 0] = oim_dat[(dy * oim->widthStep) + (dx * oim->nChannels) + 0];
+			else
+				pim_dat[(y * pim->widthStep) + (x * pim->nChannels) + 0] = 0;
+		}
+
+	cvShowImage(PREV_WIN, pim);
 }
