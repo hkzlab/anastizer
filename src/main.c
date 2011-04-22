@@ -22,11 +22,7 @@ int main(int argc, char *argv[]) {
 	Uint32 nwidth, nheight;
 	IplImage *oimg; // Original image;
 	IplImage *mw_img; // Main window resized image
-
 	Uint32 i;
-
-	for (i = 0; i < TOT_WTS; i++)
-		invt[i] = cvCreateMat(3, 3, CV_32FC1); // Allocate space for transf matrices
 
 	if (argc < 2) {
 		fprintf(stdout, "%s [imagefile]\n", argv[0]);
@@ -42,6 +38,9 @@ int main(int argc, char *argv[]) {
 
 	init_wts();
 
+	for (i = 0; i < TOT_WTS; i++)
+		invt[i] = cvCreateMat(3, 3, CV_32FC1); // Allocate space for transf matrices
+
 	nwidth = oimg->width;
 	nheight = oimg->height;
 
@@ -51,6 +50,10 @@ int main(int argc, char *argv[]) {
 
 	// Create main window
 	cvNamedWindow(MAIN_WIN, CV_WINDOW_AUTOSIZE); 
+	cvNamedWindow(PREV_WIN, CV_WINDOW_AUTOSIZE); 
+
+	for (i = 0; i < TOT_WTS; i++)
+		invt[i] = build_transf_mat(&wt[i], invt[i]);
 
 	// Show resized image
 	update_wt_win(MAIN_WIN, mw_img, wt, cvScalar(0, 0, 255, 0));
@@ -61,8 +64,9 @@ int main(int argc, char *argv[]) {
 	// wait for a key
   	cvWaitKey(0);
 
-	// Destroy main window
+	// Destroy windows
 	cvDestroyWindow(MAIN_WIN);
+	cvDestroyWindow(PREV_WIN);
 
 	cvReleaseImage(&oimg); // Release greyscale image
 	cvReleaseImage(&mw_img);  
