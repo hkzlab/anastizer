@@ -206,7 +206,7 @@ float **clone_nr_matrix(float **m, long nrl, long nrh, long ncl, long nch) {
 float **get_matrix_inverse(float **m, float n) {
 	assert(m);
 
-	long nrh = n - 1;
+	long nrh = n;
 	long nch = nrh;
 
 	float **mc = clone_nr_matrix(m, 1, nrh, 1, nch);
@@ -220,7 +220,7 @@ float **get_matrix_inverse(float **m, float n) {
 }
 
 float **get_transf_matrix(float **ma, float **mb, long n) {
-	long nrh = n - 1;
+	long nrh = n;
 	long nch = nrh;
 	float **mac = get_matrix_inverse(ma, n);
 	float **tm = matrix_nr_product(mac, 1, nrh, 1, nch, mb, 1, nrh, 1, nch);
