@@ -7,6 +7,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#define STRSIZE 256
+static char dest_file[STRSIZE];
+
 #define TOT_WTS 1
 static WTrap wt[TOT_WTS];
 
@@ -40,6 +43,10 @@ int main(int argc, char *argv[]) {
 	} else {
 		fprintf(stdout, "Loaded image %s\n", argv[1]);
 	}
+
+	// Calculate output filename (PNG format)
+	strncat(dest_file, argv[1], strlen(argv[1]) - 4);
+	strcat(dest_file, "_WARPED.png");
 
 	init_wts();
 
@@ -91,15 +98,24 @@ int main(int argc, char *argv[]) {
 
 void prev_mouseHandler(int event, int x, int y, int flags, void *param) {
 	IplImage *sdest;
+	int sres;
+	Uint8 cur_chan;
 
 	switch(event) {
 		case CV_EVENT_LBUTTONDBLCLK:
+			cur_chan = cvGetTrackbarPos(PREV_TRK_BGR, PREV_WIN);
 			invt[0] = build_transf_mat(&wt[0], invt[0], oimg, mw_img, prv_img->width * 4, prv_img->height * 4);
-			sdest = return_warped_img(oimg, invt[0], &wt[0], prv_img->width * 4, prv_img->height * 4, cvGetTrackbarPos(PREV_TRK_BGR, PREV_WIN));
+			sdest = return_warped_img(oimg, invt[0], &wt[0], prv_img->width * 4, prv_img->height * 4, cur_chan);
 
 			// Save it...
-			fprintf(stdout, "saving...\n");
-			cvSaveImage("out.png", sdest, 0);
+			fprintf(stdout, "saving to %s ...", dest_file);
+			sres = cvSaveImage(dest_file, sdest, 0);
+			fprintf(stdout, "");
+	
+			if (sres)
+				fprintf(stdout, "OK!\n\n");
+			else
+				fprintf(stdout, "Not saved!!!\n\n");
 
 			cvReleaseImage(&sdest);
 
