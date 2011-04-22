@@ -68,7 +68,8 @@ int main(int argc, char *argv[]) {
 	cvNamedWindow(MAIN_WIN, CV_WINDOW_AUTOSIZE); 
 	cvNamedWindow(PREV_WIN, CV_WINDOW_AUTOSIZE); 
 
-	cvCreateTrackbar(PREV_TRK_BGR, PREV_WIN, NULL, 2, prv_trk_bgr_handler);
+	int trkval = 1;
+	cvCreateTrackbar(PREV_TRK_BGR, PREV_WIN, &trkval, 2, prv_trk_bgr_handler);
 
 	for (i = 0; i < TOT_WTS; i++)
 		invt[i] = build_transf_mat(&wt[i], invt[i], oimg, mw_img, prv_img->width, prv_img->height);
