@@ -1,8 +1,8 @@
 #ifndef _WIN_NAMES_HEADER_
 #define _WIN_NAMES_HEADER_
 
-#define MAIN_WIN "Current Picture"
-#define PREV_WIN "Preview"
+#define MAIN_WIN "ANASTIZER: Loaded Picture"
+#define PREV_WIN "ANASTIZER: Preview"
 
 #define PREV_TRK_BGR "BGR"
 

@@ -23,9 +23,7 @@ void main_mouseHandler(int event, int x, int y, int flags, void *param);
 void prev_mouseHandler(int event, int x, int y, int flags, void *param);
 void prv_trk_bgr_handler(int pos);
 
-CvMat *build_transf_mat(WTrap *w, CvMat *mm, IplImage *or, IplImage *pw, Uint32 dwidth, Uint32 dheight);
 void update_preview_win(IplImage *pim, IplImage *oim, CvMat* tm, WTrap *wt);
-IplImage *return_warped_img(IplImage *oim, CvMat *tm, WTrap *wt, Uint32 dwidth, Uint32 dheight);
 
 int main(int argc, char *argv[]) {
 	Uint32 nwidth, nheight;
@@ -97,7 +95,7 @@ void prev_mouseHandler(int event, int x, int y, int flags, void *param) {
 	switch(event) {
 		case CV_EVENT_LBUTTONDBLCLK:
 			invt[0] = build_transf_mat(&wt[0], invt[0], oimg, mw_img, prv_img->width * 4, prv_img->height * 4);
-			sdest = return_warped_img(oimg, invt[0], &wt[0], prv_img->width * 4, prv_img->height * 4);
+			sdest = return_warped_img(oimg, invt[0], &wt[0], prv_img->width * 4, prv_img->height * 4, cvGetTrackbarPos(PREV_TRK_BGR, PREV_WIN));
 
 			// Save it...
 			fprintf(stdout, "saving...\n");
@@ -254,39 +252,6 @@ void main_mouseHandler(int event, int x, int y, int flags, void *param) {
 	return;
 }
 
-CvMat *build_transf_mat(WTrap *w, CvMat *mm, IplImage *or, IplImage *pw, Uint32 dwidth, Uint32 dheight) {
-	// SEE cvWarpPerspectiveQMatrix
-	// here: http://www.comp.leeds.ac.uk/vision/opencv/opencvref_cv.html
-
-	float mx, my;
-
-	mx = ((float)or->width / (float)pw->width);
-	my = ((float)or->height / (float)pw->height);
-
-	CvPoint2D32f src[4];
-	CvPoint2D32f dst[4];
-
-	src[0].x = w->a.x * mx;
-	src[0].y = w->a.y * my;
-	src[1].x = w->b.x * mx;
-	src[1].y = w->b.y * my;
-	src[2].x = w->c.x * mx;
-	src[2].y = w->c.y * my;
-	src[3].x = w->d.x * mx;
-	src[3].y = w->d.y * my;
-
-	dst[0].x = 0;
-	dst[0].y = 0;
-	dst[1].x = dwidth;
-	dst[1].y = 0;
-	dst[2].x = dwidth;
-	dst[2].y = dheight;
-	dst[3].x = 0;
-	dst[3].y = dheight;
-
-	return cvWarpPerspectiveQMatrix(dst, src, mm);
-}
-
 void init_wts(void) {
 	Uint16 i;
 
@@ -322,21 +287,7 @@ void update_preview_win(IplImage *pim, IplImage *oim, CvMat* tm, WTrap *wt) {
 	cvReleaseImage(&mono);
 }
 
-IplImage *return_warped_img(IplImage *oim, CvMat *tm, WTrap *wt, Uint32 dwidth, Uint32 dheight) {
-	assert(oim);
-	assert(tm);
-
-	IplImage *d1 = cvCreateImage(cvSize(dwidth, dheight), oim->depth, oim->nChannels);
-	IplImage *dmono;
-
-	cvWarpPerspective(oim, d1, tm, CV_INTER_CUBIC + CV_WARP_FILL_OUTLIERS + CV_WARP_INVERSE_MAP, cvScalarAll(0));
-	dmono = gray_from_colour(d1, cvGetTrackbarPos(PREV_TRK_BGR, PREV_WIN));
-
-	cvReleaseImage(&d1);
-
-	return dmono;
-}
-
 void prv_trk_bgr_handler(int pos) {
 	update_preview_win(prv_img, oimg, invt[0], &wt[0]);
 }
+
