@@ -12,7 +12,7 @@ static WTrap wt[TOT_WTS];
 
 #define PREV_H 800
 #define PREV_W 300
-CvMat *invt;
+CvMat *invt[TOT_WTS];
 
 void init_wts(void);
 void main_mouseHandler(int event, int x, int y, int flags, void *param);
@@ -23,7 +23,10 @@ int main(int argc, char *argv[]) {
 	IplImage *oimg; // Original image;
 	IplImage *mw_img; // Main window resized image
 
-	invt = cvCreateMat(3, 3, CV_32FC1);
+	Uint32 i;
+
+	for (i = 0; i < TOT_WTS; i++)
+		invt[i] = cvCreateMat(3, 3, CV_32FC1); // Allocate space for transf matrices
 
 	if (argc < 2) {
 		fprintf(stdout, "%s [imagefile]\n", argv[0]);
@@ -64,7 +67,8 @@ int main(int argc, char *argv[]) {
 	cvReleaseImage(&oimg); // Release greyscale image
 	cvReleaseImage(&mw_img);  
 
-	cvReleaseMat(&invt);
+	for (i = 0; i < TOT_WTS; i++)
+		cvReleaseMat(&invt[i]);
 
 	return 0;
 }
@@ -86,7 +90,7 @@ void main_mouseHandler(int event, int x, int y, int flags, void *param) {
 		case CV_EVENT_LBUTTONUP:
 			lb_down = 0;
 			if (curnode >= 0) // And in this case we should update a preview window...
-				invt = build_transf_mat(&wt[0], invt);
+				invt[0] = build_transf_mat(&wt[0], invt[0]);
 			
 			curnode = -1;
 			break;
