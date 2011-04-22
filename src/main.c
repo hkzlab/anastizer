@@ -7,6 +7,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#define DEFAULT_RMTH 5
+#define DEFAULT_TMASK 301
+
 #define STRSIZE 256
 static char dest_file[STRSIZE];
 
@@ -97,7 +100,9 @@ int main(int argc, char *argv[]) {
 }
 
 void prev_mouseHandler(int event, int x, int y, int flags, void *param) {
-	IplImage *sdest;
+	IplImage *gimg;
+	IplImage *mimg;
+
 	int sres;
 	Uint8 cur_chan;
 
@@ -105,19 +110,34 @@ void prev_mouseHandler(int event, int x, int y, int flags, void *param) {
 		case CV_EVENT_LBUTTONDBLCLK:
 			cur_chan = cvGetTrackbarPos(PREV_TRK_BGR, PREV_WIN);
 			invt[0] = build_transf_mat(&wt[0], invt[0], oimg, mw_img, prv_img->width * 4, prv_img->height * 4);
-			sdest = return_warped_img(oimg, invt[0], &wt[0], prv_img->width * 4, prv_img->height * 4, cur_chan);
+			gimg = return_warped_img(oimg, invt[0], &wt[0], prv_img->width * 4, prv_img->height * 4, cur_chan);
+			mimg = cvCreateImage(cvGetSize(gimg), 8, 1);
+			
+			fprintf(stdout, " Applying local thresholding to image...\n");
+			cvAdaptiveThreshold(gimg, mimg, 255, CV_ADAPTIVE_THRESH_GAUSSIAN_C, CV_THRESH_BINARY, DEFAULT_TMASK, DEFAULT_RMTH);
+
+
+			fprintf(stdout, " Applying spot cleanup based on size...\n");
+			remove_spot_size(mimg, 30, Conn8); // Do a spot cleanup
+			fprintf(stdout, " Applying spot cleanup based on intensity...\n");
+			remove_spot_intensity(mimg, gimg, 500, -50, cur_chan, Conn4);
+			fprintf(stdout, " Applying spot cleanup based on thinness...\n");
+			spot_thin(mimg, 50, 0.5, Conn8);
+			fprintf(stdout, " Applying spot cleanup based on distance...\n");
+			spot_neighbour_dist(mimg, 50, 20, Conn8);
+			spot_neighbour_dist(mimg, 400, 45, Conn8);
 
 			// Save it...
 			fprintf(stdout, "saving to %s ...", dest_file);
-			sres = cvSaveImage(dest_file, sdest, 0);
-			fprintf(stdout, "");
-	
+			sres = cvSaveImage(dest_file, mimg, 0);
+
 			if (sres)
 				fprintf(stdout, "OK!\n\n");
 			else
 				fprintf(stdout, "Not saved!!!\n\n");
 
-			cvReleaseImage(&sdest);
+			cvReleaseImage(&gimg);
+			cvReleaseImage(&mimg);
 
 			break;
 	}
