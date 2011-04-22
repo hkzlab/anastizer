@@ -165,6 +165,7 @@ void prev_mouseHandler(int event, int x, int y, int flags, void *param) {
 void main_mouseHandler(int event, int x, int y, int flags, void *param) {
 	static Uint8 lb_down = 0;
 	static Uint8 rb_down = 0;
+	static Uint8 mb_down = 0;
 	static Sint32 curnode = -1;
 
 	static int oldx, oldy;
@@ -173,23 +174,21 @@ void main_mouseHandler(int event, int x, int y, int flags, void *param) {
 	switch(event) {
 		case CV_EVENT_LBUTTONDOWN:
 		case CV_EVENT_RBUTTONDOWN:
+		case CV_EVENT_MBUTTONDOWN:
 			check_wtrap_point(x, y, &wt[0], &curnode);
 			if (event == CV_EVENT_LBUTTONDOWN) lb_down = 1;
 			else if (event == CV_EVENT_RBUTTONDOWN) rb_down = 1;
+			else if (event == CV_EVENT_MBUTTONDOWN) mb_down = 1;
 			oldx = x;
 			oldy = y;
 			break;
+		case CV_EVENT_MBUTTONUP:
 		case CV_EVENT_RBUTTONUP:
-			rb_down = 0;
-			if (curnode >= 0) { // And in this case we should update a preview window...
-				invt[0] = build_transf_mat(&wt[0], invt[0], oimg, mw_img, prv_img->width, prv_img->height);
-				update_preview_win(prv_img, oimg, invt[0], &wt[0]);
-			}
-
-			curnode = -1;
-			break;
 		case CV_EVENT_LBUTTONUP:
-			lb_down = 0;
+			if (event == CV_EVENT_LBUTTONUP) lb_down = 0;
+			else if (event == CV_EVENT_RBUTTONUP) rb_down = 0;
+			else if (event == CV_EVENT_MBUTTONUP) mb_down = 0;
+		
 			if (curnode >= 0) { // And in this case we should update a preview window...
 				invt[0] = build_transf_mat(&wt[0], invt[0], oimg, mw_img, prv_img->width, prv_img->height);
 				update_preview_win(prv_img, oimg, invt[0], &wt[0]);
@@ -198,7 +197,7 @@ void main_mouseHandler(int event, int x, int y, int flags, void *param) {
 			curnode = -1;
 			break;
 		case CV_EVENT_MOUSEMOVE:
-			if (curnode < 0 || (!lb_down && !rb_down)) break;
+			if (curnode < 0 || (!lb_down && !rb_down && !mb_down)) break;
 
 			xdiff = x - oldx;
 			ydiff = y - oldy;
@@ -285,6 +284,46 @@ void main_mouseHandler(int event, int x, int y, int flags, void *param) {
 					wt[0].d.y += ydiff;
 				}
 
+			} else if (mb_down) {
+				if (wt[0].a.y + ydiff >= 0 && wt[0].a.x + xdiff >= 0 && \
+				wt[0].b.y + ydiff >= 0 && wt[0].b.x + xdiff < ((IplImage*)param)->width && \
+				wt[0].c.y + ydiff < ((IplImage*)param)->height && wt[0].c.x + xdiff < ((IplImage*)param)->width && \
+				wt[0].d.y + ydiff < ((IplImage*)param)->height && wt[0].d.x + xdiff >= 0) {
+					if (curnode == 0) {						
+						wt[0].a.x += xdiff;
+						wt[0].a.y += ydiff;
+
+						wt[0].b.y += ydiff;
+						wt[0].d.x += xdiff;
+
+					} else if (curnode == 1) {
+						wt[0].b.x += xdiff;
+						wt[0].b.y += ydiff;
+
+						wt[0].a.y += ydiff;
+						wt[0].c.x += xdiff;
+
+					} else if (curnode == 2) {
+						wt[0].c.x += xdiff;
+						wt[0].c.y += ydiff;
+
+						wt[0].d.y += ydiff;
+						wt[0].b.x += xdiff;
+
+					} else if (curnode == 3) {
+						wt[0].d.x += xdiff;
+						wt[0].d.y += ydiff;
+
+						wt[0].c.y += ydiff;
+						wt[0].a.x += xdiff;
+					}
+
+					if (wt[0].a.x >= wt[0].b.x - 10) wt[0].a.x = wt[0].b.x - 10;
+					if (wt[0].d.x >= wt[0].c.x - 10) wt[0].d.x = wt[0].c.x - 10;
+					if (wt[0].a.y >= wt[0].d.y - 10) wt[0].a.y = wt[0].d.y - 10;
+					if (wt[0].b.y >= wt[0].c.y - 10) wt[0].b.y = wt[0].c.y - 10;
+
+				}
 			}
 
 			oldx = x;
