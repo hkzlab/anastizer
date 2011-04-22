@@ -137,7 +137,7 @@ void prev_mouseHandler(int event, int x, int y, int flags, void *param) {
 			nheight = mimg->height;
 			recalc_img_size(&nwidth, &nheight, PREV_H);
 			rprev = cvCreateImage(cvSize(nwidth , nheight), mimg->depth, mimg->nChannels); // Create a resized image
-			cvResize(mimg, rprev, CV_INTER_NN); // Resize
+			cvResize(mimg, rprev, CV_INTER_CUBIC); // Resize
 
 			cvShowImage(PREV_WIN, rprev);
 			
