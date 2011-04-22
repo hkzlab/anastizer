@@ -26,7 +26,6 @@ int main(int argc, char *argv[]) {
 	Uint32 nwidth, nheight;
 	IplImage *oimg; // Original image;
 	mw_img; // Main window resized image
-	prv_img = cvCreateImage(cvSize(PREV_W, PREV_H), 8, 1);
 	Uint32 i;
 
 	if (argc < 2) {
@@ -52,6 +51,8 @@ int main(int argc, char *argv[]) {
 	recalc_img_size(&nwidth, &nheight, 800);
 	mw_img = cvCreateImage(cvSize(nwidth , nheight), oimg->depth, oimg->nChannels); // Create a resized image
 	cvResize(oimg, mw_img, CV_INTER_NN); // Resize
+
+	prv_img = cvCloneImage(mw_img);
 
 	// Create main window
 	cvNamedWindow(MAIN_WIN, CV_WINDOW_AUTOSIZE); 
@@ -246,31 +247,7 @@ void update_preview_win(IplImage *pim, IplImage *oim, CvMat* tm, WTrap *wt) {
 	assert(oim);
 	assert(tm);
 
-	Sint32 x, y, z;
-	float ox, oy, oz;
-	Sint32 dx, dy;
-
-	Uint8 *oim_dat = oim->imageData;
-	Uint8 *pim_dat = pim->imageData;
-
-	z = 0;
-	for (y = 0; y < pim->height; y++)
-		for (x = 0; x < pim->width; x++) {
-			ox = cvmGet(tm, 0, 0) * x + cvmGet(tm, 0, 1) * y +  cvmGet(tm, 0, 2) * z;
-			oy = cvmGet(tm, 1, 0) * x + cvmGet(tm, 1, 1) * y +  cvmGet(tm, 1, 2) * z;
-			oz = cvmGet(tm, 2, 0) * x + cvmGet(tm, 2, 1) * y +  cvmGet(tm, 2, 2) * z;
-
-			dx = roundf(ox);
-			dy = roundf(oy);
-			
-			dx += wt->a.x;
-			dy += wt->a.y;
-
-			if (dx >= 0 && dx < oim->width && dy >= 0 && dy < oim->height)
-				pim_dat[(y * pim->widthStep) + (x * pim->nChannels) + 0] = oim_dat[(dy * oim->widthStep) + (dx * oim->nChannels) + 0];
-			else
-				pim_dat[(y * pim->widthStep) + (x * pim->nChannels) + 0] = 0;
-		}
+	cvWarpPerspective(oim, pim, tm, CV_INTER_LINEAR + CV_WARP_FILL_OUTLIERS + CV_WARP_INVERSE_MAP, cvScalarAll(0));
 
 	cvShowImage(PREV_WIN, pim);
 }
