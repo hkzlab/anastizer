@@ -20,10 +20,12 @@ static IplImage *mw_img;
 
 void init_wts(void);
 void main_mouseHandler(int event, int x, int y, int flags, void *param);
+void prev_mouseHandler(int event, int x, int y, int flags, void *param);
 void prv_trk_bgr_handler(int pos);
 
 CvMat *build_transf_mat(WTrap *w, CvMat *mm, IplImage *or, IplImage *pw, Uint32 dwidth, Uint32 dheight);
 void update_preview_win(IplImage *pim, IplImage *oim, CvMat* tm, WTrap *wt);
+IplImage *return_warped_img(IplImage *oim, CvMat *tm, WTrap *wt, Uint32 dwidth, Uint32 dheight);
 
 int main(int argc, char *argv[]) {
 	Uint32 nwidth, nheight;
@@ -70,6 +72,7 @@ int main(int argc, char *argv[]) {
 
 	// Register mouse handler for main window
 	cvSetMouseCallback(MAIN_WIN, main_mouseHandler, (void*)mw_img);
+	cvSetMouseCallback(PREV_WIN, prev_mouseHandler, NULL);
 
 	// wait for a key
   	cvWaitKey(0);
@@ -86,6 +89,24 @@ int main(int argc, char *argv[]) {
 		cvReleaseMat(&invt[i]);
 
 	return 0;
+}
+
+void prev_mouseHandler(int event, int x, int y, int flags, void *param) {
+	IplImage *sdest;
+
+	switch(event) {
+		case CV_EVENT_LBUTTONDBLCLK:
+			invt[0] = build_transf_mat(&wt[0], invt[0], oimg, mw_img, prv_img->width * 4, prv_img->height * 4);
+			sdest = return_warped_img(oimg, invt[0], &wt[0], prv_img->width * 4, prv_img->height * 4);
+
+			// Save it...
+
+			cvReleaseImage(&sdest);
+
+			break;
+	}
+
+	return;
 }
 
 void main_mouseHandler(int event, int x, int y, int flags, void *param) {
@@ -297,6 +318,21 @@ void update_preview_win(IplImage *pim, IplImage *oim, CvMat* tm, WTrap *wt) {
 	cvShowImage(PREV_WIN, mono);
 
 	cvReleaseImage(&mono);
+}
+
+IplImage *return_warped_img(IplImage *oim, CvMat *tm, WTrap *wt, Uint32 dwidth, Uint32 dheight) {
+	assert(oim);
+	assert(tm);
+
+	IplImage *d1 = cvCreateImage(cvSize(dwidth, dheight), oim->depth, oim->nChannels);
+	IplImage *dmono;
+
+	cvWarpPerspective(oim, d1, tm, CV_INTER_CUBIC + CV_WARP_FILL_OUTLIERS + CV_WARP_INVERSE_MAP, cvScalarAll(0));
+	dmono = gray_from_colour(d1, cvGetTrackbarPos(PREV_TRK_BGR, PREV_WIN));
+
+	cvReleaseImage(&d1);
+
+	return dmono;
 }
 
 void prv_trk_bgr_handler(int pos) {
