@@ -16,8 +16,8 @@ static char dest_file[STRSIZE];
 #define TOT_WTS 1
 static WTrap wt[TOT_WTS];
 
-#define PREV_H 512
-#define PREV_W 352
+#define PREV_H 800
+#define PREV_W 550
 CvMat *invt[TOT_WTS];
 
 static IplImage *oimg; // Original image;
@@ -289,7 +289,7 @@ void main_mouseHandler(int event, int x, int y, int flags, void *param) {
 
 			update_wt_win(MAIN_WIN, (IplImage*)param, wt, cvScalar(0, 0, 255, 0));
 			
-#ifndef _SLOW_SYSTEM_
+#if 0
 			invt[0] = build_transf_mat(&wt[0], invt[0], oimg, mw_img, prv_img->width, prv_img->height);
 			update_preview_win(prv_img, oimg, invt[0], &wt[0]);
 #endif
