@@ -12,18 +12,18 @@ static WTrap wt[TOT_WTS];
 
 #define PREV_H 800
 #define PREV_W 300
-float **invt;
+CvMat *invt;
 
 void init_wts(void);
 void main_mouseHandler(int event, int x, int y, int flags, void *param);
-float **build_transf_mat(WTrap *w);
+CvMat *build_transf_mat(WTrap *w, CvMat *mm);
 
 int main(int argc, char *argv[]) {
 	Uint32 nwidth, nheight;
 	IplImage *oimg; // Original image;
 	IplImage *mw_img; // Main window resized image
 
-	invt = NULL;
+	invt = cvCreateMat(3, 3, CV_32FC1);
 
 	if (argc < 2) {
 		fprintf(stdout, "%s [imagefile]\n", argv[0]);
@@ -64,6 +64,8 @@ int main(int argc, char *argv[]) {
 	cvReleaseImage(&oimg); // Release greyscale image
 	cvReleaseImage(&mw_img);  
 
+	cvReleaseMat(&invt);
+
 	return 0;
 }
 
@@ -83,11 +85,9 @@ void main_mouseHandler(int event, int x, int y, int flags, void *param) {
 			break;
 		case CV_EVENT_LBUTTONUP:
 			lb_down = 0;
-			if (curnode >= 0) { // And in this case we should update a preview window...
-				if(invt) free_nr_matrix(invt, 1, 4, 1, 4);
-				invt = build_transf_mat(&wt[0]);
-			}
-
+			if (curnode >= 0) // And in this case we should update a preview window...
+				invt = build_transf_mat(&wt[0], invt);
+			
 			curnode = -1;
 			break;
 		case CV_EVENT_MOUSEMOVE:
@@ -174,10 +174,32 @@ void main_mouseHandler(int event, int x, int y, int flags, void *param) {
 	return;
 }
 
-float **build_transf_mat(WTrap *w) {
+CvMat *build_transf_mat(WTrap *w, CvMat *mm) {
 	// SEE cvWarpPerspectiveQMatrix
 	// here: http://www.comp.leeds.ac.uk/vision/opencv/opencvref_cv.html
-	return NULL;
+
+	CvPoint2D32f src[4];
+	CvPoint2D32f dst[4];
+
+	src[0].x = w->a.x;
+	src[0].y = w->a.y;
+	src[1].x = w->b.x;
+	src[1].y = w->b.y;
+	src[2].x = w->c.x;
+	src[2].y = w->c.y;
+	src[3].x = w->d.x;
+	src[3].y = w->d.y;
+
+	dst[0].x = 0;
+	dst[0].y = 0;
+	dst[1].x = PREV_W;
+	dst[1].y = 0;
+	dst[2].x = PREV_W;
+	dst[2].y = PREV_H;
+	dst[3].x = 0;
+	dst[3].y = PREV_H;
+
+	return cvWarpPerspectiveQMatrix(src, dst, mm);
 }
 
 void init_wts(void) {
