@@ -19,7 +19,7 @@ typedef struct {
 	Uint32 x, y;
 } Point2D;
 
-#define  POINT_SLOT 4096*8
+#define  POINT_SLOT 4096*20
 
 /***/
 
@@ -171,25 +171,20 @@ Uint32 size_spot(Uint32 x, Uint32 y, IplImage *in, enum PConn pc, Uint8 nval, Si
 	Uint8 *in_dat = in->imageData;
 	Uint8 c;
 
-	Uint32 sval = 0;
+	Uint32 sval = 1;
 
 	Point2D *p2d = (Point2D*)malloc(sizeof(Point2D) * POINT_SLOT);
 	Uint32 max_p2d = POINT_SLOT - 1;
 	Uint32 cur_p2d, tot_p2d;
 
 	p2d[0].x = x;
-	p2d[1].y = y;
-
-	cur_p2d = 0;
-	tot_p2d = 1;
+	p2d[0].y = y;
 
 	c = in_dat[(y * in->widthStep) + (x * in->nChannels) + 0];
-	in_dat[(y * in->widthStep) + (x * in->nChannels) + 0] = nval;
 
 	if (c != 0) return 0;
 
-	sval++;
-
+	tot_p2d = 1;
 	Sint32 cur_x, cur_y;
 	for (cur_p2d = 0; cur_p2d < tot_p2d; cur_p2d++) {
 		cur_x = p2d[cur_p2d].x;
@@ -202,6 +197,8 @@ Uint32 size_spot(Uint32 x, Uint32 y, IplImage *in, enum PConn pc, Uint8 nval, Si
 			if (cur_y < *ymin) *ymin = cur_y;
 			else if (cur_y > *ymax) *ymax = cur_y;
 		}
+
+		in_dat[(cur_y * in->widthStep) + (cur_x * in->nChannels) + 0] = nval;
 
 		if (pc == Conn8) {
 			if ((cur_y + 1 < in->height) && (cur_x + 1 < in->width) && (in_dat[((cur_y + 1) * in->widthStep) + ((cur_x + 1) * in->nChannels) + 0] == 0)) {
@@ -237,8 +234,6 @@ Uint32 size_spot(Uint32 x, Uint32 y, IplImage *in, enum PConn pc, Uint8 nval, Si
 			}
 		}
 
-		fprintf(stdout, "merd %u merda %u\n", cur_y, in_dat[((cur_y - 1) * in->widthStep) + (cur_x * in->nChannels) + 0]);
-
 		if ((cur_y > 0) && (in_dat[((cur_y - 1) * in->widthStep) + (cur_x * in->nChannels) + 0] == 0)) {
 				in_dat[((cur_y - 1) * in->widthStep) + (cur_x * in->nChannels) + 0] = nval;
 				p2d[tot_p2d].x = cur_x;
@@ -271,12 +266,9 @@ Uint32 size_spot(Uint32 x, Uint32 y, IplImage *in, enum PConn pc, Uint8 nval, Si
 				sval++;
 		}
 
-		fprintf(stdout, "ciclo! %u\n", tot_p2d);
 	}
 
 	free(p2d);
-
-	fprintf(stdout, "sval %u\n", sval);
 
 	return sval;
 }
