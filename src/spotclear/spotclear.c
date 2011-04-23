@@ -186,10 +186,8 @@ void spot_neighbour_dist(IplImage *in, Uint16 ssize, Uint16 maxdist, enum PConn 
 				dist = maxdist;
 				circle_check(in, xmin, xmax, ymin, ymax, &dist);
 
-				if (dist >= maxdist && cssize <= ssize) {
-					//fprintf(stdout, "SPOT KILLED!!!!!!\n");
+				if (dist >= maxdist && cssize <= ssize)
 					size_spot(j, i, in, pc, 255, NULL, NULL, NULL, NULL);
-				}
 			}
 		}
 
