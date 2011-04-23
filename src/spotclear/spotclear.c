@@ -239,37 +239,34 @@ Uint32 size_spot(Uint32 x, Uint32 y, IplImage *in, enum PConn pc, Uint8 nval, Ui
 
 	////
 
-	if ((int)x > 1 && (int)y > 1 && in_dat[((y - 1) * in->widthStep) + ((x - 1)  * in->nChannels) + 0] == 2) {
-		sval += size_spot(x - 1, y - 1, in, pc, nval, xmin, xmax, ymin, ymax);
+	if ((int)y < in->height - 1) {
+		if ((int)x > 1 && in_dat[((y + 1) * in->widthStep) + ((x - 1)  * in->nChannels) + 0] == 2)
+			sval += size_spot(x - 1, y + 1, in, pc, nval, xmin, xmax, ymin, ymax);
+
+		if (in_dat[((y + 1) * in->widthStep) + (x  * in->nChannels) + 0] == 2)
+			sval += size_spot(x, y + 1, in, pc, nval, xmin, xmax, ymin, ymax);
+
+		if ((int)x < in->width - 1 && in_dat[((y + 1) * in->widthStep) + ((x + 1)  * in->nChannels) + 0] == 2)
+			sval += size_spot(x + 1, y + 1, in, pc, nval, xmin, xmax, ymin, ymax);
+		
 	}
 
-	if ((int)y < in->height - 1 && (int)x < in->width - 1 && in_dat[((y + 1) * in->widthStep) + ((x + 1)  * in->nChannels) + 0] == 2) {
-		sval += size_spot(x + 1, y + 1, in, pc, nval, xmin, xmax, ymin, ymax);
+	if ((int)y > 1) {
+		if ((int)x > 1 && in_dat[((y - 1) * in->widthStep) + ((x - 1)  * in->nChannels) + 0] == 2)
+			sval += size_spot(x - 1, y - 1, in, pc, nval, xmin, xmax, ymin, ymax);
+	
+		if (in_dat[((y - 1) * in->widthStep) + (x  * in->nChannels) + 0] == 2)
+			sval += size_spot(x, y - 1, in, pc, nval, xmin, xmax, ymin, ymax);
+
+		if ((int)x < in->width - 1 && in_dat[((y - 1) * in->widthStep) + ((x + 1)  * in->nChannels) + 0] == 2) 
+			sval += size_spot(x + 1, y - 1, in, pc, nval, xmin, xmax, ymin, ymax);
 	}
 
-	if ((int)y > 1 && (int)x < in->width - 1 && in_dat[((y - 1) * in->widthStep) + ((x + 1)  * in->nChannels) + 0] == 2) {
-		sval += size_spot(x + 1, y - 1, in, pc, nval, xmin, xmax, ymin, ymax);
-	}
+	if ((int)x < in->width - 1 && in_dat[(y  * in->widthStep) + ((x + 1)  * in->nChannels) + 0] == 2)
+		sval += size_spot(x + 1, y, in, pc, nval, xmin, xmax, ymin, ymax);	
 
-	if ((int)x > 1 && (int)y < in->height - 1 && in_dat[((y + 1) * in->widthStep) + ((x - 1)  * in->nChannels) + 0] == 2) {
-		sval += size_spot(x - 1, y + 1, in, pc, nval, xmin, xmax, ymin, ymax);
-	}
-
-	if ((int)y > 1 && in_dat[((y - 1) * in->widthStep) + (x  * in->nChannels) + 0] == 2) {
-		sval += size_spot(x, y - 1, in, pc, nval, xmin, xmax, ymin, ymax);
-	}
-
-	if ((int)y < in->height - 1 && in_dat[((y + 1) * in->widthStep) + (x  * in->nChannels) + 0] == 2) {
-		sval += size_spot(x, y + 1, in, pc, nval, xmin, xmax, ymin, ymax);
-	}
-
-	if ((int)x > 1 && in_dat[(y * in->widthStep) + ((x - 1)  * in->nChannels) + 0] == 2) {
+	if ((int)x > 1 && in_dat[(y * in->widthStep) + ((x - 1)  * in->nChannels) + 0] == 2)
 		sval += size_spot(x - 1, y, in, pc, nval, xmin, xmax, ymin, ymax);
-	}
-
-	if ((int)x < in->width - 1 && in_dat[(y  * in->widthStep) + ((x + 1)  * in->nChannels) + 0] == 2) {
-		sval += size_spot(x + 1, y, in, pc, nval, xmin, xmax, ymin, ymax);
-	}
 
 	return sval;
 }
