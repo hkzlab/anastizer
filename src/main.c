@@ -4,6 +4,8 @@
 #include "warptrap/wtrap.h"
 #include "spotclear/spotclear.h"
 
+#include <sys/resource.h> // For setrlimit
+
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -29,11 +31,28 @@ void main_mouseHandler(int event, int x, int y, int flags, void *param);
 void prev_mouseHandler(int event, int x, int y, int flags, void *param);
 void prv_trk_bgr_handler(int pos);
 
-void update_preview_win(IplImage *pim, IplImage *oim, CvMat* tm, WTrap *wt);
+void update_preview_win(IplImage *pim, IplImage *oim, CvMat *tm, WTrap *wt);
 
 int main(int argc, char *argv[]) {
 	Uint32 nwidth, nheight;
 	Uint32 i;
+
+#if 1
+	// FIXME: Do we really need this much stack memory? better optimize size_spot and intensity_spot...
+	const rlim_t kStackSize = 32L * 1024L * 1024L;   // 32 Mb
+	struct rlimit rl;
+	int setrr;
+
+	if (getrlimit(RLIMIT_STACK, &rl) == 0) {
+		if (rl.rlim_cur < kStackSize) {
+			rl.rlim_cur = kStackSize;
+			setrr = setrlimit(RLIMIT_STACK, &rl);
+			if (setrr != 0) {
+				fprintf(stderr, "setrlimit returned %d\n", setrr);
+			}
+		}
+	}
+#endif
 
 	if (argc < 2) {
 		fprintf(stdout, "%s [imagefile]\n", argv[0]);
@@ -65,8 +84,8 @@ int main(int argc, char *argv[]) {
 	prv_img = cvCreateImage(cvSize(PREV_W, PREV_H), oimg->depth, oimg->nChannels);
 
 	// Create main window
-	cvNamedWindow(MAIN_WIN, CV_WINDOW_AUTOSIZE); 
-	cvNamedWindow(PREV_WIN, CV_WINDOW_AUTOSIZE); 
+	cvNamedWindow(MAIN_WIN, CV_WINDOW_AUTOSIZE);
+	cvNamedWindow(PREV_WIN, CV_WINDOW_AUTOSIZE);
 
 	int trkval = 1;
 	cvCreateTrackbar(PREV_TRK_BGR, PREV_WIN, &trkval, 2, prv_trk_bgr_handler);
@@ -80,11 +99,11 @@ int main(int argc, char *argv[]) {
 	update_wt_win(MAIN_WIN, mw_img, wt, cvScalar(0, 0, 255, 0));
 
 	// Register mouse handler for main window
-	cvSetMouseCallback(MAIN_WIN, main_mouseHandler, (void*)mw_img);
+	cvSetMouseCallback(MAIN_WIN, main_mouseHandler, (void *)mw_img);
 	cvSetMouseCallback(PREV_WIN, prev_mouseHandler, NULL);
 
 	// wait for a key
-  	cvWaitKey(0);
+	cvWaitKey(0);
 
 	// Destroy windows
 	cvDestroyWindow(MAIN_WIN);
@@ -92,8 +111,8 @@ int main(int argc, char *argv[]) {
 //	cvDestroyAllWindows();
 
 	cvReleaseImage(&oimg); // Release greyscale image
-	cvReleaseImage(&mw_img); 
-	cvReleaseImage(&prv_img);  
+	cvReleaseImage(&mw_img);
+	cvReleaseImage(&prv_img);
 
 	for (i = 0; i < TOT_WTS; i++)
 		cvReleaseMat(&invt[i]);
@@ -110,54 +129,54 @@ void prev_mouseHandler(int event, int x, int y, int flags, void *param) {
 	Uint8 cur_chan;
 	Uint32 nwidth, nheight;
 
-	switch(event) {
-		case CV_EVENT_LBUTTONDBLCLK:
-		case CV_EVENT_RBUTTONDBLCLK:
-			cur_chan = cvGetTrackbarPos(PREV_TRK_BGR, PREV_WIN);
-			invt[0] = build_transf_mat(&wt[0], invt[0], oimg, mw_img, prv_img->width * 4, prv_img->height * 4);
-			gimg = return_warped_img(oimg, invt[0], &wt[0], prv_img->width * 4, prv_img->height * 4, cur_chan);
-			mimg = cvCreateImage(cvGetSize(gimg), 8, 1);
-			
-			fprintf(stdout, " Applying local thresholding to image...\n");
-			cvAdaptiveThreshold(gimg, mimg, 255, CV_ADAPTIVE_THRESH_GAUSSIAN_C, CV_THRESH_BINARY, DEFAULT_TMASK, DEFAULT_RMTH);
+	switch (event) {
+	case CV_EVENT_LBUTTONDBLCLK:
+	case CV_EVENT_RBUTTONDBLCLK:
+		cur_chan = cvGetTrackbarPos(PREV_TRK_BGR, PREV_WIN);
+		invt[0] = build_transf_mat(&wt[0], invt[0], oimg, mw_img, prv_img->width * 4, prv_img->height * 4);
+		gimg = return_warped_img(oimg, invt[0], &wt[0], prv_img->width * 4, prv_img->height * 4, cur_chan);
+		mimg = cvCreateImage(cvGetSize(gimg), 8, 1);
+
+		fprintf(stdout, " Applying local thresholding to image...\n");
+		cvAdaptiveThreshold(gimg, mimg, 255, CV_ADAPTIVE_THRESH_GAUSSIAN_C, CV_THRESH_BINARY, DEFAULT_TMASK, DEFAULT_RMTH);
 
 
-			fprintf(stdout, " Applying spot cleanup based on size...\n");
-			remove_spot_size(mimg, 30, Conn8); // Do a spot cleanup
-			fprintf(stdout, " Applying spot cleanup based on intensity...\n");
-			remove_spot_intensity(mimg, gimg, 500, -50, cur_chan, Conn4);
-			fprintf(stdout, " Applying spot cleanup based on thinness...\n");
-			spot_thin(mimg, 50, 0.5, Conn8);
-			fprintf(stdout, " Applying spot cleanup based on distance...\n");
-			spot_neighbour_dist(mimg, 50, 20, Conn8);
-			spot_neighbour_dist(mimg, 400, 45, Conn8);
+		fprintf(stdout, " Applying spot cleanup based on size...\n");
+		remove_spot_size(mimg, 30, Conn8); // Do a spot cleanup
+		fprintf(stdout, " Applying spot cleanup based on intensity...\n");
+		remove_spot_intensity(mimg, gimg, 500, -50, cur_chan, Conn4);
+		fprintf(stdout, " Applying spot cleanup based on thinness...\n");
+		spot_thin(mimg, 50, 0.5, Conn8);
+		fprintf(stdout, " Applying spot cleanup based on distance...\n");
+		spot_neighbour_dist(mimg, 50, 20, Conn8);
+		spot_neighbour_dist(mimg, 400, 45, Conn8);
 
-			// Show it...
-			nwidth = mimg->width;
-			nheight = mimg->height;
-			recalc_img_size(&nwidth, &nheight, PREV_H);
-			rprev = cvCreateImage(cvSize(nwidth , nheight), mimg->depth, mimg->nChannels); // Create a resized image
-			cvResize(mimg, rprev, CV_INTER_CUBIC); // Resize
+		// Show it...
+		nwidth = mimg->width;
+		nheight = mimg->height;
+		recalc_img_size(&nwidth, &nheight, PREV_H);
+		rprev = cvCreateImage(cvSize(nwidth , nheight), mimg->depth, mimg->nChannels); // Create a resized image
+		cvResize(mimg, rprev, CV_INTER_CUBIC); // Resize
 
-			cvShowImage(PREV_WIN, rprev);
-			
-			if (event == CV_EVENT_RBUTTONDBLCLK) { // or Save it...
-				fprintf(stdout, "saving to %s ...", dest_file);
-				sres = cvSaveImage(dest_file, mimg, 0);
+		cvShowImage(PREV_WIN, rprev);
 
-				if (sres)
-					fprintf(stdout, "OK!\n\n");
-				else
-					fprintf(stdout, "Not saved!!!\n");	
-			}
+		if (event == CV_EVENT_RBUTTONDBLCLK) { // or Save it...
+			fprintf(stdout, "saving to %s ...", dest_file);
+			sres = cvSaveImage(dest_file, mimg, 0);
 
-			cvReleaseImage(&gimg);
-			cvReleaseImage(&rprev);
-			cvReleaseImage(&mimg);
+			if (sres)
+				fprintf(stdout, "OK!\n\n");
+			else
+				fprintf(stdout, "Not saved!!!\n");
+		}
 
-			fprintf(stdout, "DONE\n\n");
+		cvReleaseImage(&gimg);
+		cvReleaseImage(&rprev);
+		cvReleaseImage(&mimg);
 
-			break;
+		fprintf(stdout, "DONE\n\n");
+
+		break;
 	}
 
 	return;
@@ -172,190 +191,190 @@ void main_mouseHandler(int event, int x, int y, int flags, void *param) {
 	static int oldx, oldy;
 	int xdiff, ydiff;
 
-	switch(event) {
-		case CV_EVENT_LBUTTONDOWN:
-		case CV_EVENT_RBUTTONDOWN:
-		case CV_EVENT_MBUTTONDOWN:
-			check_wtrap_point(x, y, &wt[0], &curnode);
-			if (event == CV_EVENT_LBUTTONDOWN) lb_down = 1;
-			else if (event == CV_EVENT_RBUTTONDOWN) rb_down = 1;
-			else if (event == CV_EVENT_MBUTTONDOWN) mb_down = 1;
-			oldx = x;
-			oldy = y;
-			break;
-		case CV_EVENT_MBUTTONUP:
-		case CV_EVENT_RBUTTONUP:
-		case CV_EVENT_LBUTTONUP:
-			if (event == CV_EVENT_LBUTTONUP) lb_down = 0;
-			else if (event == CV_EVENT_RBUTTONUP) rb_down = 0;
-			else if (event == CV_EVENT_MBUTTONUP) mb_down = 0;
-		
-			if (curnode >= 0) { // And in this case we should update a preview window...
-				invt[0] = build_transf_mat(&wt[0], invt[0], oimg, mw_img, prv_img->width, prv_img->height);
-				update_preview_win(prv_img, oimg, invt[0], &wt[0]);
-			}
-			
-			curnode = -1;
-			break;
-		case CV_EVENT_MOUSEMOVE:
-			if (curnode < 0 || (!lb_down && !rb_down && !mb_down)) break;
+	switch (event) {
+	case CV_EVENT_LBUTTONDOWN:
+	case CV_EVENT_RBUTTONDOWN:
+	case CV_EVENT_MBUTTONDOWN:
+		check_wtrap_point(x, y, &wt[0], &curnode);
+		if (event == CV_EVENT_LBUTTONDOWN) lb_down = 1;
+		else if (event == CV_EVENT_RBUTTONDOWN) rb_down = 1;
+		else if (event == CV_EVENT_MBUTTONDOWN) mb_down = 1;
+		oldx = x;
+		oldy = y;
+		break;
+	case CV_EVENT_MBUTTONUP:
+	case CV_EVENT_RBUTTONUP:
+	case CV_EVENT_LBUTTONUP:
+		if (event == CV_EVENT_LBUTTONUP) lb_down = 0;
+		else if (event == CV_EVENT_RBUTTONUP) rb_down = 0;
+		else if (event == CV_EVENT_MBUTTONUP) mb_down = 0;
 
-			xdiff = x - oldx;
-			ydiff = y - oldy;
-	
-			if (lb_down) {
+		if (curnode >= 0) { // And in this case we should update a preview window...
+			invt[0] = build_transf_mat(&wt[0], invt[0], oimg, mw_img, prv_img->width, prv_img->height);
+			update_preview_win(prv_img, oimg, invt[0], &wt[0]);
+		}
+
+		curnode = -1;
+		break;
+	case CV_EVENT_MOUSEMOVE:
+		if (curnode < 0 || (!lb_down && !rb_down && !mb_down)) break;
+
+		xdiff = x - oldx;
+		ydiff = y - oldy;
+
+		if (lb_down) {
+			if (curnode == 0) {
+				wt[0].a.x += xdiff;
+				wt[0].a.y += ydiff;
+
+				if (wt[0].a.x > wt[0].b.x - 10)
+					wt[0].a.x = wt[0].b.x - 10;
+
+				if (wt[0].a.x > wt[0].c.x - 10)
+					wt[0].a.x = wt[0].c.x - 10;
+
+				if (wt[0].a.y > wt[0].d.y - 10)
+					wt[0].a.y = wt[0].d.y - 10;
+
+				if (wt[0].a.y > wt[0].c.y - 10)
+					wt[0].a.y = wt[0].c.y - 10;
+
+			} else if (curnode == 1) {
+				wt[0].b.x += xdiff;
+				wt[0].b.y += ydiff;
+
+				if (wt[0].a.x + 10 > wt[0].b.x)
+					wt[0].b.x = wt[0].a.x + 10;
+
+				if (wt[0].d.x + 10 > wt[0].b.x)
+					wt[0].b.x = wt[0].d.x + 10;
+
+				if (wt[0].b.y > wt[0].c.y - 10)
+					wt[0].b.y = wt[0].c.y - 10;
+
+				if (wt[0].b.y > wt[0].d.y - 10)
+					wt[0].b.y = wt[0].d.y - 10;
+
+			} else if (curnode == 2) {
+				wt[0].c.x += xdiff;
+				wt[0].c.y += ydiff;
+
+				if (wt[0].d.x + 10 > wt[0].c.x)
+					wt[0].c.x = wt[0].d.x + 10;
+
+				if (wt[0].a.x + 10 > wt[0].c.x)
+					wt[0].c.x = wt[0].a.x + 10;
+
+				if (wt[0].b.y + 10 > wt[0].c.y)
+					wt[0].c.y = wt[0].b.y + 10;
+
+				if (wt[0].a.y + 10 > wt[0].c.y)
+					wt[0].c.y = wt[0].a.y + 10;
+
+			} else if (curnode == 3) {
+				wt[0].d.x += xdiff;
+				wt[0].d.y += ydiff;
+
+				if (wt[0].d.x > wt[0].c.x - 10)
+					wt[0].d.x = wt[0].c.x - 10;
+
+				if (wt[0].d.x > wt[0].b.x - 10)
+					wt[0].d.x = wt[0].b.x - 10;
+
+				if (wt[0].a.y + 10 > wt[0].d.y)
+					wt[0].d.y = wt[0].a.y + 10;
+
+				if (wt[0].b.y + 10 > wt[0].d.y)
+					wt[0].d.y = wt[0].b.y + 10;
+			}
+		} else if (rb_down) {
+			if (wt[0].a.y + ydiff >= 0 && wt[0].a.x + xdiff >= 0 && \
+			        wt[0].b.y + ydiff >= 0 && wt[0].b.x + xdiff < ((IplImage *)param)->width && \
+			        wt[0].c.y + ydiff < ((IplImage *)param)->height && wt[0].c.x + xdiff < ((IplImage *)param)->width && \
+			        wt[0].d.y + ydiff < ((IplImage *)param)->height && wt[0].d.x + xdiff >= 0) {
+
+				wt[0].a.x += xdiff;
+				wt[0].b.x += xdiff;
+				wt[0].c.x += xdiff;
+				wt[0].d.x += xdiff;
+
+				wt[0].a.y += ydiff;
+				wt[0].b.y += ydiff;
+				wt[0].c.y += ydiff;
+				wt[0].d.y += ydiff;
+			}
+
+		} else if (mb_down) {
+			if (wt[0].a.y + ydiff >= 0 && wt[0].a.x + xdiff >= 0 && \
+			        wt[0].b.y + ydiff >= 0 && wt[0].b.x + xdiff < ((IplImage *)param)->width && \
+			        wt[0].c.y + ydiff < ((IplImage *)param)->height && wt[0].c.x + xdiff < ((IplImage *)param)->width && \
+			        wt[0].d.y + ydiff < ((IplImage *)param)->height && wt[0].d.x + xdiff >= 0) {
 				if (curnode == 0) {
 					wt[0].a.x += xdiff;
 					wt[0].a.y += ydiff;
-	
-					if(wt[0].a.x > wt[0].b.x - 10)
-						wt[0].a.x = wt[0].b.x - 10;
 
-					if(wt[0].a.x > wt[0].c.x - 10)
-						wt[0].a.x = wt[0].c.x - 10;
+					wt[0].b.y += ydiff;
+					wt[0].d.x += xdiff;
 
-					if(wt[0].a.y > wt[0].d.y - 10)
-						wt[0].a.y = wt[0].d.y - 10;
-
-					if(wt[0].a.y > wt[0].c.y - 10)
-						wt[0].a.y = wt[0].c.y - 10;
+					if (wt[0].a.x >= wt[0].b.x - 10) wt[0].a.x = wt[0].b.x - 10;
+					if (wt[0].d.x >= wt[0].c.x - 10) wt[0].d.x = wt[0].c.x - 10;
+					if (wt[0].a.y >= wt[0].d.y - 10) wt[0].a.y = wt[0].d.y - 10;
+					if (wt[0].b.y >= wt[0].c.y - 10) wt[0].b.y = wt[0].c.y - 10;
 
 				} else if (curnode == 1) {
 					wt[0].b.x += xdiff;
 					wt[0].b.y += ydiff;
 
-					if(wt[0].a.x + 10 > wt[0].b.x)
-						wt[0].b.x = wt[0].a.x + 10;
+					wt[0].a.y += ydiff;
+					wt[0].c.x += xdiff;
 
-					if(wt[0].d.x + 10 > wt[0].b.x)
-						wt[0].b.x = wt[0].d.x + 10;
-				
-					if(wt[0].b.y > wt[0].c.y - 10)
-						wt[0].b.y = wt[0].c.y - 10;
-
-					if(wt[0].b.y > wt[0].d.y - 10)
-						wt[0].b.y = wt[0].d.y - 10;
+					if (wt[0].a.x >= wt[0].b.x - 10) wt[0].b.x = wt[0].a.x + 10;
+					if (wt[0].d.x >= wt[0].c.x - 10) wt[0].c.x = wt[0].d.x + 10;
+					if (wt[0].a.y >= wt[0].d.y - 10) wt[0].a.y = wt[0].d.y - 10;
+					if (wt[0].b.y >= wt[0].c.y - 10) wt[0].b.y = wt[0].c.y - 10;
 
 				} else if (curnode == 2) {
 					wt[0].c.x += xdiff;
 					wt[0].c.y += ydiff;
 
-					if(wt[0].d.x + 10 > wt[0].c.x)
-						wt[0].c.x = wt[0].d.x + 10;
+					wt[0].d.y += ydiff;
+					wt[0].b.x += xdiff;
 
-					if(wt[0].a.x + 10 > wt[0].c.x)
-						wt[0].c.x = wt[0].a.x + 10;
-
-					if(wt[0].b.y + 10 > wt[0].c.y)
-						wt[0].c.y = wt[0].b.y + 10;
-
-					if(wt[0].a.y + 10 > wt[0].c.y)
-						wt[0].c.y = wt[0].a.y + 10;
+					if (wt[0].a.x >= wt[0].b.x - 10) wt[0].b.x = wt[0].a.x + 10;
+					if (wt[0].d.x >= wt[0].c.x - 10) wt[0].c.x = wt[0].d.x + 10;
+					if (wt[0].a.y >= wt[0].d.y - 10) wt[0].d.y = wt[0].a.y + 10;
+					if (wt[0].b.y >= wt[0].c.y - 10) wt[0].c.y = wt[0].b.y + 10;
 
 				} else if (curnode == 3) {
 					wt[0].d.x += xdiff;
 					wt[0].d.y += ydiff;
 
-					if(wt[0].d.x > wt[0].c.x - 10)
-						wt[0].d.x = wt[0].c.x - 10;
-
-					if(wt[0].d.x > wt[0].b.x - 10)
-						wt[0].d.x = wt[0].b.x - 10;
-
-					if(wt[0].a.y + 10 > wt[0].d.y)
-						wt[0].d.y = wt[0].a.y + 10;
-
-					if(wt[0].b.y + 10 > wt[0].d.y)
-						wt[0].d.y = wt[0].b.y + 10;
-				}
-			} else if (rb_down) {
-				if (wt[0].a.y + ydiff >= 0 && wt[0].a.x + xdiff >= 0 && \
-				wt[0].b.y + ydiff >= 0 && wt[0].b.x + xdiff < ((IplImage*)param)->width && \
-				wt[0].c.y + ydiff < ((IplImage*)param)->height && wt[0].c.x + xdiff < ((IplImage*)param)->width && \
-				wt[0].d.y + ydiff < ((IplImage*)param)->height && wt[0].d.x + xdiff >= 0) {
-					
-					wt[0].a.x += xdiff;
-					wt[0].b.x += xdiff;
-					wt[0].c.x += xdiff;
-					wt[0].d.x += xdiff;
-
-					wt[0].a.y += ydiff;
-					wt[0].b.y += ydiff;
 					wt[0].c.y += ydiff;
-					wt[0].d.y += ydiff;
-				}
+					wt[0].a.x += xdiff;
 
-			} else if (mb_down) {
-				if (wt[0].a.y + ydiff >= 0 && wt[0].a.x + xdiff >= 0 && \
-				wt[0].b.y + ydiff >= 0 && wt[0].b.x + xdiff < ((IplImage*)param)->width && \
-				wt[0].c.y + ydiff < ((IplImage*)param)->height && wt[0].c.x + xdiff < ((IplImage*)param)->width && \
-				wt[0].d.y + ydiff < ((IplImage*)param)->height && wt[0].d.x + xdiff >= 0) {
-					if (curnode == 0) {						
-						wt[0].a.x += xdiff;
-						wt[0].a.y += ydiff;
-
-						wt[0].b.y += ydiff;
-						wt[0].d.x += xdiff;
-
-						if (wt[0].a.x >= wt[0].b.x - 10) wt[0].a.x = wt[0].b.x - 10;
-						if (wt[0].d.x >= wt[0].c.x - 10) wt[0].d.x = wt[0].c.x - 10;
-						if (wt[0].a.y >= wt[0].d.y - 10) wt[0].a.y = wt[0].d.y - 10;
-						if (wt[0].b.y >= wt[0].c.y - 10) wt[0].b.y = wt[0].c.y - 10;
-
-					} else if (curnode == 1) {
-						wt[0].b.x += xdiff;
-						wt[0].b.y += ydiff;
-
-						wt[0].a.y += ydiff;
-						wt[0].c.x += xdiff;
-
-						if (wt[0].a.x >= wt[0].b.x - 10) wt[0].b.x = wt[0].a.x + 10;
-						if (wt[0].d.x >= wt[0].c.x - 10) wt[0].c.x = wt[0].d.x + 10;
-						if (wt[0].a.y >= wt[0].d.y - 10) wt[0].a.y = wt[0].d.y - 10;
-						if (wt[0].b.y >= wt[0].c.y - 10) wt[0].b.y = wt[0].c.y - 10;
-
-					} else if (curnode == 2) {
-						wt[0].c.x += xdiff;
-						wt[0].c.y += ydiff;
-
-						wt[0].d.y += ydiff;
-						wt[0].b.x += xdiff;
-
-						if (wt[0].a.x >= wt[0].b.x - 10) wt[0].b.x = wt[0].a.x + 10;
-						if (wt[0].d.x >= wt[0].c.x - 10) wt[0].c.x = wt[0].d.x + 10;
-						if (wt[0].a.y >= wt[0].d.y - 10) wt[0].d.y = wt[0].a.y + 10;
-						if (wt[0].b.y >= wt[0].c.y - 10) wt[0].c.y = wt[0].b.y + 10;
-
-					} else if (curnode == 3) {
-						wt[0].d.x += xdiff;
-						wt[0].d.y += ydiff;
-
-						wt[0].c.y += ydiff;
-						wt[0].a.x += xdiff;
-
-						if (wt[0].a.x >= wt[0].b.x - 10) wt[0].a.x = wt[0].b.x - 10;
-						if (wt[0].d.x >= wt[0].c.x - 10) wt[0].d.x = wt[0].c.x - 10;
-						if (wt[0].a.y >= wt[0].d.y - 10) wt[0].d.y = wt[0].a.y + 10;
-						if (wt[0].b.y >= wt[0].c.y - 10) wt[0].c.y = wt[0].b.y + 10;
-
-					}
+					if (wt[0].a.x >= wt[0].b.x - 10) wt[0].a.x = wt[0].b.x - 10;
+					if (wt[0].d.x >= wt[0].c.x - 10) wt[0].d.x = wt[0].c.x - 10;
+					if (wt[0].a.y >= wt[0].d.y - 10) wt[0].d.y = wt[0].a.y + 10;
+					if (wt[0].b.y >= wt[0].c.y - 10) wt[0].c.y = wt[0].b.y + 10;
 
 				}
+
 			}
+		}
 
-			oldx = x;
-			oldy = y;
+		oldx = x;
+		oldy = y;
 
-			update_wt_win(MAIN_WIN, (IplImage*)param, wt, cvScalar(0, 0, 255, 0));
-			
+		update_wt_win(MAIN_WIN, (IplImage *)param, wt, cvScalar(0, 0, 255, 0));
+
 #if 0
-			invt[0] = build_transf_mat(&wt[0], invt[0], oimg, mw_img, prv_img->width, prv_img->height);
-			update_preview_win(prv_img, oimg, invt[0], &wt[0]);
+		invt[0] = build_transf_mat(&wt[0], invt[0], oimg, mw_img, prv_img->width, prv_img->height);
+		update_preview_win(prv_img, oimg, invt[0], &wt[0]);
 #endif
 
-			break;
-		default:
-			break;
+		break;
+	default:
+		break;
 	}
 
 	return;
@@ -382,7 +401,7 @@ void init_wts(void) {
 	}
 }
 
-void update_preview_win(IplImage *pim, IplImage *oim, CvMat* tm, WTrap *wt) {
+void update_preview_win(IplImage *pim, IplImage *oim, CvMat *tm, WTrap *wt) {
 	assert(pim);
 	assert(oim);
 	assert(tm);
