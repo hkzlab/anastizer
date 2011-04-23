@@ -4,15 +4,13 @@
 #include <stdio.h>
 #include <math.h>
 
-#define MAX_SPOT_SIZE 256
-
 /* x, y -> start coords for spot measuring
  * in -> image where spot is measured
  * pc -> kind of connection between pixels (4 or 8 edge connection)
  * nval -> this value is substituted to original pixel values in spot, must be different to 0
  * xmin, xmax, ymin, ymax -> pointers to Uint32s, will be set to corners of a rectangle containing the spot
  */ 
-Sint32 size_spot(Uint32 x, Uint32 y, IplImage *in, enum PConn pc, Uint8 nval, Uint32 *xmin, Uint32 *xmax, Uint32 *ymin, Uint32 *ymax, Uint32 max_size);
+Uint32 size_spot(Uint32 x, Uint32 y, IplImage *in, enum PConn pc, Uint8 nval, Uint32 *xmin, Uint32 *xmax, Uint32 *ymin, Uint32 *ymax);
 
 Uint32 intensity_spot(Uint32 x, Uint32 y, IplImage *in, IplImage *inc, enum PConn pc, Uint8 chan); // Returns the SUM of all intensities in the spot! not the MEDIUM intensity!
 void circle_check(IplImage *in, Sint32 xmin, Sint32 xmax, Sint32 ymin, Sint32 ymax, Uint32 *dist);
@@ -24,7 +22,8 @@ void spot_thin(IplImage *in, Uint16 ssize, float edge_mult, enum PConn pc) {
 
 	Sint32 xmin, xmax, ymin, ymax, xsize, ysize;
 
-	Sint32 i, j, cssize;
+	Sint32 i, j;
+	Uint32 cssize;
 	Uint8 *in_dat = in->imageData;
 	Uint8 *cin_dat = cin->imageData;
 
@@ -36,7 +35,7 @@ void spot_thin(IplImage *in, Uint16 ssize, float edge_mult, enum PConn pc) {
 				ymin = ymax = i;
 				xmin = xmax = j;
 
-				cssize = size_spot(j, i, cin, pc, 1, &xmin, &xmax, &ymin, &ymax, MAX_SPOT_SIZE);
+				cssize = size_spot(j, i, cin, pc, 1, &xmin, &xmax, &ymin, &ymax);
 				xsize = (xmax - xmin) + 1;
 				ysize = (ymax - ymin) + 1;
 
@@ -44,7 +43,7 @@ void spot_thin(IplImage *in, Uint16 ssize, float edge_mult, enum PConn pc) {
 				sside = MIN(xsize, ysize);
 
 				if (cssize <= ssize && lside * edge_mult > sside) {
-					size_spot(j, i, in, pc, 255, NULL, NULL, NULL, NULL, MAX_SPOT_SIZE);
+					size_spot(j, i, in, pc, 255, NULL, NULL, NULL, NULL);
 				}
 			}
 		}
@@ -103,12 +102,12 @@ Uint32 intensity_spot(Uint32 x, Uint32 y, IplImage *in, IplImage *inc, enum PCon
 }
 
 
-Sint32 size_spot(Uint32 x, Uint32 y, IplImage *in, enum PConn pc, Uint8 nval, Uint32 *xmin, Uint32 *xmax, Uint32 *ymin, Uint32 *ymax, Uint32 max_size) {
+Uint32 size_spot(Uint32 x, Uint32 y, IplImage *in, enum PConn pc, Uint8 nval, Uint32 *xmin, Uint32 *xmax, Uint32 *ymin, Uint32 *ymax) {
 	assert(nval != 0);
 	Uint8 *in_dat = in->imageData;
 	Uint8 c;
 
-	Sint32 sval = 0;
+	Uint32 sval = 0;
 
 	c = in_dat[(y * in->widthStep) + (x * in->nChannels) + 0];
 
@@ -128,34 +127,34 @@ Sint32 size_spot(Uint32 x, Uint32 y, IplImage *in, enum PConn pc, Uint8 nval, Ui
 
 	if ((int)y < in->height - 1) {
 		if ((int)x < in->width - 1 && pc == Conn8) {
-			sval += size_spot(x + 1, y + 1, in, pc, nval, xmin, xmax, ymin, ymax, max_size);
+			sval += size_spot(x + 1, y + 1, in, pc, nval, xmin, xmax, ymin, ymax);
 		}
 
 		if ((int)x > 1 && pc == Conn8) {
-			sval += size_spot(x - 1, y + 1, in, pc, nval, xmin, xmax, ymin, ymax, max_size);
+			sval += size_spot(x - 1, y + 1, in, pc, nval, xmin, xmax, ymin, ymax);
 		}	
 
-		sval += size_spot(x, y + 1, in, pc, nval, xmin, xmax, ymin, ymax, max_size);
+		sval += size_spot(x, y + 1, in, pc, nval, xmin, xmax, ymin, ymax);
 	}
 
 	if ((int)y > 1) {
 		if ((int)x < in->width - 1 && pc == Conn8) {
-			sval += size_spot(x + 1, y - 1, in, pc, nval, xmin, xmax, ymin, ymax, max_size);
+			sval += size_spot(x + 1, y - 1, in, pc, nval, xmin, xmax, ymin, ymax);
 		}
 
 		if ((int)x > 1 && pc == Conn8) {
-			sval += size_spot(x - 1, y - 1, in, pc, nval, xmin, xmax, ymin, ymax, max_size);
+			sval += size_spot(x - 1, y - 1, in, pc, nval, xmin, xmax, ymin, ymax);
 		}
 
-		sval += size_spot(x, y - 1, in, pc, nval, xmin, xmax, ymin, ymax, max_size);
+		sval += size_spot(x, y - 1, in, pc, nval, xmin, xmax, ymin, ymax);
 	}
 
 	if ((int)x < in->width - 1) {
-		sval += size_spot(x + 1, y, in, pc, nval, xmin, xmax, ymin, ymax, max_size);
+		sval += size_spot(x + 1, y, in, pc, nval, xmin, xmax, ymin, ymax);
 	}
 
 	if ((int)x > 1) {
-		sval += size_spot(x - 1, y, in, pc, nval, xmin, xmax, ymin, ymax, max_size);
+		sval += size_spot(x - 1, y, in, pc, nval, xmin, xmax, ymin, ymax);
 	}
 
 	return sval;
@@ -166,7 +165,8 @@ void spot_neighbour_dist(IplImage *in, Uint16 ssize, Uint16 maxdist, enum PConn 
 
 	Sint32 xmin, xmax, ymin, ymax, xscenter, yscenter;
 
-	Sint32 i, j, cssize;
+	Sint32 i, j;
+	Uint32 cssize;
 	Uint8 *in_dat = in->imageData;
 	Uint8 *cin_dat = cin->imageData;
 
@@ -178,7 +178,7 @@ void spot_neighbour_dist(IplImage *in, Uint16 ssize, Uint16 maxdist, enum PConn 
 				ymin = ymax = i;
 				xmin = xmax = j;
 
-				cssize = size_spot(j, i, cin, pc, 1, &xmin, &xmax, &ymin, &ymax, MAX_SPOT_SIZE);
+				cssize = size_spot(j, i, cin, pc, 1, &xmin, &xmax, &ymin, &ymax);
 				xscenter = xmax - (xmax-xmin)/2;
 				yscenter = ymax - (ymax-ymin)/2;
 				//fprintf(stdout, " This spot size is %ux%u, centered in %ux%u\n", (xmax - xmin) + 1, (ymax - ymin) + 1, xscenter, yscenter);
@@ -188,7 +188,7 @@ void spot_neighbour_dist(IplImage *in, Uint16 ssize, Uint16 maxdist, enum PConn 
 
 				if (dist >= maxdist && cssize <= ssize) {
 					//fprintf(stdout, "SPOT KILLED!!!!!!\n");
-					size_spot(j, i, in, pc, 255, NULL, NULL, NULL, NULL, MAX_SPOT_SIZE);
+					size_spot(j, i, in, pc, 255, NULL, NULL, NULL, NULL);
 				}
 			}
 		}
@@ -201,7 +201,8 @@ void remove_spot_size(IplImage *in, Uint16 ssize, enum PConn pc) {
 
 	Uint32 xmin, xmax, ymin, ymax;
 
-	Sint32 i, j, cssize;
+	Sint32 i, j;
+	Uint32 cssize;
 	Uint8 *in_dat = in->imageData;
 	Uint8 *cin_dat = cin->imageData;
 	for (i = 0; i < cin->height; i++)
@@ -210,12 +211,12 @@ void remove_spot_size(IplImage *in, Uint16 ssize, enum PConn pc) {
 				ymin = ymax = i;
 				xmin = xmax = j;
 
-				cssize = size_spot(j, i, cin, pc, 1, &xmin, &xmax, &ymin, &ymax, MAX_SPOT_SIZE);
+				cssize = size_spot(j, i, cin, pc, 1, &xmin, &xmax, &ymin, &ymax);
 
 				//fprintf(stdout, " This spot size is %ux%u\n", (xmax - xmin) + 1, (ymax - ymin) + 1);
 
 				if(cssize > 0 && cssize <= ssize) {
-					size_spot(j, i, in, pc, 255, NULL, NULL, NULL, NULL, MAX_SPOT_SIZE);
+					size_spot(j, i, in, pc, 255, NULL, NULL, NULL, NULL);
 				}
 			}
 		}
@@ -232,11 +233,12 @@ void remove_spot_intensity(IplImage *in, IplImage *gin, Uint16 ssize, Sint16 inc
 	IplImage *cin = cvCloneImage(in);
 	IplImage *cin2 = cvCloneImage(in);
 
-	Sint32 i, j, cssize;
+	Sint32 i, j;
+	Uint32 cssize;
 	for (i = 0; i < cin->height; i++)
 		for (j = 0; j < cin->width; j++) {
 			if (cin->imageData[(i * cin->widthStep) + (j * cin->nChannels) + 0] == 0) {
-				cssize = size_spot(j, i, cin, pc, 1, NULL, NULL, NULL, NULL, MAX_SPOT_SIZE);
+				cssize = size_spot(j, i, cin, pc, 1, NULL, NULL, NULL, NULL);
 
 				if(cssize > 0) {
 					tot_spots++;
@@ -257,13 +259,13 @@ void remove_spot_intensity(IplImage *in, IplImage *gin, Uint16 ssize, Sint16 inc
 	for (i = 0; i < cin->height; i++)
 		for (j = 0; j < cin->width; j++) {
 			if (cin->imageData[(i * cin->widthStep) + (j * cin->nChannels) + 0] == 0) {
-				cssize = size_spot(j, i, cin, pc, 1, NULL, NULL, NULL, NULL, MAX_SPOT_SIZE);
+				cssize = size_spot(j, i, cin, pc, 1, NULL, NULL, NULL, NULL);
 
 				if(cssize > 0 && cssize <= ssize) {
 					cur_spot_int = intensity_spot(j, i, cin2, gin, pc, chan) / cssize;
 
 					if (cur_spot_int + inc >= medium_spot)
-						size_spot(j, i, in, pc, 255, NULL, NULL, NULL, NULL, MAX_SPOT_SIZE);
+						size_spot(j, i, in, pc, 255, NULL, NULL, NULL, NULL);
 				}
 			}
 		}
