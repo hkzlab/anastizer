@@ -107,65 +107,6 @@ Uint32 intensity_spot(Uint32 x, Uint32 y, IplImage *in, IplImage *inc, enum PCon
     return sval;
 }
 
-#if 0
-Uint32 size_spot(Uint32 x, Uint32 y, IplImage *in, enum PConn pc, Uint8 nval, Sint32 *xmin, Sint32 *xmax, Sint32 *ymin, Sint32 *ymax) {
-    assert(nval != 0);
-    Uint8 *in_dat = in->imageData;
-    Uint8 c;
-
-    Uint32 sval = 0;
-
-    c = in_dat[(y * in->widthStep) + (x * in->nChannels) + 0];
-
-    if (c != 0) return 0;
-
-    if (!(xmin == NULL || xmax == NULL || ymin == NULL || ymax == NULL)) {
-        if ((int)x < *xmin) *xmin = x;
-        else if ((int)x > *xmax) *xmax = x;
-
-        if ((int)y < *ymin) *ymin = y;
-        else if ((int)y > *ymax) *ymax = y;
-    }
-
-    sval = 1;
-
-    in_dat[(y * in->widthStep) + (x * in->nChannels) + 0] = nval; // Mark this as passed
-
-    if ((int)y < in->height - 1) {
-        if ((int)x < in->width - 1 && pc == Conn8) {
-            sval += size_spot(x + 1, y + 1, in, pc, nval, xmin, xmax, ymin, ymax);
-        }
-
-        if ((int)x > 0 && pc == Conn8) {
-            sval += size_spot(x - 1, y + 1, in, pc, nval, xmin, xmax, ymin, ymax);
-        }
-
-        sval += size_spot(x, y + 1, in, pc, nval, xmin, xmax, ymin, ymax);
-    }
-
-    if ((int)y > 0) {
-        if ((int)x < in->width - 1 && pc == Conn8) {
-            sval += size_spot(x + 1, y - 1, in, pc, nval, xmin, xmax, ymin, ymax);
-        }
-
-        if ((int)x > 0 && pc == Conn8) {
-            sval += size_spot(x - 1, y - 1, in, pc, nval, xmin, xmax, ymin, ymax);
-        }
-
-        sval += size_spot(x, y - 1, in, pc, nval, xmin, xmax, ymin, ymax);
-    }
-
-    if ((int)x < in->width - 1) {
-        sval += size_spot(x + 1, y, in, pc, nval, xmin, xmax, ymin, ymax);
-    }
-
-    if ((int)x > 0) {
-        sval += size_spot(x - 1, y, in, pc, nval, xmin, xmax, ymin, ymax);
-    }
-
-    return sval;
-}
-#else
 Uint32 size_spot(Uint32 x, Uint32 y, IplImage *in, enum PConn pc, Uint8 nval, Sint32 *xmin, Sint32 *xmax, Sint32 *ymin, Sint32 *ymax) {
 	assert(nval != 0);
     Uint8 *in_dat = in->imageData;
@@ -302,8 +243,6 @@ Uint32 size_spot(Uint32 x, Uint32 y, IplImage *in, enum PConn pc, Uint8 nval, Si
 
     return tot_p2d;
 }
-
-#endif
 
 void spot_neighbour_dist(IplImage *in, Uint16 ssize, Uint16 maxdist, enum PConn pc) {
     IplImage *cin = cvCloneImage(in);
