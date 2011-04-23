@@ -18,8 +18,8 @@ static char dest_file[STRSIZE];
 #define TOT_WTS 1
 static WTrap wt[TOT_WTS];
 
-#define PREV_H 400
-#define PREV_W 275
+#define PREV_H 512
+#define PREV_W 351
 CvMat *invt[TOT_WTS];
 
 static IplImage *oimg; // Original image;
@@ -133,8 +133,8 @@ void prev_mouseHandler(int event, int x, int y, int flags, void *param) {
 	case CV_EVENT_LBUTTONDBLCLK:
 	case CV_EVENT_RBUTTONDBLCLK:
 		cur_chan = cvGetTrackbarPos(PREV_TRK_BGR, PREV_WIN);
-		invt[0] = build_transf_mat(&wt[0], invt[0], oimg, mw_img, prv_img->width * 8, prv_img->height * 8);
-		gimg = return_warped_img(oimg, invt[0], &wt[0], prv_img->width * 8, prv_img->height * 8, cur_chan);
+		invt[0] = build_transf_mat(&wt[0], invt[0], oimg, mw_img, prv_img->width * 4, prv_img->height * 4);
+		gimg = return_warped_img(oimg, invt[0], &wt[0], prv_img->width * 4, prv_img->height * 4, cur_chan);
 		mimg = cvCreateImage(cvGetSize(gimg), 8, 1);
 
 		fprintf(stdout, " Applying local thresholding to image...\n");
@@ -161,7 +161,7 @@ void prev_mouseHandler(int event, int x, int y, int flags, void *param) {
 		cvShowImage(PREV_WIN, rprev);
 
 		if (event == CV_EVENT_RBUTTONDBLCLK) { // or Save it...
-			fprintf(stdout, "saving to %s ...", dest_file);
+			fprintf(stdout, "saving [%ux%u] image to %s ...", mimg->width, mimg->height, dest_file);
 			sres = cvSaveImage(dest_file, mimg, 0);
 
 			if (sres)
