@@ -57,57 +57,6 @@ void spot_thin(IplImage *in, Uint16 ssize, float edge_mult, enum PConn pc) {
     cvReleaseImage(&cin);
 }
 
-#if 0
-Uint32 intensity_spot(Uint32 x, Uint32 y, IplImage *in, IplImage *inc, enum PConn pc, Uint8 chan) {
-    Uint8 *in_dat = in->imageData;
-    Uint8 *inc_dat = inc->imageData;
-    Uint8 c;
-
-    Uint32 sval = 0;
-
-    c = in_dat[(y * in->widthStep) + (x * in->nChannels) + 0];
-
-    if (c != 0) return 0;
-
-    sval = inc_dat[(y * inc->widthStep) + (x * inc->nChannels) + chan];
-
-    in_dat[(y * in->widthStep) + (x * in->nChannels) + 0] = 1; // Mark this as passed
-
-    if ((int)y < in->height - 1) {
-        if ((int)x < in->width - 1 && pc == Conn8) {
-            sval += intensity_spot(x + 1, y + 1, in, inc, pc, chan);
-        }
-
-        if ((int)x > 1 && pc == Conn8) {
-            sval += intensity_spot(x - 1, y + 1, in, inc, pc, chan);
-        }
-
-        sval += intensity_spot(x, y + 1, in, inc, pc, chan);
-    }
-
-    if ((int)y > 1) {
-        if ((int)x < in->width - 1 && pc == Conn8) {
-            sval += intensity_spot(x + 1, y - 1, in, inc, pc, chan);
-        }
-
-        if ((int)x > 1 && pc == Conn8) {
-            sval += intensity_spot(x - 1, y - 1, in, inc, pc, chan);
-        }
-
-        sval += intensity_spot(x, y - 1, in, inc, pc, chan);
-    }
-
-    if ((int)x < in->width - 1) {
-        sval += intensity_spot(x + 1, y, in, inc, pc, chan);
-    }
-
-    if ((int)x > 1) {
-        sval += intensity_spot(x - 1, y, in, inc, pc, chan);
-    }
-
-    return sval;
-}
-#else
 Uint32 intensity_spot(Uint32 x, Uint32 y, IplImage *in, IplImage *inc, enum PConn pc, Uint8 chan) {
     Uint8 *in_dat = in->imageData;
 	Uint8 *inc_dat = inc->imageData;
@@ -248,7 +197,6 @@ Uint32 intensity_spot(Uint32 x, Uint32 y, IplImage *in, IplImage *inc, enum PCon
 
     return intval;
 }
-#endif
 
 Uint32 size_spot(Uint32 x, Uint32 y, IplImage *in, enum PConn pc, Uint8 nval, Sint32 *xmin, Sint32 *xmax, Sint32 *ymin, Sint32 *ymax) {
 	assert(nval != 0);

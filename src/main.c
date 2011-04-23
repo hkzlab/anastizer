@@ -4,8 +4,6 @@
 #include "warptrap/wtrap.h"
 #include "spotclear/spotclear.h"
 
-#include <sys/resource.h> // For setrlimit
-
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -36,23 +34,6 @@ void update_preview_win(IplImage *pim, IplImage *oim, CvMat *tm, WTrap *wt);
 int main(int argc, char *argv[]) {
 	Uint32 nwidth, nheight;
 	Uint32 i;
-
-#if 0
-	// FIXME: Do we really need this much stack memory? better optimize size_spot and intensity_spot...
-	const rlim_t kStackSize = 64L * 1024L * 1024L;   // 64 Mb
-	struct rlimit rl;
-	int setrr;
-
-	if (getrlimit(RLIMIT_STACK, &rl) == 0) {
-		if (rl.rlim_cur < kStackSize) {
-			rl.rlim_cur = kStackSize;
-			setrr = setrlimit(RLIMIT_STACK, &rl);
-			if (setrr != 0) {
-				fprintf(stderr, "WARNING! setrlimit returned an error, unable to allocate %u stack memory!!!\n", (Uint32)kStackSize);
-			}
-		}
-	}
-#endif
 
 	if (argc < 2) {
 		fprintf(stdout, "%s [imagefile]\n", argv[0]);
