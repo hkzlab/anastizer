@@ -101,7 +101,7 @@ Uint32 intensity_spot(Uint32 x, Uint32 y, IplImage *in, IplImage *inc, enum PCon
 	return sval;
 }
 
-
+#if 0
 Uint32 size_spot(Uint32 x, Uint32 y, IplImage *in, enum PConn pc, Uint8 nval, Uint32 *xmin, Uint32 *xmax, Uint32 *ymin, Uint32 *ymax) {
 	assert(nval != 0);
 	Uint8 *in_dat = in->imageData;
@@ -159,6 +159,122 @@ Uint32 size_spot(Uint32 x, Uint32 y, IplImage *in, enum PConn pc, Uint8 nval, Ui
 
 	return sval;
 }
+#else
+Uint32 size_spot(Uint32 x, Uint32 y, IplImage *in, enum PConn pc, Uint8 nval, Uint32 *xmin, Uint32 *xmax, Uint32 *ymin, Uint32 *ymax) {
+	assert(nval != 0 && nval != 2);
+	Uint8 *in_dat = in->imageData;
+	Uint8 c;
+
+	Uint32 sval = 0;
+
+	c = in_dat[(y * in->widthStep) + (x * in->nChannels) + 0];
+
+	if (c != 0 && c != 2) return 0;
+
+	if (!(xmin == NULL || xmax == NULL || ymin == NULL || ymax == NULL)) {
+		if (x < *xmin) *xmin = x;
+		else if (x > *xmax) *xmax = x;
+
+		if (y < *ymin) *ymin = y;
+		else if (y > *ymax) *ymax = y;
+	}
+
+	in_dat[(y * in->widthStep) + (x * in->nChannels) + 0] = nval; // Mark this as passed
+
+	if ((int)y < in->height - 1) {
+		if ((int)x < in->width - 1 && pc == Conn8) {
+			if (in_dat[((y + 1) * in->widthStep) + ((x + 1) * in->nChannels) + 0] == 0) {
+				in_dat[((y + 1) * in->widthStep) + ((x + 1) * in->nChannels) + 0] = 2;
+				sval++;
+			}
+		}
+
+		if ((int)x > 1 && pc == Conn8) {
+			if (in_dat[((y + 1) * in->widthStep) + ((x - 1) * in->nChannels) + 0] == 0) {
+				in_dat[((y + 1) * in->widthStep) + ((x - 1) * in->nChannels) + 0] = 2;
+				sval++;
+			}
+		}	
+
+		if (in_dat[((y + 1) * in->widthStep) + (x * in->nChannels) + 0] == 0) {
+				in_dat[((y + 1) * in->widthStep) + (x * in->nChannels) + 0] = 2;
+				sval++;
+		}
+	}
+
+	if ((int)y > 1) {
+		if ((int)x < in->width - 1 && pc == Conn8) {
+			if (in_dat[((y - 1) * in->widthStep) + ((x + 1) * in->nChannels) + 0] == 0) {
+				in_dat[((y - 1) * in->widthStep) + ((x + 1) * in->nChannels) + 0] = 2;
+				sval++;
+			}
+		}
+
+		if ((int)x > 1 && pc == Conn8) {
+			if (in_dat[((y - 1) * in->widthStep) + ((x - 1) * in->nChannels) + 0] == 0) {
+				in_dat[((y - 1) * in->widthStep) + ((x - 1) * in->nChannels) + 0] = 2;
+				sval++;
+			}
+		}
+
+		if (in_dat[((y - 1) * in->widthStep) + (x  * in->nChannels) + 0] == 0) {
+			in_dat[((y - 1) * in->widthStep) + (x * in->nChannels) + 0] = 2;
+			sval++;
+		}
+	}
+
+	if ((int)x < in->width - 1) {
+		if (in_dat[(y * in->widthStep) + ((x + 1)  * in->nChannels) + 0] == 0) {
+			in_dat[(y * in->widthStep) + ((x + 1) * in->nChannels) + 0] = 2;
+			sval++;
+		}
+	}
+
+	if ((int)x > 1) {
+		if (in_dat[(y * in->widthStep) + ((x - 1)  * in->nChannels) + 0] == 0) {
+			in_dat[(y * in->widthStep) + ((x - 1) * in->nChannels) + 0] = 2;
+			sval++;
+		}
+	}
+
+	////
+
+	if ((int)x > 1 && (int)y > 1 && in_dat[((y - 1) * in->widthStep) + ((x - 1)  * in->nChannels) + 0] == 2) {
+		sval += size_spot(x - 1, y - 1, in, pc, nval, xmin, xmax, ymin, ymax);
+	}
+
+	if ((int)y < in->height - 1 && (int)x < in->width - 1 && in_dat[((y + 1) * in->widthStep) + ((x + 1)  * in->nChannels) + 0] == 2) {
+		sval += size_spot(x + 1, y + 1, in, pc, nval, xmin, xmax, ymin, ymax);
+	}
+
+	if ((int)y > 1 && (int)x < in->width - 1 && in_dat[((y - 1) * in->widthStep) + ((x + 1)  * in->nChannels) + 0] == 2) {
+		sval += size_spot(x + 1, y - 1, in, pc, nval, xmin, xmax, ymin, ymax);
+	}
+
+	if ((int)x > 1 && (int)y < in->height - 1 && in_dat[((y + 1) * in->widthStep) + ((x - 1)  * in->nChannels) + 0] == 2) {
+		sval += size_spot(x - 1, y + 1, in, pc, nval, xmin, xmax, ymin, ymax);
+	}
+
+	if ((int)y > 1 && in_dat[((y - 1) * in->widthStep) + (x  * in->nChannels) + 0] == 2) {
+		sval += size_spot(x, y - 1, in, pc, nval, xmin, xmax, ymin, ymax);
+	}
+
+	if ((int)y < in->height - 1 && in_dat[((y + 1) * in->widthStep) + (x  * in->nChannels) + 0] == 2) {
+		sval += size_spot(x, y + 1, in, pc, nval, xmin, xmax, ymin, ymax);
+	}
+
+	if ((int)x > 1 && in_dat[(y * in->widthStep) + ((x - 1)  * in->nChannels) + 0] == 2) {
+		sval += size_spot(x - 1, y, in, pc, nval, xmin, xmax, ymin, ymax);
+	}
+
+	if ((int)x < in->width - 1 && in_dat[(y  * in->widthStep) + ((x + 1)  * in->nChannels) + 0] == 2) {
+		sval += size_spot(x + 1, y, in, pc, nval, xmin, xmax, ymin, ymax);
+	}
+
+	return sval;
+}
+
+#endif
 
 void spot_neighbour_dist(IplImage *in, Uint16 ssize, Uint16 maxdist, enum PConn pc) {
 	IplImage *cin = cvCloneImage(in);
@@ -178,7 +294,7 @@ void spot_neighbour_dist(IplImage *in, Uint16 ssize, Uint16 maxdist, enum PConn 
 				ymin = ymax = i;
 				xmin = xmax = j;
 
-				cssize = size_spot(j, i, cin, pc, 1, &xmin, &xmax, &ymin, &ymax);
+				cssize = size_spot(j, i, cin, pc, 1, &xmin, &xmax, &ymin, &ymax) + 1;
 				xscenter = xmax - (xmax-xmin)/2;
 				yscenter = ymax - (ymax-ymin)/2;
 				//fprintf(stdout, " This spot size is %ux%u, centered in %ux%u\n", (xmax - xmin) + 1, (ymax - ymin) + 1, xscenter, yscenter);
@@ -209,7 +325,7 @@ void remove_spot_size(IplImage *in, Uint16 ssize, enum PConn pc) {
 				ymin = ymax = i;
 				xmin = xmax = j;
 
-				cssize = size_spot(j, i, cin, pc, 1, &xmin, &xmax, &ymin, &ymax);
+				cssize = size_spot(j, i, cin, pc, 1, &xmin, &xmax, &ymin, &ymax) + 1;
 
 				//fprintf(stdout, " This spot size is %ux%u\n", (xmax - xmin) + 1, (ymax - ymin) + 1);
 
@@ -236,7 +352,7 @@ void remove_spot_intensity(IplImage *in, IplImage *gin, Uint16 ssize, Sint16 inc
 	for (i = 0; i < cin->height; i++)
 		for (j = 0; j < cin->width; j++) {
 			if (cin->imageData[(i * cin->widthStep) + (j * cin->nChannels) + 0] == 0) {
-				cssize = size_spot(j, i, cin, pc, 1, NULL, NULL, NULL, NULL);
+				cssize = size_spot(j, i, cin, pc, 1, NULL, NULL, NULL, NULL) + 1;
 
 				if(cssize > 0) {
 					tot_spots++;
@@ -258,7 +374,7 @@ void remove_spot_intensity(IplImage *in, IplImage *gin, Uint16 ssize, Sint16 inc
 	for (i = 0; i < cin->height; i++)
 		for (j = 0; j < cin->width; j++) {
 			if (cin->imageData[(i * cin->widthStep) + (j * cin->nChannels) + 0] == 0) {
-				cssize = size_spot(j, i, cin, pc, 1, NULL, NULL, NULL, NULL);
+				cssize = size_spot(j, i, cin, pc, 1, NULL, NULL, NULL, NULL) + 1;
 
 				if(cssize > 0 && cssize <= ssize) {
 					cur_spot_int = intensity_spot(j, i, cin2, gin, pc, chan) / cssize;
