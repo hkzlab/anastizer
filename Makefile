@@ -6,7 +6,7 @@ LDFLAGS=  -lm -lcv -lcvaux -lhighgui
 
 MODULES=$(BINDIR)/main.o $(BINDIR)/utils.o $(BINDIR)/wtrap.o $(BINDIR)/spotclear.o
 
-PROGNAME=picdefo
+PROGNAME=anastizer
 
 all: bin/$(PROGNAME)
 
