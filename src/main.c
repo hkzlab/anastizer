@@ -143,8 +143,8 @@ void prev_mouseHandler(int event, int x, int y, int flags, void *param) {
 
 		fprintf(stdout, " Applying spot cleanup based on size...\n");
 		remove_spot_size(mimg, 30, Conn8); // Do a spot cleanup
-	//	fprintf(stdout, " Applying spot cleanup based on intensity...\n");
-	//	remove_spot_intensity(mimg, gimg, 500, -50, cur_chan, Conn4);
+		fprintf(stdout, " Applying spot cleanup based on intensity...\n");
+		remove_spot_intensity(mimg, gimg, 500, -50, cur_chan, Conn4);
 		fprintf(stdout, " Applying spot cleanup based on thinness...\n");
 		spot_thin(mimg, 50, 0.5, Conn8);
 		fprintf(stdout, " Applying spot cleanup based on distance...\n");

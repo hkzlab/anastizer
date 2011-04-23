@@ -57,6 +57,7 @@ void spot_thin(IplImage *in, Uint16 ssize, float edge_mult, enum PConn pc) {
     cvReleaseImage(&cin);
 }
 
+#if 0
 Uint32 intensity_spot(Uint32 x, Uint32 y, IplImage *in, IplImage *inc, enum PConn pc, Uint8 chan) {
     Uint8 *in_dat = in->imageData;
     Uint8 *inc_dat = inc->imageData;
@@ -106,6 +107,148 @@ Uint32 intensity_spot(Uint32 x, Uint32 y, IplImage *in, IplImage *inc, enum PCon
 
     return sval;
 }
+#else
+Uint32 intensity_spot(Uint32 x, Uint32 y, IplImage *in, IplImage *inc, enum PConn pc, Uint8 chan) {
+    Uint8 *in_dat = in->imageData;
+	Uint8 *inc_dat = inc->imageData;
+	Uint8 nval = 1;
+
+    Uint8 c;
+	Uint32 intval;
+
+    Point2D *p2d = (Point2D*)malloc(sizeof(Point2D) * POINT_SLOT);
+    Uint32 max_p2d = POINT_SLOT;
+    Uint32 cur_p2d, tot_p2d;
+
+    p2d[0].x = x;
+    p2d[0].y = y;
+
+    c = in_dat[(y * in->widthStep) + (x * in->nChannels) + 0];
+	intval = in_dat[(y * in->widthStep) + (x * in->nChannels) + chan];
+
+    if (c != 0) return 0;
+
+	in_dat[(y * in->widthStep) + (x * in->nChannels) + 0] = nval;
+
+    tot_p2d = 1;
+    Sint32 cur_x, cur_y;
+    for (cur_p2d = 0; cur_p2d < tot_p2d; cur_p2d++) {
+        cur_x = p2d[cur_p2d].x;
+        cur_y = p2d[cur_p2d].y;
+
+        if (pc == Conn8) {
+            if ((cur_y + 1 < in->height) && (cur_x + 1 < in->width) && (in_dat[((cur_y + 1) * in->widthStep) + ((cur_x + 1) * in->nChannels) + 0] == 0)) {
+                in_dat[((cur_y + 1) * in->widthStep) + ((cur_x + 1) * in->nChannels) + 0] = nval;
+				intval += in_dat[((cur_y + 1) * in->widthStep) + ((cur_x + 1) * in->nChannels) + chan];
+                p2d[tot_p2d].x = cur_x + 1;
+                p2d[tot_p2d].y = cur_y + 1;
+                tot_p2d++;
+
+                if(tot_p2d == max_p2d) {
+                    max_p2d += POINT_SLOT;
+                    p2d = realloc(p2d, sizeof(Point2D) * max_p2d);
+                }
+            }
+
+            if ((cur_y > 0) && (cur_x > 0) && (in_dat[((cur_y - 1) * in->widthStep) + ((cur_x - 1) * in->nChannels) + 0] == 0)) {
+                in_dat[((cur_y - 1) * in->widthStep) + ((cur_x - 1) * in->nChannels) + 0] = nval;
+				intval += in_dat[((cur_y - 1) * in->widthStep) + ((cur_x - 1) * in->nChannels) + chan];
+                p2d[tot_p2d].x = cur_x - 1;
+                p2d[tot_p2d].y = cur_y - 1;
+                tot_p2d++;
+
+                if(tot_p2d == max_p2d) {
+                    max_p2d += POINT_SLOT;
+                    p2d = realloc(p2d, sizeof(Point2D) * max_p2d);
+                }
+            }
+
+            if ((cur_y + 1 < in->height)  && (cur_x > 0) && (in_dat[((cur_y + 1) * in->widthStep) + ((cur_x - 1) * in->nChannels) + 0] == 0)) {
+                in_dat[((cur_y + 1) * in->widthStep) + ((cur_x - 1) * in->nChannels) + 0] = nval;
+				intval += in_dat[((cur_y + 1) * in->widthStep) + ((cur_x - 1) * in->nChannels) + chan];
+                p2d[tot_p2d].x = cur_x - 1;
+                p2d[tot_p2d].y = cur_y + 1;
+                tot_p2d++;
+
+                if(tot_p2d == max_p2d) {
+                    max_p2d += POINT_SLOT;
+                    p2d = realloc(p2d, sizeof(Point2D) * max_p2d);
+                }
+            }
+
+            if ((cur_y > 0) && (cur_x + 1 < in->width) && (in_dat[((cur_y - 1) * in->widthStep) + ((cur_x + 1) * in->nChannels) + 0] == 0)) {
+                in_dat[((cur_y - 1) * in->widthStep) + ((cur_x + 1) * in->nChannels) + 0] = nval;
+				intval += in_dat[((cur_y - 1) * in->widthStep) + ((cur_x + 1) * in->nChannels) + chan];
+                p2d[tot_p2d].x = cur_x + 1;
+                p2d[tot_p2d].y = cur_y - 1;
+                tot_p2d++;
+
+                if(tot_p2d == max_p2d) {
+                    max_p2d += POINT_SLOT;
+                    p2d = realloc(p2d, sizeof(Point2D) * max_p2d);
+                }
+            }
+        }
+
+        if ((cur_y > 0) && (in_dat[((cur_y - 1) * in->widthStep) + (cur_x * in->nChannels) + 0] == 0)) {
+            in_dat[((cur_y - 1) * in->widthStep) + (cur_x * in->nChannels) + 0] = nval;
+			intval += in_dat[((cur_y - 1) * in->widthStep) + (cur_x * in->nChannels) + chan];
+            p2d[tot_p2d].x = cur_x;
+            p2d[tot_p2d].y = cur_y - 1;
+            tot_p2d++;
+
+            if(tot_p2d == max_p2d) {
+                max_p2d += POINT_SLOT;
+                p2d = realloc(p2d, sizeof(Point2D) * max_p2d);
+            }
+        }
+
+        if ((cur_x > 0) && (in_dat[(cur_y * in->widthStep) + ((cur_x - 1) * in->nChannels) + 0] == 0)) {
+            in_dat[(cur_y * in->widthStep) + ((cur_x - 1) * in->nChannels) + 0] = nval;
+			intval += in_dat[(cur_y * in->widthStep) + ((cur_x - 1) * in->nChannels) + chan];
+            p2d[tot_p2d].x = cur_x - 1;
+            p2d[tot_p2d].y = cur_y;
+            tot_p2d++;
+
+            if(tot_p2d == max_p2d) {
+                max_p2d += POINT_SLOT;
+                p2d = realloc(p2d, sizeof(Point2D) * max_p2d);
+            }
+        }
+
+        if ((cur_x + 1 < in->width) && (in_dat[(cur_y * in->widthStep) + ((cur_x + 1) * in->nChannels) + 0] == 0)) {
+            in_dat[(cur_y * in->widthStep) + ((cur_x + 1) * in->nChannels) + 0] = nval;
+			intval += in_dat[(cur_y * in->widthStep) + ((cur_x + 1) * in->nChannels) + chan];
+            p2d[tot_p2d].x = cur_x + 1;
+            p2d[tot_p2d].y = cur_y;
+            tot_p2d++;
+
+            if(tot_p2d == max_p2d) {
+                max_p2d += POINT_SLOT;
+                p2d = realloc(p2d, sizeof(Point2D) * max_p2d);
+            }
+        }
+
+        if ((cur_y + 1 < in->height) && (in_dat[((cur_y + 1) * in->widthStep) + (cur_x * in->nChannels) + 0] == 0)) {
+            in_dat[((cur_y + 1) * in->widthStep) + (cur_x * in->nChannels) + 0] = nval;
+			intval += in_dat[((cur_y + 1) * in->widthStep) + (cur_x * in->nChannels) + chan];
+            p2d[tot_p2d].x = cur_x;
+            p2d[tot_p2d].y = cur_y + 1;
+            tot_p2d++;
+
+            if(tot_p2d == max_p2d) {
+                max_p2d += POINT_SLOT;
+                p2d = realloc(p2d, sizeof(Point2D) * max_p2d);
+            }
+        }
+
+    }
+
+    free(p2d);
+
+    return intval;
+}
+#endif
 
 Uint32 size_spot(Uint32 x, Uint32 y, IplImage *in, enum PConn pc, Uint8 nval, Sint32 *xmin, Sint32 *xmax, Sint32 *ymin, Sint32 *ymax) {
 	assert(nval != 0);
