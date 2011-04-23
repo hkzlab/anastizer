@@ -10,10 +10,16 @@
  * nval -> this value is substituted to original pixel values in spot, must be different to 0
  * xmin, xmax, ymin, ymax -> pointers to Uint32s, will be set to corners of a rectangle containing the spot
  */ 
-Uint32 size_spot(Uint32 x, Uint32 y, IplImage *in, enum PConn pc, Uint8 nval, Uint32 *xmin, Uint32 *xmax, Uint32 *ymin, Uint32 *ymax);
+Uint32 size_spot(Uint32 x, Uint32 y, IplImage *in, enum PConn pc, Uint8 nval, Sint32 *xmin, Sint32 *xmax, Sint32 *ymin, Sint32 *ymax);
 
 Uint32 intensity_spot(Uint32 x, Uint32 y, IplImage *in, IplImage *inc, enum PConn pc, Uint8 chan); // Returns the SUM of all intensities in the spot! not the MEDIUM intensity!
 void circle_check(IplImage *in, Sint32 xmin, Sint32 xmax, Sint32 ymin, Sint32 ymax, Uint32 *dist);
+
+typedef struct {
+	Uint32 x, y;
+} Point2D;
+
+#define  POINT_SLOT 4096*8
 
 /***/
 
@@ -160,113 +166,117 @@ Uint32 size_spot(Uint32 x, Uint32 y, IplImage *in, enum PConn pc, Uint8 nval, Ui
 	return sval;
 }
 #else
-Uint32 size_spot(Uint32 x, Uint32 y, IplImage *in, enum PConn pc, Uint8 nval, Uint32 *xmin, Uint32 *xmax, Uint32 *ymin, Uint32 *ymax) {
-	assert(nval != 0 && nval != 2);
+Uint32 size_spot(Uint32 x, Uint32 y, IplImage *in, enum PConn pc, Uint8 nval, Sint32 *xmin, Sint32 *xmax, Sint32 *ymin, Sint32 *ymax) {
+	assert(nval != 0);
 	Uint8 *in_dat = in->imageData;
 	Uint8 c;
 
 	Uint32 sval = 0;
 
+	Point2D *p2d = (Point2D*)malloc(sizeof(Point2D) * POINT_SLOT);
+	Uint32 max_p2d = POINT_SLOT - 1;
+	Uint32 cur_p2d, tot_p2d;
+
+	p2d[0].x = x;
+	p2d[1].y = y;
+
+	cur_p2d = 0;
+	tot_p2d = 1;
+
 	c = in_dat[(y * in->widthStep) + (x * in->nChannels) + 0];
+	in_dat[(y * in->widthStep) + (x * in->nChannels) + 0] = nval;
 
-	if (c != 0 && c != 2) return 0;
+	if (c != 0) return 0;
 
-	if (!(xmin == NULL || xmax == NULL || ymin == NULL || ymax == NULL)) {
-		if (x < *xmin) *xmin = x;
-		else if (x > *xmax) *xmax = x;
+	sval++;
 
-		if (y < *ymin) *ymin = y;
-		else if (y > *ymax) *ymax = y;
-	}
+	Sint32 cur_x, cur_y;
+	for (cur_p2d = 0; cur_p2d < tot_p2d; cur_p2d++) {
+		cur_x = p2d[cur_p2d].x;
+		cur_y = p2d[cur_p2d].y;
 
-	in_dat[(y * in->widthStep) + (x * in->nChannels) + 0] = nval; // Mark this as passed
+		if (!(xmin == NULL || xmax == NULL || ymin == NULL || ymax == NULL)) {
+			if (cur_x < *xmin) *xmin = cur_x;
+			else if (cur_x > *xmax) *xmax = cur_x;
 
-	if ((int)y < in->height - 1) {
-		if ((int)x < in->width - 1 && pc == Conn8) {
-			if (in_dat[((y + 1) * in->widthStep) + ((x + 1) * in->nChannels) + 0] == 0) {
-				in_dat[((y + 1) * in->widthStep) + ((x + 1) * in->nChannels) + 0] = 2;
+			if (cur_y < *ymin) *ymin = cur_y;
+			else if (cur_y > *ymax) *ymax = cur_y;
+		}
+
+		if (pc == Conn8) {
+			if ((cur_y + 1 < in->height) && (cur_x + 1 < in->width) && (in_dat[((cur_y + 1) * in->widthStep) + ((cur_x + 1) * in->nChannels) + 0] == 0)) {
+				in_dat[((cur_y + 1) * in->widthStep) + ((cur_x + 1) * in->nChannels) + 0] = nval;
+				p2d[tot_p2d].x = cur_x + 1;
+				p2d[tot_p2d].y = cur_y + 1;
+				tot_p2d++;
+				sval++;
+			}
+
+			if ((cur_y > 0) && (cur_x > 0) && (in_dat[((cur_y - 1) * in->widthStep) + ((cur_x - 1) * in->nChannels) + 0] == 0)) {
+				in_dat[((cur_y - 1) * in->widthStep) + ((cur_x - 1) * in->nChannels) + 0] = nval;
+				p2d[tot_p2d].x = cur_x - 1;
+				p2d[tot_p2d].y = cur_y - 1;
+				tot_p2d++;
+				sval++;
+			}
+
+			if ((cur_y + 1 < in->height)  && (cur_x > 0) && (in_dat[((cur_y + 1) * in->widthStep) + ((cur_x - 1) * in->nChannels) + 0] == 0)) {
+				in_dat[((cur_y + 1) * in->widthStep) + ((cur_x - 1) * in->nChannels) + 0] = nval;
+				p2d[tot_p2d].x = cur_x - 1;
+				p2d[tot_p2d].y = cur_y + 1;
+				tot_p2d++;
+				sval++;
+			}
+
+			if ((cur_y > 0) && (cur_x + 1 < in->width) && (in_dat[((cur_y - 1) * in->widthStep) + ((cur_x + 1) * in->nChannels) + 0] == 0)) {
+				in_dat[((cur_y - 1) * in->widthStep) + ((cur_x + 1) * in->nChannels) + 0] = nval;
+				p2d[tot_p2d].x = cur_x + 1;
+				p2d[tot_p2d].y = cur_y - 1;
+				tot_p2d++;
 				sval++;
 			}
 		}
 
-		if ((int)x > 1 && pc == Conn8) {
-			if (in_dat[((y + 1) * in->widthStep) + ((x - 1) * in->nChannels) + 0] == 0) {
-				in_dat[((y + 1) * in->widthStep) + ((x - 1) * in->nChannels) + 0] = 2;
-				sval++;
-			}
-		}	
+		fprintf(stdout, "merd %u merda %u\n", cur_y, in_dat[((cur_y - 1) * in->widthStep) + (cur_x * in->nChannels) + 0]);
 
-		if (in_dat[((y + 1) * in->widthStep) + (x * in->nChannels) + 0] == 0) {
-				in_dat[((y + 1) * in->widthStep) + (x * in->nChannels) + 0] = 2;
+		if ((cur_y > 0) && (in_dat[((cur_y - 1) * in->widthStep) + (cur_x * in->nChannels) + 0] == 0)) {
+				in_dat[((cur_y - 1) * in->widthStep) + (cur_x * in->nChannels) + 0] = nval;
+				p2d[tot_p2d].x = cur_x;
+				p2d[tot_p2d].y = cur_y - 1;
+				tot_p2d++;
 				sval++;
 		}
-	}
 
-	if ((int)y > 1) {
-		if ((int)x < in->width - 1 && pc == Conn8) {
-			if (in_dat[((y - 1) * in->widthStep) + ((x + 1) * in->nChannels) + 0] == 0) {
-				in_dat[((y - 1) * in->widthStep) + ((x + 1) * in->nChannels) + 0] = 2;
+		if (cur_y && (cur_x > 0) && (in_dat[(cur_y * in->widthStep) + ((cur_x - 1) * in->nChannels) + 0] == 0)) {
+				in_dat[(cur_y * in->widthStep) + ((cur_x - 1) * in->nChannels) + 0] = nval;
+				p2d[tot_p2d].x = cur_x - 1;
+				p2d[tot_p2d].y = cur_y;
+				tot_p2d++;
 				sval++;
-			}
 		}
 
-		if ((int)x > 1 && pc == Conn8) {
-			if (in_dat[((y - 1) * in->widthStep) + ((x - 1) * in->nChannels) + 0] == 0) {
-				in_dat[((y - 1) * in->widthStep) + ((x - 1) * in->nChannels) + 0] = 2;
+		if ((cur_x + 1 < in->width) && (in_dat[(cur_y * in->widthStep) + ((cur_x + 1) * in->nChannels) + 0] == 0)) {
+				in_dat[(cur_y * in->widthStep) + ((cur_x + 1) * in->nChannels) + 0] = nval;
+				p2d[tot_p2d].x = cur_x + 1;
+				p2d[tot_p2d].y = cur_y;
+				tot_p2d++;
 				sval++;
-			}
 		}
 
-		if (in_dat[((y - 1) * in->widthStep) + (x  * in->nChannels) + 0] == 0) {
-			in_dat[((y - 1) * in->widthStep) + (x * in->nChannels) + 0] = 2;
-			sval++;
+		if ((cur_y + 1 < in->height) && (in_dat[((cur_y + 1) * in->widthStep) + ((cur_x + 1) * in->nChannels) + 0] == 0)) {
+				in_dat[((cur_y + 1) * in->widthStep) + (cur_x * in->nChannels) + 0] = nval;
+				p2d[tot_p2d].x = cur_x;
+				p2d[tot_p2d].y = cur_y + 1;
+				tot_p2d++;
+				sval++;
 		}
+
+		fprintf(stdout, "ciclo! %u\n", tot_p2d);
 	}
 
-	if ((int)x < in->width - 1) {
-		if (in_dat[(y * in->widthStep) + ((x + 1)  * in->nChannels) + 0] == 0) {
-			in_dat[(y * in->widthStep) + ((x + 1) * in->nChannels) + 0] = 2;
-			sval++;
-		}
-	}
+	free(p2d);
 
-	if ((int)x > 1) {
-		if (in_dat[(y * in->widthStep) + ((x - 1)  * in->nChannels) + 0] == 0) {
-			in_dat[(y * in->widthStep) + ((x - 1) * in->nChannels) + 0] = 2;
-			sval++;
-		}
-	}
-
-	////
-
-	if ((int)y < in->height - 1) {
-		if ((int)x > 1 && in_dat[((y + 1) * in->widthStep) + ((x - 1)  * in->nChannels) + 0] == 2)
-			sval += size_spot(x - 1, y + 1, in, pc, nval, xmin, xmax, ymin, ymax);
-
-		if (in_dat[((y + 1) * in->widthStep) + (x  * in->nChannels) + 0] == 2)
-			sval += size_spot(x, y + 1, in, pc, nval, xmin, xmax, ymin, ymax);
-
-		if ((int)x < in->width - 1 && in_dat[((y + 1) * in->widthStep) + ((x + 1)  * in->nChannels) + 0] == 2)
-			sval += size_spot(x + 1, y + 1, in, pc, nval, xmin, xmax, ymin, ymax);
-		
-	}
-
-	if ((int)y > 1) {
-		if ((int)x > 1 && in_dat[((y - 1) * in->widthStep) + ((x - 1)  * in->nChannels) + 0] == 2)
-			sval += size_spot(x - 1, y - 1, in, pc, nval, xmin, xmax, ymin, ymax);
-	
-		if (in_dat[((y - 1) * in->widthStep) + (x  * in->nChannels) + 0] == 2)
-			sval += size_spot(x, y - 1, in, pc, nval, xmin, xmax, ymin, ymax);
-
-		if ((int)x < in->width - 1 && in_dat[((y - 1) * in->widthStep) + ((x + 1)  * in->nChannels) + 0] == 2) 
-			sval += size_spot(x + 1, y - 1, in, pc, nval, xmin, xmax, ymin, ymax);
-	}
-
-	if ((int)x < in->width - 1 && in_dat[(y  * in->widthStep) + ((x + 1)  * in->nChannels) + 0] == 2)
-		sval += size_spot(x + 1, y, in, pc, nval, xmin, xmax, ymin, ymax);	
-
-	if ((int)x > 1 && in_dat[(y * in->widthStep) + ((x - 1)  * in->nChannels) + 0] == 2)
-		sval += size_spot(x - 1, y, in, pc, nval, xmin, xmax, ymin, ymax);
+	fprintf(stdout, "sval %u\n", sval);
 
 	return sval;
 }
