@@ -108,7 +108,7 @@ Uint32 intensity_spot(Uint32 x, Uint32 y, IplImage *in, IplImage *inc, enum PCon
 }
 
 #if 0
-Uint32 size_spot(Uint32 x, Uint32 y, IplImage *in, enum PConn pc, Uint8 nval, Uint32 *xmin, Uint32 *xmax, Uint32 *ymin, Uint32 *ymax) {
+Uint32 size_spot(Uint32 x, Uint32 y, IplImage *in, enum PConn pc, Uint8 nval, Sint32 *xmin, Sint32 *xmax, Sint32 *ymin, Sint32 *ymax) {
     assert(nval != 0);
     Uint8 *in_dat = in->imageData;
     Uint8 c;
@@ -120,11 +120,11 @@ Uint32 size_spot(Uint32 x, Uint32 y, IplImage *in, enum PConn pc, Uint8 nval, Ui
     if (c != 0) return 0;
 
     if (!(xmin == NULL || xmax == NULL || ymin == NULL || ymax == NULL)) {
-        if (x < *xmin) *xmin = x;
-        else if (x > *xmax) *xmax = x;
+        if ((int)x < *xmin) *xmin = x;
+        else if ((int)x > *xmax) *xmax = x;
 
-        if (y < *ymin) *ymin = y;
-        else if (y > *ymax) *ymax = y;
+        if ((int)y < *ymin) *ymin = y;
+        else if ((int)y > *ymax) *ymax = y;
     }
 
     sval = 1;
@@ -136,19 +136,19 @@ Uint32 size_spot(Uint32 x, Uint32 y, IplImage *in, enum PConn pc, Uint8 nval, Ui
             sval += size_spot(x + 1, y + 1, in, pc, nval, xmin, xmax, ymin, ymax);
         }
 
-        if ((int)x > 1 && pc == Conn8) {
+        if ((int)x > 0 && pc == Conn8) {
             sval += size_spot(x - 1, y + 1, in, pc, nval, xmin, xmax, ymin, ymax);
         }
 
         sval += size_spot(x, y + 1, in, pc, nval, xmin, xmax, ymin, ymax);
     }
 
-    if ((int)y > 1) {
+    if ((int)y > 0) {
         if ((int)x < in->width - 1 && pc == Conn8) {
             sval += size_spot(x + 1, y - 1, in, pc, nval, xmin, xmax, ymin, ymax);
         }
 
-        if ((int)x > 1 && pc == Conn8) {
+        if ((int)x > 0 && pc == Conn8) {
             sval += size_spot(x - 1, y - 1, in, pc, nval, xmin, xmax, ymin, ymax);
         }
 
@@ -159,7 +159,7 @@ Uint32 size_spot(Uint32 x, Uint32 y, IplImage *in, enum PConn pc, Uint8 nval, Ui
         sval += size_spot(x + 1, y, in, pc, nval, xmin, xmax, ymin, ymax);
     }
 
-    if ((int)x > 1) {
+    if ((int)x > 0) {
         sval += size_spot(x - 1, y, in, pc, nval, xmin, xmax, ymin, ymax);
     }
 
@@ -284,7 +284,7 @@ Uint32 size_spot(Uint32 x, Uint32 y, IplImage *in, enum PConn pc, Uint8 nval, Si
             }
         }
 
-        if ((cur_y + 1 < in->height) && (in_dat[((cur_y + 1) * in->widthStep) + ((cur_x + 1) * in->nChannels) + 0] == 0)) {
+        if ((cur_y + 1 < in->height) && (in_dat[((cur_y + 1) * in->widthStep) + (cur_x * in->nChannels) + 0] == 0)) {
             in_dat[((cur_y + 1) * in->widthStep) + (cur_x * in->nChannels) + 0] = nval;
             p2d[tot_p2d].x = cur_x;
             p2d[tot_p2d].y = cur_y + 1;
@@ -299,8 +299,6 @@ Uint32 size_spot(Uint32 x, Uint32 y, IplImage *in, enum PConn pc, Uint8 nval, Si
     }
 
     free(p2d);
-
-	fprintf(stdout, "sval %u\n", tot_p2d);
 
     return tot_p2d;
 }
@@ -358,7 +356,7 @@ void remove_spot_size(IplImage *in, Uint16 ssize, enum PConn pc) {
 
                 cssize = size_spot(j, i, cin, pc, 1, &xmin, &xmax, &ymin, &ymax);
 
-                //fprintf(stdout, " This spot size is %ux%u\n", (xmax - xmin) + 1, (ymax - ymin) + 1);
+                fprintf(stdout, " This spot size is %u,  %ux%u\n", cssize,  (xmax - xmin) + 1, (ymax - ymin) + 1);
 
                 if(cssize > 0 && cssize <= ssize) {
                     size_spot(j, i, in, pc, 255, NULL, NULL, NULL, NULL);
