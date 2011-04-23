@@ -37,7 +37,7 @@ int main(int argc, char *argv[]) {
 	Uint32 nwidth, nheight;
 	Uint32 i;
 
-#if 1
+#if 0
 	// FIXME: Do we really need this much stack memory? better optimize size_spot and intensity_spot...
 	const rlim_t kStackSize = 64L * 1024L * 1024L;   // 64 Mb
 	struct rlimit rl;
