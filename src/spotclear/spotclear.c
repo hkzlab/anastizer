@@ -247,12 +247,13 @@ void remove_spot_intensity(IplImage *in, IplImage *gin, Uint16 ssize, Sint16 inc
 			}
 		}
 
-	medium_spot /= tot_spots;
-
-	//fprintf(stdout, "  Medium spot intensity in this image is %u\n", medium_spot);
 
 	cvReleaseImage(&cin);
 	cvReleaseImage(&cin2);
+
+	if (!tot_spots) return;
+
+	medium_spot /= tot_spots;
 
 	cin = cvCloneImage(in);
 	cin2 = cvCloneImage(in);
