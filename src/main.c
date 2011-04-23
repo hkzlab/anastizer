@@ -161,7 +161,7 @@ void prev_mouseHandler(int event, int x, int y, int flags, void *param) {
 		cvShowImage(PREV_WIN, rprev);
 
 		if (event == CV_EVENT_RBUTTONDBLCLK) { // or Save it...
-			fprintf(stdout, "saving [%ux%u] image to %s ...", mimg->width, mimg->height, dest_file);
+			fprintf(stdout, " saving [%ux%u] image to %s ...", mimg->width, mimg->height, dest_file);
 			sres = cvSaveImage(dest_file, mimg, 0);
 
 			if (sres)
