@@ -356,7 +356,7 @@ void remove_spot_size(IplImage *in, Uint16 ssize, enum PConn pc) {
 
                 cssize = size_spot(j, i, cin, pc, 1, &xmin, &xmax, &ymin, &ymax);
 
-                fprintf(stdout, " This spot size is %u,  %ux%u\n", cssize,  (xmax - xmin) + 1, (ymax - ymin) + 1);
+                //fprintf(stdout, " This spot size is %u,  %ux%u\n", cssize,  (xmax - xmin) + 1, (ymax - ymin) + 1);
 
                 if(cssize > 0 && cssize <= ssize) {
                     size_spot(j, i, in, pc, 255, NULL, NULL, NULL, NULL);
