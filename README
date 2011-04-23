@@ -4,6 +4,9 @@ Tool to interactively warp a photo and make an anastatic-like filtered
 version out of it.
 
 This software uses OpenCV - http://opencv.willowgarage.com/wiki/
+and for now it's distributed under the same licence.
 
 Yes, this readme sucks, it's just a placeholder for now.
+
+hkzlabnet@gmail.com - Fabio Battaglia
 
