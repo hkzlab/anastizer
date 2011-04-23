@@ -39,7 +39,7 @@ int main(int argc, char *argv[]) {
 
 #if 1
 	// FIXME: Do we really need this much stack memory? better optimize size_spot and intensity_spot...
-	const rlim_t kStackSize = 32L * 1024L * 1024L;   // 32 Mb
+	const rlim_t kStackSize = 64L * 1024L * 1024L;   // 32 Mb
 	struct rlimit rl;
 	int setrr;
 
@@ -48,7 +48,7 @@ int main(int argc, char *argv[]) {
 			rl.rlim_cur = kStackSize;
 			setrr = setrlimit(RLIMIT_STACK, &rl);
 			if (setrr != 0) {
-				fprintf(stderr, "setrlimit returned %d\n", setrr);
+				fprintf(stderr, "WARNING! setrlimit returned an error, unable to allocate %u stack memory!!!\n", (Uint32)kStackSize);
 			}
 		}
 	}
