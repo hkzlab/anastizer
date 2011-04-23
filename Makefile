@@ -1,7 +1,7 @@
 SRCDIR=src
 BINDIR=bin
 
-CFLAGS=-O2 -Isrc/ -I/usr/include/opencv/ -g -std=c99 -Wextra
+CFLAGS=-O3 -Isrc/ -I/usr/include/opencv/ -g -std=c99 -Wextra
 LDFLAGS=  -lm -lcv -lcvaux -lhighgui
 
 MODULES=$(BINDIR)/main.o $(BINDIR)/utils.o $(BINDIR)/wtrap.o $(BINDIR)/spotclear.o
