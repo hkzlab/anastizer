@@ -165,7 +165,7 @@ void prev_mouseHandler(int event, int x, int y, int flags, void *param) {
 			sres = cvSaveImage(dest_file, mimg, 0);
 
 			if (sres)
-				fprintf(stdout, "OK!\n\n");
+				fprintf(stdout, "OK!\n");
 			else
 				fprintf(stdout, "Not saved!!!\n");
 		}
@@ -174,7 +174,7 @@ void prev_mouseHandler(int event, int x, int y, int flags, void *param) {
 		cvReleaseImage(&rprev);
 		cvReleaseImage(&mimg);
 
-		fprintf(stdout, "DONE\n\n");
+		fprintf(stdout, " DONE!\n\n");
 
 		break;
 	}
