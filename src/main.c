@@ -109,10 +109,16 @@ void prev_mouseHandler(int event, int x, int y, int flags, void *param) {
 	Uint8 cur_chan;
 	Uint32 nwidth, nheight;
 
+	char tmp_file[STRSIZE];
+	tmp_file[0] = '\0';
+
 	switch (event) {
 	case CV_EVENT_MBUTTONDBLCLK:
 	case CV_EVENT_LBUTTONDBLCLK:
 	case CV_EVENT_RBUTTONDBLCLK:
+
+		strcat(tmp_file, dest_file);
+
 		cur_chan = cvGetTrackbarPos(PREV_TRK_BGR, PREV_WIN);
 		invt[0] = build_transf_mat(&wt[0], invt[0], oimg, mw_img, prv_img->width * 4, prv_img->height * 4);
 		
@@ -120,10 +126,10 @@ void prev_mouseHandler(int event, int x, int y, int flags, void *param) {
 			gimg = return_warped_img(oimg, invt[0], &wt[0], prv_img->width * 4, prv_img->height * 4, -1);
 
 			// Calculate output filename (JPG format)
-			strcat(dest_file, "_WARPED.jpg");
+			strcat(tmp_file, "_WARPED.jpg");
 			
-			fprintf(stdout, " saving [%ux%u] image to %s ...", gimg->width, gimg->height, dest_file);
-			sres = cvSaveImage(dest_file, gimg, 0);
+			fprintf(stdout, " saving [%ux%u] image to %s ...", gimg->width, gimg->height, tmp_file);
+			sres = cvSaveImage(tmp_file, gimg, 0);
 
 			if (sres)
 				fprintf(stdout, "OK!\n");
@@ -166,10 +172,10 @@ void prev_mouseHandler(int event, int x, int y, int flags, void *param) {
 
 		if (event == CV_EVENT_RBUTTONDBLCLK) { // or Save it...
 			// Calculate output filename (PNG format)
-			strcat(dest_file, "_ANAST.png");
+			strcat(tmp_file, "_ANAST.png");
 
-			fprintf(stdout, " saving [%ux%u] image to %s ...", mimg->width, mimg->height, dest_file);
-			sres = cvSaveImage(dest_file, mimg, 0);
+			fprintf(stdout, " saving [%ux%u] image to %s ...", mimg->width, mimg->height, tmp_file);
+			sres = cvSaveImage(tmp_file, mimg, 0);
 
 			if (sres)
 				fprintf(stdout, "OK!\n");
