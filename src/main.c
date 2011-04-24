@@ -130,6 +130,8 @@ void prev_mouseHandler(int event, int x, int y, int flags, void *param) {
 			else
 				fprintf(stdout, "Not saved!!!\n");
 
+			fprintf(stdout, " DONE!\n\n");
+
 			cvReleaseImage(&gimg);
 			break;
 
