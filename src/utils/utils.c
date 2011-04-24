@@ -42,7 +42,7 @@ IplImage *return_warped_img(IplImage *oim, CvMat *tm, WTrap *wt, Uint32 dwidth, 
 
 	cvWarpPerspective(oim, d1, tm, CV_INTER_CUBIC + CV_WARP_FILL_OUTLIERS + CV_WARP_INVERSE_MAP, cvScalarAll(0));
 	
-	if (chan > 0) {
+	if (chan >= 0) {
 		dmono = gray_from_colour(d1,chan);
 		cvReleaseImage(&d1);
 	} else {
