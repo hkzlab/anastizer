@@ -47,9 +47,8 @@ int main(int argc, char *argv[]) {
 		fprintf(stdout, "Loaded image %s\n", argv[1]);
 	}
 
-	// Calculate output filename (PNG format)
+	// Load file path
 	strncat(dest_file, argv[1], strlen(argv[1]) - 4);
-	strcat(dest_file, "_WARPED.png");
 
 	init_wts();
 
@@ -111,11 +110,33 @@ void prev_mouseHandler(int event, int x, int y, int flags, void *param) {
 	Uint32 nwidth, nheight;
 
 	switch (event) {
+	case CV_EVENT_MBUTTONDBLCLK:
 	case CV_EVENT_LBUTTONDBLCLK:
 	case CV_EVENT_RBUTTONDBLCLK:
 		cur_chan = cvGetTrackbarPos(PREV_TRK_BGR, PREV_WIN);
 		invt[0] = build_transf_mat(&wt[0], invt[0], oimg, mw_img, prv_img->width * 4, prv_img->height * 4);
-		gimg = return_warped_img(oimg, invt[0], &wt[0], prv_img->width * 4, prv_img->height * 4, cur_chan);
+		
+		if (event == CV_EVENT_MBUTTONDBLCLK) { // Save a color version
+			gimg = return_warped_img(oimg, invt[0], &wt[0], prv_img->width * 4, prv_img->height * 4, -1);
+
+			// Calculate output filename (JPG format)
+			strcat(dest_file, "_WARPED.jpg");
+			
+			fprintf(stdout, " saving [%ux%u] image to %s ...", gimg->width, gimg->height, dest_file);
+			sres = cvSaveImage(dest_file, gimg, 0);
+
+			if (sres)
+				fprintf(stdout, "OK!\n");
+			else
+				fprintf(stdout, "Not saved!!!\n");
+
+			cvReleaseImage(&gimg);
+			break;
+
+		} else {
+			gimg = return_warped_img(oimg, invt[0], &wt[0], prv_img->width * 4, prv_img->height * 4, cur_chan);
+		}
+
 		mimg = cvCreateImage(cvGetSize(gimg), 8, 1);
 
 		fprintf(stdout, " Applying local thresholding to image...\n");
@@ -142,6 +163,9 @@ void prev_mouseHandler(int event, int x, int y, int flags, void *param) {
 		cvShowImage(PREV_WIN, rprev);
 
 		if (event == CV_EVENT_RBUTTONDBLCLK) { // or Save it...
+			// Calculate output filename (PNG format)
+			strcat(dest_file, "_ANAST.png");
+
 			fprintf(stdout, " saving [%ux%u] image to %s ...", mimg->width, mimg->height, dest_file);
 			sres = cvSaveImage(dest_file, mimg, 0);
 
