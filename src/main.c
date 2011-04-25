@@ -66,14 +66,15 @@ int main(int argc, char *argv[]) {
 	cvResize(oimg, mw_img, CV_INTER_NN); // Resize
 	prv_img = cvCreateImage(cvSize(PREV_W, PREV_H), oimg->depth, oimg->nChannels);
 
-	// Create main window
+	// Create windows
 	cvNamedWindow(MAIN_WIN, CV_WINDOW_AUTOSIZE);
 	cvNamedWindow(PREV_WIN, CV_WINDOW_AUTOSIZE);
+	cvNamedWindow(CNTRL_WIN, CV_WINDOW_AUTOSIZE);
 
 	int bgr_trkval = 1;
 	int msk_trkval = (DEFAULT_TMASK - 1)/50;
-	cvCreateTrackbar(PREV_TRK_BGR, PREV_WIN, &bgr_trkval, 2, prv_trk_bgr_handler);
-	cvCreateTrackbar(PREV_TRK_MSK, PREV_WIN, &msk_trkval, 10, prv_trk_tmask_handler);
+	cvCreateTrackbar(PREV_TRK_BGR, CNTRL_WIN, &bgr_trkval, 2, prv_trk_bgr_handler);
+	cvCreateTrackbar(PREV_TRK_MSK, CNTRL_WIN, &msk_trkval, 10, prv_trk_tmask_handler);
 
 	for (i = 0; i < TOT_WTS; i++)
 		invt[i] = build_transf_mat(&wt[i], invt[i], oimg, mw_img, prv_img->width, prv_img->height);
@@ -93,6 +94,7 @@ int main(int argc, char *argv[]) {
 	// Destroy windows
 	cvDestroyWindow(MAIN_WIN);
 	cvDestroyWindow(PREV_WIN);
+	cvDestroyWindow(CNTRL_WIN);
 //	cvDestroyAllWindows();
 
 	cvReleaseImage(&oimg); // Release greyscale image
@@ -124,7 +126,7 @@ void prev_mouseHandler(int event, int x, int y, int flags, void *param) {
 
 		strcat(tmp_file, dest_file);
 
-		cur_chan = cvGetTrackbarPos(PREV_TRK_BGR, PREV_WIN);
+		cur_chan = cvGetTrackbarPos(PREV_TRK_BGR, CNTRL_WIN);
 		invt[0] = build_transf_mat(&wt[0], invt[0], oimg, mw_img, prv_img->width * 4, prv_img->height * 4);
 		
 		if (event == CV_EVENT_MBUTTONDBLCLK) { // Save a color version
@@ -426,7 +428,7 @@ void update_preview_win(IplImage *pim, IplImage *oim, CvMat *tm, WTrap *wt) {
 
 	cvWarpPerspective(oim, pim, tm, /*CV_INTER_LINEAR +*/ CV_WARP_FILL_OUTLIERS + CV_WARP_INVERSE_MAP, cvScalarAll(0));
 
-	IplImage *mono = gray_from_colour(pim, cvGetTrackbarPos(PREV_TRK_BGR, PREV_WIN));
+	IplImage *mono = gray_from_colour(pim, cvGetTrackbarPos(PREV_TRK_BGR, CNTRL_WIN));
 
 	cvShowImage(PREV_WIN, mono);
 

@@ -3,6 +3,7 @@
 
 #define MAIN_WIN "ANASTIZER: Loaded Picture"
 #define PREV_WIN "ANASTIZER: Preview"
+#define CNTRL_WIN "ANASTIZER: Control"
 
 #define PREV_TRK_BGR "BGR"
 #define PREV_TRK_MSK "Thr. msk (+1 * 50)"
