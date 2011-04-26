@@ -11,6 +11,7 @@
 #define DEFAULT_TMASK 301
 
 static Uint16 tmask_size = DEFAULT_TMASK;
+static Uint16 tmask_avr = DEFAULT_RMTH;
 
 #define STRSIZE 256
 static char dest_file[STRSIZE];
@@ -31,6 +32,7 @@ void main_mouseHandler(int event, int x, int y, int flags, void *param);
 void prev_mouseHandler(int event, int x, int y, int flags, void *param);
 void prv_trk_bgr_handler(int pos);
 void prv_trk_tmask_handler(int pos);
+void prv_trk_avr_handler(int pos);
 
 void update_preview_win(IplImage *pim, IplImage *oim, CvMat *tm, WTrap *wt);
 
@@ -72,9 +74,11 @@ int main(int argc, char *argv[]) {
 	cvNamedWindow(CNTRL_WIN, CV_WINDOW_AUTOSIZE);
 
 	int bgr_trkval = 1;
-	int msk_trkval = (DEFAULT_TMASK - 1)/50;
+	int msk_trkval = (DEFAULT_TMASK - 1)/20;
+	int avr_trkval = DEFAULT_RMTH;
 	cvCreateTrackbar(PREV_TRK_BGR, CNTRL_WIN, &bgr_trkval, 2, prv_trk_bgr_handler);
-	cvCreateTrackbar(PREV_TRK_MSK, CNTRL_WIN, &msk_trkval, 10, prv_trk_tmask_handler);
+	cvCreateTrackbar(PREV_TRK_MSK, CNTRL_WIN, &msk_trkval, 30, prv_trk_tmask_handler);
+	cvCreateTrackbar(PREV_TRK_AVR, CNTRL_WIN, &avr_trkval, 255, prv_trk_avr_handler);
 
 	for (i = 0; i < TOT_WTS; i++)
 		invt[i] = build_transf_mat(&wt[i], invt[i], oimg, mw_img, prv_img->width, prv_img->height);
@@ -155,7 +159,7 @@ void prev_mouseHandler(int event, int x, int y, int flags, void *param) {
 		mimg = cvCreateImage(cvGetSize(gimg), 8, 1);
 
 		fprintf(stdout, " Applying local thresholding to image...\n");
-		cvAdaptiveThreshold(gimg, mimg, 255, CV_ADAPTIVE_THRESH_GAUSSIAN_C, CV_THRESH_BINARY, tmask_size, DEFAULT_RMTH);
+		cvAdaptiveThreshold(gimg, mimg, 255, CV_ADAPTIVE_THRESH_GAUSSIAN_C, CV_THRESH_BINARY, tmask_size, tmask_avr);
 
 
 		fprintf(stdout, " Applying spot cleanup based on size...\n");
@@ -441,6 +445,9 @@ void prv_trk_bgr_handler(int pos) {
 }
 
 void prv_trk_tmask_handler(int pos) {
-	tmask_size = ((pos + 1) * 50) + 1;
+	tmask_size = ((pos + 1) * 20) + 1;
 }
 
+void prv_trk_avr_handler(int pos) {
+	tmask_avr = pos;
+}
