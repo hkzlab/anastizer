@@ -65,13 +65,24 @@ int main(int argc, char *argv[]) {
 
 	recalc_img_size(&nwidth, &nheight, PREV_H);
 	mw_img = cvCreateImage(cvSize(nwidth , nheight), oimg->depth, oimg->nChannels); // Create a resized image
-	cvResize(oimg, mw_img, CV_INTER_NN); // Resize
+	cvResize(oimg, mw_img, CV_INTER_LINEAR); // Resize
 	prv_img = cvCreateImage(cvSize(PREV_W, PREV_H), oimg->depth, oimg->nChannels);
 
 	// Create windows
-	cvNamedWindow(MAIN_WIN, CV_WINDOW_AUTOSIZE);
-	cvNamedWindow(PREV_WIN, CV_WINDOW_AUTOSIZE);
-	cvNamedWindow(CNTRL_WIN, CV_WINDOW_AUTOSIZE);
+	cvNamedWindow(MAIN_WIN, CV_WINDOW_NORMAL);
+	cvNamedWindow(PREV_WIN, CV_WINDOW_NORMAL);
+	cvNamedWindow(CNTRL_WIN, CV_WINDOW_NORMAL);
+
+	// Resize windows
+	cvResizeWindow(MAIN_WIN, PREV_W, PREV_H);
+	cvResizeWindow(PREV_WIN, PREV_W, PREV_H);
+
+	// Move them
+	cvMoveWindow(MAIN_WIN, 10, 10);
+	cvMoveWindow(PREV_WIN, 18 + PREV_W, 10);
+	cvMoveWindow(CNTRL_WIN, 40 + PREV_W * 2, 50);
+
+
 
 	int bgr_trkval = 1;
 	int msk_trkval = (DEFAULT_TMASK - 1)/20;
