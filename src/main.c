@@ -242,6 +242,7 @@ void main_mouseHandler(int event, int x, int y, int flags, void *param) {
 	static Uint8 rb_down = 0;
 	static Uint8 mb_down = 0;
 	static Sint32 curnode = -1;
+	static Sint32 cur_wts = -1;
 
 	static int oldx, oldy;
 	int xdiff, ydiff;
@@ -252,7 +253,11 @@ void main_mouseHandler(int event, int x, int y, int flags, void *param) {
 	case CV_EVENT_LBUTTONDOWN:
 	case CV_EVENT_RBUTTONDOWN:
 	case CV_EVENT_MBUTTONDOWN:
-		check_wtrap_point(x, y, &wt[0], &curnode);
+		check_wtrap_point(x, y, wt, &curnode, TOT_WTS);
+
+		cur_wts = curnode / 4;
+		curnode %= 4;
+
 		if (event == CV_EVENT_LBUTTONDOWN) lb_down = 1;
 		else if (event == CV_EVENT_RBUTTONDOWN) rb_down = 1;
 		else if (event == CV_EVENT_MBUTTONDOWN) mb_down = 1;
@@ -267,7 +272,6 @@ void main_mouseHandler(int event, int x, int y, int flags, void *param) {
 		else if (event == CV_EVENT_MBUTTONUP) mb_down = 0;
 
 		if (curnode >= 0) { // And in this case we should update a preview window...
-			;
 			//invt[0] = build_transf_mat(&wt[0], invt[0], oimg, mw_img, prv_img->width, prv_img->height);
 			//update_preview_win(prv_img, oimg, invt[0], &wt[0]);
 		}
@@ -282,138 +286,138 @@ void main_mouseHandler(int event, int x, int y, int flags, void *param) {
 
 		if (lb_down) {
 			if (curnode == 0) {
-				wt[0].a.x += xdiff;
-				wt[0].a.y += ydiff;
+				wt[cur_wts].a.x += xdiff;
+				wt[cur_wts].a.y += ydiff;
 
-				if (wt[0].a.x > wt[0].b.x - 10)
-					wt[0].a.x = wt[0].b.x - 10;
+				if (wt[cur_wts].a.x > wt[cur_wts].b.x - 10)
+					wt[cur_wts].a.x = wt[cur_wts].b.x - 10;
 
-				if (wt[0].a.x > wt[0].c.x - 10)
-					wt[0].a.x = wt[0].c.x - 10;
+				if (wt[cur_wts].a.x > wt[cur_wts].c.x - 10)
+					wt[cur_wts].a.x = wt[cur_wts].c.x - 10;
 
-				if (wt[0].a.y > wt[0].d.y - 10)
-					wt[0].a.y = wt[0].d.y - 10;
+				if (wt[cur_wts].a.y > wt[cur_wts].d.y - 10)
+					wt[cur_wts].a.y = wt[cur_wts].d.y - 10;
 
-				if (wt[0].a.y > wt[0].c.y - 10)
-					wt[0].a.y = wt[0].c.y - 10;
+				if (wt[cur_wts].a.y > wt[cur_wts].c.y - 10)
+					wt[cur_wts].a.y = wt[cur_wts].c.y - 10;
 
 			} else if (curnode == 1) {
-				wt[0].b.x += xdiff;
-				wt[0].b.y += ydiff;
+				wt[cur_wts].b.x += xdiff;
+				wt[cur_wts].b.y += ydiff;
 
-				if (wt[0].a.x + 10 > wt[0].b.x)
-					wt[0].b.x = wt[0].a.x + 10;
+				if (wt[cur_wts].a.x + 10 > wt[cur_wts].b.x)
+					wt[cur_wts].b.x = wt[cur_wts].a.x + 10;
 
-				if (wt[0].d.x + 10 > wt[0].b.x)
-					wt[0].b.x = wt[0].d.x + 10;
+				if (wt[cur_wts].d.x + 10 > wt[cur_wts].b.x)
+					wt[cur_wts].b.x = wt[cur_wts].d.x + 10;
 
-				if (wt[0].b.y > wt[0].c.y - 10)
-					wt[0].b.y = wt[0].c.y - 10;
+				if (wt[cur_wts].b.y > wt[cur_wts].c.y - 10)
+					wt[cur_wts].b.y = wt[cur_wts].c.y - 10;
 
-				if (wt[0].b.y > wt[0].d.y - 10)
-					wt[0].b.y = wt[0].d.y - 10;
+				if (wt[cur_wts].b.y > wt[cur_wts].d.y - 10)
+					wt[cur_wts].b.y = wt[cur_wts].d.y - 10;
 
 			} else if (curnode == 2) {
-				wt[0].c.x += xdiff;
-				wt[0].c.y += ydiff;
+				wt[cur_wts].c.x += xdiff;
+				wt[cur_wts].c.y += ydiff;
 
-				if (wt[0].d.x + 10 > wt[0].c.x)
-					wt[0].c.x = wt[0].d.x + 10;
+				if (wt[cur_wts].d.x + 10 > wt[cur_wts].c.x)
+					wt[cur_wts].c.x = wt[cur_wts].d.x + 10;
 
-				if (wt[0].a.x + 10 > wt[0].c.x)
-					wt[0].c.x = wt[0].a.x + 10;
+				if (wt[cur_wts].a.x + 10 > wt[cur_wts].c.x)
+					wt[cur_wts].c.x = wt[cur_wts].a.x + 10;
 
-				if (wt[0].b.y + 10 > wt[0].c.y)
-					wt[0].c.y = wt[0].b.y + 10;
+				if (wt[cur_wts].b.y + 10 > wt[cur_wts].c.y)
+					wt[cur_wts].c.y = wt[cur_wts].b.y + 10;
 
-				if (wt[0].a.y + 10 > wt[0].c.y)
-					wt[0].c.y = wt[0].a.y + 10;
+				if (wt[cur_wts].a.y + 10 > wt[cur_wts].c.y)
+					wt[cur_wts].c.y = wt[cur_wts].a.y + 10;
 
 			} else if (curnode == 3) {
-				wt[0].d.x += xdiff;
-				wt[0].d.y += ydiff;
+				wt[cur_wts].d.x += xdiff;
+				wt[cur_wts].d.y += ydiff;
 
-				if (wt[0].d.x > wt[0].c.x - 10)
-					wt[0].d.x = wt[0].c.x - 10;
+				if (wt[cur_wts].d.x > wt[cur_wts].c.x - 10)
+					wt[cur_wts].d.x = wt[cur_wts].c.x - 10;
 
-				if (wt[0].d.x > wt[0].b.x - 10)
-					wt[0].d.x = wt[0].b.x - 10;
+				if (wt[cur_wts].d.x > wt[cur_wts].b.x - 10)
+					wt[cur_wts].d.x = wt[cur_wts].b.x - 10;
 
-				if (wt[0].a.y + 10 > wt[0].d.y)
-					wt[0].d.y = wt[0].a.y + 10;
+				if (wt[cur_wts].a.y + 10 > wt[cur_wts].d.y)
+					wt[cur_wts].d.y = wt[cur_wts].a.y + 10;
 
-				if (wt[0].b.y + 10 > wt[0].d.y)
-					wt[0].d.y = wt[0].b.y + 10;
+				if (wt[cur_wts].b.y + 10 > wt[cur_wts].d.y)
+					wt[cur_wts].d.y = wt[cur_wts].b.y + 10;
 			}
 		} else if (rb_down) {
-			if (wt[0].a.y + ydiff >= 0 && wt[0].a.x + xdiff >= 0 && \
-			        wt[0].b.y + ydiff >= 0 && wt[0].b.x + xdiff < ((IplImage *)param)->width && \
-			        wt[0].c.y + ydiff < ((IplImage *)param)->height && wt[0].c.x + xdiff < ((IplImage *)param)->width && \
-			        wt[0].d.y + ydiff < ((IplImage *)param)->height && wt[0].d.x + xdiff >= 0) {
+			if (wt[cur_wts].a.y + ydiff >= 0 && wt[cur_wts].a.x + xdiff >= 0 && \
+			        wt[cur_wts].b.y + ydiff >= 0 && wt[cur_wts].b.x + xdiff < ((IplImage *)param)->width && \
+			        wt[cur_wts].c.y + ydiff < ((IplImage *)param)->height && wt[cur_wts].c.x + xdiff < ((IplImage *)param)->width && \
+			        wt[cur_wts].d.y + ydiff < ((IplImage *)param)->height && wt[cur_wts].d.x + xdiff >= 0) {
 
-				wt[0].a.x += xdiff;
-				wt[0].b.x += xdiff;
-				wt[0].c.x += xdiff;
-				wt[0].d.x += xdiff;
+				wt[cur_wts].a.x += xdiff;
+				wt[cur_wts].b.x += xdiff;
+				wt[cur_wts].c.x += xdiff;
+				wt[cur_wts].d.x += xdiff;
 
-				wt[0].a.y += ydiff;
-				wt[0].b.y += ydiff;
-				wt[0].c.y += ydiff;
-				wt[0].d.y += ydiff;
+				wt[cur_wts].a.y += ydiff;
+				wt[cur_wts].b.y += ydiff;
+				wt[cur_wts].c.y += ydiff;
+				wt[cur_wts].d.y += ydiff;
 			}
 
 		} else if (mb_down) {
-			if (wt[0].a.y + ydiff >= 0 && wt[0].a.x + xdiff >= 0 && \
-			        wt[0].b.y + ydiff >= 0 && wt[0].b.x + xdiff < ((IplImage *)param)->width && \
-			        wt[0].c.y + ydiff < ((IplImage *)param)->height && wt[0].c.x + xdiff < ((IplImage *)param)->width && \
-			        wt[0].d.y + ydiff < ((IplImage *)param)->height && wt[0].d.x + xdiff >= 0) {
+			if (wt[cur_wts].a.y + ydiff >= 0 && wt[cur_wts].a.x + xdiff >= 0 && \
+			        wt[cur_wts].b.y + ydiff >= 0 && wt[cur_wts].b.x + xdiff < ((IplImage *)param)->width && \
+			        wt[cur_wts].c.y + ydiff < ((IplImage *)param)->height && wt[cur_wts].c.x + xdiff < ((IplImage *)param)->width && \
+			        wt[cur_wts].d.y + ydiff < ((IplImage *)param)->height && wt[cur_wts].d.x + xdiff >= 0) {
 				if (curnode == 0) {
-					wt[0].a.x += xdiff;
-					wt[0].a.y += ydiff;
+					wt[cur_wts].a.x += xdiff;
+					wt[cur_wts].a.y += ydiff;
 
-					wt[0].b.y += ydiff;
-					wt[0].d.x += xdiff;
+					wt[cur_wts].b.y += ydiff;
+					wt[cur_wts].d.x += xdiff;
 
-					if (wt[0].a.x >= wt[0].b.x - 10) wt[0].a.x = wt[0].b.x - 10;
-					if (wt[0].d.x >= wt[0].c.x - 10) wt[0].d.x = wt[0].c.x - 10;
-					if (wt[0].a.y >= wt[0].d.y - 10) wt[0].a.y = wt[0].d.y - 10;
-					if (wt[0].b.y >= wt[0].c.y - 10) wt[0].b.y = wt[0].c.y - 10;
+					if (wt[cur_wts].a.x >= wt[cur_wts].b.x - 10) wt[cur_wts].a.x = wt[cur_wts].b.x - 10;
+					if (wt[cur_wts].d.x >= wt[cur_wts].c.x - 10) wt[cur_wts].d.x = wt[cur_wts].c.x - 10;
+					if (wt[cur_wts].a.y >= wt[cur_wts].d.y - 10) wt[cur_wts].a.y = wt[cur_wts].d.y - 10;
+					if (wt[cur_wts].b.y >= wt[cur_wts].c.y - 10) wt[cur_wts].b.y = wt[cur_wts].c.y - 10;
 
 				} else if (curnode == 1) {
-					wt[0].b.x += xdiff;
-					wt[0].b.y += ydiff;
+					wt[cur_wts].b.x += xdiff;
+					wt[cur_wts].b.y += ydiff;
 
-					wt[0].a.y += ydiff;
-					wt[0].c.x += xdiff;
+					wt[cur_wts].a.y += ydiff;
+					wt[cur_wts].c.x += xdiff;
 
-					if (wt[0].a.x >= wt[0].b.x - 10) wt[0].b.x = wt[0].a.x + 10;
-					if (wt[0].d.x >= wt[0].c.x - 10) wt[0].c.x = wt[0].d.x + 10;
-					if (wt[0].a.y >= wt[0].d.y - 10) wt[0].a.y = wt[0].d.y - 10;
-					if (wt[0].b.y >= wt[0].c.y - 10) wt[0].b.y = wt[0].c.y - 10;
+					if (wt[cur_wts].a.x >= wt[cur_wts].b.x - 10) wt[cur_wts].b.x = wt[cur_wts].a.x + 10;
+					if (wt[cur_wts].d.x >= wt[cur_wts].c.x - 10) wt[cur_wts].c.x = wt[cur_wts].d.x + 10;
+					if (wt[cur_wts].a.y >= wt[cur_wts].d.y - 10) wt[cur_wts].a.y = wt[cur_wts].d.y - 10;
+					if (wt[cur_wts].b.y >= wt[cur_wts].c.y - 10) wt[cur_wts].b.y = wt[cur_wts].c.y - 10;
 
 				} else if (curnode == 2) {
-					wt[0].c.x += xdiff;
-					wt[0].c.y += ydiff;
+					wt[cur_wts].c.x += xdiff;
+					wt[cur_wts].c.y += ydiff;
 
-					wt[0].d.y += ydiff;
-					wt[0].b.x += xdiff;
+					wt[cur_wts].d.y += ydiff;
+					wt[cur_wts].b.x += xdiff;
 
-					if (wt[0].a.x >= wt[0].b.x - 10) wt[0].b.x = wt[0].a.x + 10;
-					if (wt[0].d.x >= wt[0].c.x - 10) wt[0].c.x = wt[0].d.x + 10;
-					if (wt[0].a.y >= wt[0].d.y - 10) wt[0].d.y = wt[0].a.y + 10;
-					if (wt[0].b.y >= wt[0].c.y - 10) wt[0].c.y = wt[0].b.y + 10;
+					if (wt[cur_wts].a.x >= wt[cur_wts].b.x - 10) wt[cur_wts].b.x = wt[cur_wts].a.x + 10;
+					if (wt[cur_wts].d.x >= wt[cur_wts].c.x - 10) wt[cur_wts].c.x = wt[cur_wts].d.x + 10;
+					if (wt[cur_wts].a.y >= wt[cur_wts].d.y - 10) wt[cur_wts].d.y = wt[cur_wts].a.y + 10;
+					if (wt[cur_wts].b.y >= wt[cur_wts].c.y - 10) wt[cur_wts].c.y = wt[cur_wts].b.y + 10;
 
 				} else if (curnode == 3) {
-					wt[0].d.x += xdiff;
-					wt[0].d.y += ydiff;
+					wt[cur_wts].d.x += xdiff;
+					wt[cur_wts].d.y += ydiff;
 
-					wt[0].c.y += ydiff;
-					wt[0].a.x += xdiff;
+					wt[cur_wts].c.y += ydiff;
+					wt[cur_wts].a.x += xdiff;
 
-					if (wt[0].a.x >= wt[0].b.x - 10) wt[0].a.x = wt[0].b.x - 10;
-					if (wt[0].d.x >= wt[0].c.x - 10) wt[0].d.x = wt[0].c.x - 10;
-					if (wt[0].a.y >= wt[0].d.y - 10) wt[0].d.y = wt[0].a.y + 10;
-					if (wt[0].b.y >= wt[0].c.y - 10) wt[0].c.y = wt[0].b.y + 10;
+					if (wt[cur_wts].a.x >= wt[cur_wts].b.x - 10) wt[cur_wts].a.x = wt[cur_wts].b.x - 10;
+					if (wt[cur_wts].d.x >= wt[cur_wts].c.x - 10) wt[cur_wts].d.x = wt[cur_wts].c.x - 10;
+					if (wt[cur_wts].a.y >= wt[cur_wts].d.y - 10) wt[cur_wts].d.y = wt[cur_wts].a.y + 10;
+					if (wt[cur_wts].b.y >= wt[cur_wts].c.y - 10) wt[cur_wts].c.y = wt[cur_wts].b.y + 10;
 
 				}
 

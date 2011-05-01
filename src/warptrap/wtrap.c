@@ -26,12 +26,15 @@ void update_wt_win(char *win, IplImage *in, WTrap *wt, Uint32 tot_wt) {
 	cvReleaseImage(&cin);
 }
 
-void check_wtrap_point(Sint32 x, Sint32 y, WTrap *wt, Sint32 *node) {
+void check_wtrap_point(Sint32 x, Sint32 y, WTrap *wt, Sint32 *node, Uint32 tot_wt) {
+	Uint32 i;
 	*node = -1;
 
-	if (abs(wt->a.x - x) <= 5 && abs(wt->a.y - y) <= 5) *node = 0;
-	else if (abs(wt->b.x - x) <= 5 && abs(wt->b.y - y) <= 5) *node = 1;
-	else if (abs(wt->c.x - x) <= 5 && abs(wt->c.y - y) <= 5) *node = 2;
-	else if (abs(wt->d.x - x) <= 5 && abs(wt->d.y - y) <= 5) *node = 3;
+	for (i = 0; i < tot_wt; i++) {
+		if (abs(wt[i].a.x - x) <= 5 && abs(wt[i].a.y - y) <= 5) *node = 0 + 4 * i;
+		else if (abs(wt[i].b.x - x) <= 5 && abs(wt[i].b.y - y) <= 5) *node = 1 + 4 * i;
+		else if (abs(wt[i].c.x - x) <= 5 && abs(wt[i].c.y - y) <= 5) *node = 2 + 4 * i;
+		else if (abs(wt[i].d.x - x) <= 5 && abs(wt[i].d.y - y) <= 5) *node = 3 + 4 * i;
+	}
 
 }
