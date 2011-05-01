@@ -78,13 +78,13 @@ int main(int argc, char *argv[]) {
 		prv_img[i] = cvCreateImage(cvSize(PREV_W, PREV_H), oimg->depth, oimg->nChannels);
 
 	// Create windows
-	cvNamedWindow(MAIN_WIN, CV_WINDOW_NORMAL);
+	cvNamedWindow(MAIN_WIN, CV_WINDOW_AUTOSIZE);
 
 	
 	for (i = 0; i < TOT_WTS; i++) {
 		win_str[19] = 49 + i;
-		cvNamedWindow(win_str, CV_WINDOW_NORMAL);
-		cvResizeWindow(win_str, PREV_W, PREV_H);
+		cvNamedWindow(win_str, CV_WINDOW_AUTOSIZE);
+		//cvResizeWindow(win_str, PREV_W, PREV_H);
 		cvMoveWindow(win_str, (18 + PREV_W) * (i + 1), 10);
 	}
 	
