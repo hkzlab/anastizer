@@ -18,6 +18,7 @@ static char dest_file[STRSIZE];
 
 #define TOT_WTS 2
 static WTrap wt[TOT_WTS];
+static Uint16 wtcode[TOT_WTS];
 
 #define PREV_H 512
 #define PREV_W 351
@@ -61,8 +62,10 @@ int main(int argc, char *argv[]) {
 
 	init_wts();
 
-	for (i = 0; i < TOT_WTS; i++)
+	for (i = 0; i < TOT_WTS; i++) {
+		wtcode[i] = i;
 		invt[i] = cvCreateMat(3, 3, CV_32FC1); // Allocate space for transf matrices
+	}
 
 	nwidth = oimg->width;
 	nheight = oimg->height;
@@ -113,7 +116,11 @@ int main(int argc, char *argv[]) {
 
 	// Register mouse handler for main window
 	cvSetMouseCallback(MAIN_WIN, main_mouseHandler, (void *)mw_img);
-	//cvSetMouseCallback(PREV_WIN, prev_mouseHandler, NULL);
+
+	for (i = 0; i < TOT_WTS; i++) {
+		win_str[19] = 49 + i;
+		cvSetMouseCallback(win_str, prev_mouseHandler, &wtcode[i]);
+	}
 
 	// wait for a key
 	cvWaitKey(0);
@@ -140,8 +147,9 @@ int main(int argc, char *argv[]) {
 	return 0;
 }
 
-#if 0
 void prev_mouseHandler(int event, int x, int y, int flags, void *param) {
+	Uint16 cur_win = *(Uint16*)param;
+
 	IplImage *gimg;
 	IplImage *mimg;
 	IplImage *rprev;
@@ -161,10 +169,10 @@ void prev_mouseHandler(int event, int x, int y, int flags, void *param) {
 		strcat(tmp_file, dest_file);
 
 		cur_chan = cvGetTrackbarPos(PREV_TRK_BGR, CNTRL_WIN);
-		invt[0] = build_transf_mat(&wt[0], invt[0], oimg, mw_img, prv_img->width * 4, prv_img->height * 4);
+		invt[cur_win] = build_transf_mat(&wt[cur_win], invt[cur_win], oimg, mw_img, prv_img[cur_win]->width * 4, prv_img[cur_win]->height * 4);
 		
 		if (event == CV_EVENT_MBUTTONDBLCLK) { // Save a color version
-			gimg = return_warped_img(oimg, invt[0], &wt[0], prv_img->width * 4, prv_img->height * 4, -1);
+			gimg = return_warped_img(oimg, invt[cur_win], &wt[cur_win], prv_img[cur_win]->width * 4, prv_img[cur_win]->height * 4, -1);
 
 			// Calculate output filename (JPG format)
 			strcat(tmp_file, "_WARPED.jpg");
@@ -183,7 +191,7 @@ void prev_mouseHandler(int event, int x, int y, int flags, void *param) {
 			break;
 
 		} else {
-			gimg = return_warped_img(oimg, invt[0], &wt[0], prv_img->width * 4, prv_img->height * 4, cur_chan);
+			gimg = return_warped_img(oimg, invt[cur_win], &wt[cur_win], prv_img[cur_win]->width * 4, prv_img[cur_win]->height * 4, cur_chan);
 		}
 
 		mimg = cvCreateImage(cvGetSize(gimg), 8, 1);
@@ -209,7 +217,8 @@ void prev_mouseHandler(int event, int x, int y, int flags, void *param) {
 		rprev = cvCreateImage(cvSize(nwidth , nheight), mimg->depth, mimg->nChannels); // Create a resized image
 		cvResize(mimg, rprev, CV_INTER_CUBIC); // Resize
 
-		cvShowImage(PREV_WIN, rprev);
+		win_str[19] = 49 + cur_win;
+		cvShowImage(win_str, rprev);
 
 		if (event == CV_EVENT_RBUTTONDBLCLK) { // or Save it...
 			// Calculate output filename (PNG format)
@@ -235,7 +244,6 @@ void prev_mouseHandler(int event, int x, int y, int flags, void *param) {
 
 	return;
 }
-#endif
 
 void main_mouseHandler(int event, int x, int y, int flags, void *param) {
 	static Uint8 lb_down = 0;
