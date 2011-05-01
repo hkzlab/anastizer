@@ -14,10 +14,13 @@ void draw_wtrap(IplImage *in, WTrap *wt, CvScalar s) {
 	cvCircle(in, wt->d, 4, s, 2, 8, 0);
 }
 
-void update_wt_win(char *win, IplImage *in, WTrap *wt, CvScalar s) {
+void update_wt_win(char *win, IplImage *in, WTrap *wt, Uint32 tot_wt) {
+	Uint32 i;
 	IplImage *cin = cvCloneImage(in);
 
-	draw_wtrap(cin, wt, s);
+	for (i = 0; i < tot_wt; i++)
+		draw_wtrap(cin, &wt[i], cvScalar(((i + 1) * 60), 0, 255 - ((i + 1) * 40), 0));
+
 	cvShowImage(win, cin);
 
 	cvReleaseImage(&cin);

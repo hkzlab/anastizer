@@ -16,7 +16,7 @@ static Uint16 tmask_avr = DEFAULT_RMTH;
 #define STRSIZE 256
 static char dest_file[STRSIZE];
 
-#define TOT_WTS 1
+#define TOT_WTS 2
 static WTrap wt[TOT_WTS];
 
 #define PREV_H 512
@@ -24,17 +24,18 @@ static WTrap wt[TOT_WTS];
 CvMat *invt[TOT_WTS];
 
 static IplImage *oimg; // Original image;
-static IplImage *prv_img;
+static IplImage *prv_img[TOT_WTS];
 static IplImage *mw_img;
+static char win_str[64];
 
 void init_wts(void);
 void main_mouseHandler(int event, int x, int y, int flags, void *param);
 void prev_mouseHandler(int event, int x, int y, int flags, void *param);
-void prv_trk_bgr_handler(int pos);
-void prv_trk_tmask_handler(int pos);
-void prv_trk_avr_handler(int pos);
+void cntrl_trk_bgr_handler(int pos);
+void cntrl_trk_tmask_handler(int pos);
+void cntrl_trk_avr_handler(int pos);
 
-void update_preview_win(IplImage *pim, IplImage *oim, CvMat *tm, WTrap *wt);
+void update_preview_win(IplImage *pim, const char *win, IplImage *oim, CvMat *tm, WTrap *wt);
 
 int main(int argc, char *argv[]) {
 	Uint32 nwidth, nheight;
@@ -55,6 +56,9 @@ int main(int argc, char *argv[]) {
 	// Load file path
 	strncat(dest_file, argv[1], strlen(argv[1]) - 4);
 
+	// Load preview win names
+	strncpy(win_str, PREV_WIN_1, 64);
+
 	init_wts();
 
 	for (i = 0; i < TOT_WTS; i++)
@@ -66,20 +70,28 @@ int main(int argc, char *argv[]) {
 	recalc_img_size(&nwidth, &nheight, PREV_H);
 	mw_img = cvCreateImage(cvSize(nwidth , nheight), oimg->depth, oimg->nChannels); // Create a resized image
 	cvResize(oimg, mw_img, CV_INTER_LINEAR); // Resize
-	prv_img = cvCreateImage(cvSize(PREV_W, PREV_H), oimg->depth, oimg->nChannels);
+
+	for (i = 0; i < TOT_WTS; i++)
+		prv_img[i] = cvCreateImage(cvSize(PREV_W, PREV_H), oimg->depth, oimg->nChannels);
 
 	// Create windows
 	cvNamedWindow(MAIN_WIN, CV_WINDOW_NORMAL);
-	cvNamedWindow(PREV_WIN, CV_WINDOW_NORMAL);
+
+	
+	for (i = 0; i < TOT_WTS; i++) {
+		win_str[19] = 49 + i;
+		cvNamedWindow(win_str, CV_WINDOW_NORMAL);
+		cvResizeWindow(win_str, PREV_W, PREV_H);
+		cvMoveWindow(win_str, (18 + PREV_W) * (i + 1), 10);
+	}
+	
 	cvNamedWindow(CNTRL_WIN, CV_WINDOW_NORMAL);
 
 	// Resize windows
 	cvResizeWindow(MAIN_WIN, PREV_W, PREV_H);
-	cvResizeWindow(PREV_WIN, PREV_W, PREV_H);
 
 	// Move them
 	cvMoveWindow(MAIN_WIN, 10, 10);
-	cvMoveWindow(PREV_WIN, 18 + PREV_W, 10);
 	cvMoveWindow(CNTRL_WIN, 40 + PREV_W * 2, 50);
 
 
@@ -87,41 +99,48 @@ int main(int argc, char *argv[]) {
 	int bgr_trkval = 1;
 	int msk_trkval = (DEFAULT_TMASK - 1)/20;
 	int avr_trkval = DEFAULT_RMTH;
-	cvCreateTrackbar(PREV_TRK_BGR, CNTRL_WIN, &bgr_trkval, 2, prv_trk_bgr_handler);
-	cvCreateTrackbar(PREV_TRK_MSK, CNTRL_WIN, &msk_trkval, 30, prv_trk_tmask_handler);
-	cvCreateTrackbar(PREV_TRK_AVR, CNTRL_WIN, &avr_trkval, 255, prv_trk_avr_handler);
+	cvCreateTrackbar(PREV_TRK_BGR, CNTRL_WIN, &bgr_trkval, 2, cntrl_trk_bgr_handler);
+	cvCreateTrackbar(PREV_TRK_MSK, CNTRL_WIN, &msk_trkval, 30, cntrl_trk_tmask_handler);
+	cvCreateTrackbar(PREV_TRK_AVR, CNTRL_WIN, &avr_trkval, 255, cntrl_trk_avr_handler);
 
-	for (i = 0; i < TOT_WTS; i++)
-		invt[i] = build_transf_mat(&wt[i], invt[i], oimg, mw_img, prv_img->width, prv_img->height);
+	for (i = 0; i < TOT_WTS; i++) {
+		win_str[19] = 49 + i;
+		invt[i] = build_transf_mat(&wt[i], invt[i], oimg, mw_img, prv_img[i]->width, prv_img[i]->height);
+		update_preview_win(prv_img[i], win_str, oimg, invt[i], &wt[i]);
+	}
 
-	update_preview_win(prv_img, oimg, invt[0], &wt[0]);
-
-	// Show resized image
-	update_wt_win(MAIN_WIN, mw_img, wt, cvScalar(0, 0, 255, 0));
+	update_wt_win(MAIN_WIN, mw_img, wt, TOT_WTS);
 
 	// Register mouse handler for main window
 	cvSetMouseCallback(MAIN_WIN, main_mouseHandler, (void *)mw_img);
-	cvSetMouseCallback(PREV_WIN, prev_mouseHandler, NULL);
+	//cvSetMouseCallback(PREV_WIN, prev_mouseHandler, NULL);
 
 	// wait for a key
 	cvWaitKey(0);
 
 	// Destroy windows
 	cvDestroyWindow(MAIN_WIN);
-	cvDestroyWindow(PREV_WIN);
+
+	for (i = 0; i < TOT_WTS; i++) {
+		win_str[19] = 49 + i;
+		cvDestroyWindow(win_str);
+	}
+
 	cvDestroyWindow(CNTRL_WIN);
 //	cvDestroyAllWindows();
 
 	cvReleaseImage(&oimg); // Release greyscale image
 	cvReleaseImage(&mw_img);
-	cvReleaseImage(&prv_img);
-
-	for (i = 0; i < TOT_WTS; i++)
+	
+	for (i = 0; i < TOT_WTS; i++) {
+		cvReleaseImage(&prv_img[i]);
 		cvReleaseMat(&invt[i]);
+	}
 
 	return 0;
 }
 
+#if 0
 void prev_mouseHandler(int event, int x, int y, int flags, void *param) {
 	IplImage *gimg;
 	IplImage *mimg;
@@ -216,6 +235,7 @@ void prev_mouseHandler(int event, int x, int y, int flags, void *param) {
 
 	return;
 }
+#endif
 
 void main_mouseHandler(int event, int x, int y, int flags, void *param) {
 	static Uint8 lb_down = 0;
@@ -225,6 +245,8 @@ void main_mouseHandler(int event, int x, int y, int flags, void *param) {
 
 	static int oldx, oldy;
 	int xdiff, ydiff;
+
+	Uint32 i;
 
 	switch (event) {
 	case CV_EVENT_LBUTTONDOWN:
@@ -245,8 +267,9 @@ void main_mouseHandler(int event, int x, int y, int flags, void *param) {
 		else if (event == CV_EVENT_MBUTTONUP) mb_down = 0;
 
 		if (curnode >= 0) { // And in this case we should update a preview window...
-			invt[0] = build_transf_mat(&wt[0], invt[0], oimg, mw_img, prv_img->width, prv_img->height);
-			update_preview_win(prv_img, oimg, invt[0], &wt[0]);
+			;
+			//invt[0] = build_transf_mat(&wt[0], invt[0], oimg, mw_img, prv_img->width, prv_img->height);
+			//update_preview_win(prv_img, oimg, invt[0], &wt[0]);
 		}
 
 		curnode = -1;
@@ -400,12 +423,7 @@ void main_mouseHandler(int event, int x, int y, int flags, void *param) {
 		oldx = x;
 		oldy = y;
 
-		update_wt_win(MAIN_WIN, (IplImage *)param, wt, cvScalar(0, 0, 255, 0));
-
-#if 0
-		invt[0] = build_transf_mat(&wt[0], invt[0], oimg, mw_img, prv_img->width, prv_img->height);
-		update_preview_win(prv_img, oimg, invt[0], &wt[0]);
-#endif
+		update_wt_win(MAIN_WIN, mw_img, wt, TOT_WTS);
 
 		break;
 	default:
@@ -422,21 +440,21 @@ void init_wts(void) {
 	Sint32 y = 20;
 
 	for (i = 0; i < TOT_WTS; i++) {
-		wt[i].a.x = x;
+		wt[i].a.x = x + (i * 140);
 		wt[i].a.y = y;
 
-		wt[i].b.x = x + 120;
+		wt[i].b.x = wt[i].a.x + 120;
 		wt[i].b.y = y;
 
-		wt[i].c.x = x + 120;
+		wt[i].c.x = wt[i].a.x + 120;
 		wt[i].c.y = y + 210;
 
-		wt[i].d.x = x;
+		wt[i].d.x = x + (i * 140);
 		wt[i].d.y = y + 210;
 	}
 }
 
-void update_preview_win(IplImage *pim, IplImage *oim, CvMat *tm, WTrap *wt) {
+void update_preview_win(IplImage *pim, const char *win, IplImage *oim, CvMat *tm, WTrap *wt) {
 	assert(pim);
 	assert(oim);
 	assert(tm);
@@ -445,20 +463,25 @@ void update_preview_win(IplImage *pim, IplImage *oim, CvMat *tm, WTrap *wt) {
 
 	IplImage *mono = gray_from_colour(pim, cvGetTrackbarPos(PREV_TRK_BGR, CNTRL_WIN));
 
-	cvShowImage(PREV_WIN, mono);
+	cvShowImage(win, mono);
 
 	cvReleaseImage(&mono);
 }
 
-void prv_trk_bgr_handler(int pos) {
-	invt[0] = build_transf_mat(&wt[0], invt[0], oimg, mw_img, prv_img->width, prv_img->height);
-	update_preview_win(prv_img, oimg, invt[0], &wt[0]);
+void cntrl_trk_bgr_handler(int pos) {
+	Uint32 i;
+
+	for (i = 0; i < TOT_WTS; i++) {
+		win_str[19] = 49 + i;
+		invt[i] = build_transf_mat(&wt[i], invt[i], oimg, mw_img, prv_img[i]->width, prv_img[i]->height);
+		update_preview_win(prv_img[i], win_str, oimg, invt[i], &wt[i]);
+	}
 }
 
-void prv_trk_tmask_handler(int pos) {
+void cntrl_trk_tmask_handler(int pos) {
 	tmask_size = ((pos + 1) * 20) + 1;
 }
 
-void prv_trk_avr_handler(int pos) {
+void cntrl_trk_avr_handler(int pos) {
 	tmask_avr = pos;
 }
