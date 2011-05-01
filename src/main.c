@@ -272,8 +272,9 @@ void main_mouseHandler(int event, int x, int y, int flags, void *param) {
 		else if (event == CV_EVENT_MBUTTONUP) mb_down = 0;
 
 		if (curnode >= 0) { // And in this case we should update a preview window...
-			//invt[0] = build_transf_mat(&wt[0], invt[0], oimg, mw_img, prv_img->width, prv_img->height);
-			//update_preview_win(prv_img, oimg, invt[0], &wt[0]);
+			win_str[19] = 49 + cur_wts;
+			invt[cur_wts] = build_transf_mat(&wt[cur_wts], invt[cur_wts], oimg, mw_img, prv_img[cur_wts]->width, prv_img[cur_wts]->height);
+			update_preview_win(prv_img[cur_wts], win_str, oimg, invt[cur_wts], &wt[cur_wts]);
 		}
 
 		curnode = -1;
