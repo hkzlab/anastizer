@@ -159,7 +159,10 @@ void prev_mouseHandler(int event, int x, int y, int flags, void *param) {
 	Uint32 nwidth, nheight;
 
 	char tmp_file[STRSIZE];
+	char winsrc[16];
 	tmp_file[0] = '\0';
+
+	sprintf(winsrc, "_WIN%u", cur_win + 1);
 
 	switch (event) {
 	case CV_EVENT_MBUTTONDBLCLK:
@@ -167,6 +170,7 @@ void prev_mouseHandler(int event, int x, int y, int flags, void *param) {
 	case CV_EVENT_RBUTTONDBLCLK:
 
 		strcat(tmp_file, dest_file);
+		strcat(tmp_file, winsrc);
 
 		cur_chan = cvGetTrackbarPos(PREV_TRK_BGR, CNTRL_WIN);
 		invt[cur_win] = build_transf_mat(&wt[cur_win], invt[cur_win], oimg, mw_img, prv_img[cur_win]->width * 4, prv_img[cur_win]->height * 4);
