@@ -5,7 +5,7 @@ CFLAGS=-O2 -Isrc/ -I/usr/include/opencv/ -g -std=c99 -Wextra
 LDFLAGS=  -lm -lcv -lcvaux -lhighgui
 
 MODULES=$(BINDIR)/main.o $(BINDIR)/utils.o $(BINDIR)/wtrap.o $(BINDIR)/spotclear.o \
-		$(BINDIR)/handlers.o $(BINDIR)/globs.o
+		$(BINDIR)/handlers.o $(BINDIR)/globs.o $(BINDIR)/windraw.o
 
 PROGNAME=anastizer
 
@@ -29,6 +29,9 @@ $(BINDIR)/spotclear.o:	$(SRCDIR)/spotclear/spotclear.c
 
 $(BINDIR)/handlers.o:	$(SRCDIR)/gui/handlers.c
 	gcc -c $(CFLAGS) $(SRCDIR)/gui/handlers.c -o $(BINDIR)/handlers.o
+
+$(BINDIR)/windraw.o:	$(SRCDIR)/gui/windraw.c
+	gcc -c $(CFLAGS) $(SRCDIR)/gui/windraw.c -o $(BINDIR)/windraw.o
 
 $(BINDIR)/globs.o:	$(SRCDIR)/common/globs.c
 	gcc -c $(CFLAGS) $(SRCDIR)/common/globs.c -o $(BINDIR)/globs.o

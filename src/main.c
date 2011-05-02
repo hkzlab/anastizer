@@ -4,6 +4,7 @@
 #include "utils/utils.h"
 #include "warptrap/wtrap.h"
 #include "gui/handlers.h"
+#include "gui/windraw.h"
 
 void init_wts(void);
 
@@ -82,7 +83,7 @@ int main(int argc, char *argv[]) {
 		redraw_preview_win(prv_img[i], win_str, oimg, invt[i], &wt[i]);
 	}
 
-	update_wt_win(MAIN_WIN, mw_img, wt, MAX_WTS);
+	draw_wt_win(MAIN_WIN, mw_img, wt, MAX_WTS);
 
 	// Register mouse handler for main window
 	cvSetMouseCallback(MAIN_WIN, main_mouseHandler, (void *)mw_img);

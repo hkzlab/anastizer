@@ -1,5 +1,7 @@
 #include "handlers.h"
+#include "windraw.h"
 
+#include "common/globs.h"
 #include "common/win_names.h"
 #include "spotclear/spotclear.h"
 #include "utils/utils.h"
@@ -297,7 +299,7 @@ void main_mouseHandler(int event, int x, int y, int flags, void *param) {
 		oldx = x;
 		oldy = y;
 
-		update_wt_win(MAIN_WIN, mw_img, wt, MAX_WTS);
+		draw_wt_win(MAIN_WIN, mw_img, wt, MAX_WTS);
 
 		break;
 	default:
@@ -305,20 +307,6 @@ void main_mouseHandler(int event, int x, int y, int flags, void *param) {
 	}
 
 	return;
-}
-
-void redraw_preview_win(IplImage *pim, const char *win, IplImage *oim, CvMat *tm, WTrap *wt) {
-	assert(pim);
-	assert(oim);
-	assert(tm);
-
-	cvWarpPerspective(oim, pim, tm, /*CV_INTER_LINEAR +*/ CV_WARP_FILL_OUTLIERS + CV_WARP_INVERSE_MAP, cvScalarAll(0));
-
-	IplImage *mono = gray_from_colour(pim, cvGetTrackbarPos(PREV_TRK_BGR, CNTRL_WIN));
-
-	cvShowImage(win, mono);
-
-	cvReleaseImage(&mono);
 }
 
 void cntrl_trk_bgr_handler(int pos) {
