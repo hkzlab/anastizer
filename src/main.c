@@ -1,32 +1,12 @@
 #include "common/defs.h"
 #include "common/win_names.h"
+#include "common/globs.h"
 #include "utils/utils.h"
 #include "warptrap/wtrap.h"
 #include "spotclear/spotclear.h"
 
 #include <stdio.h>
 #include <stdlib.h>
-
-#define DEFAULT_RMTH 5
-#define DEFAULT_TMASK 301
-
-static Uint16 tmask_size = DEFAULT_TMASK;
-static Uint16 tmask_avr = DEFAULT_RMTH;
-
-#define STRSIZE 256
-static char dest_file[STRSIZE];
-
-static WTrap wt[MAX_WTS];
-static Uint16 wtcode[MAX_WTS];
-
-#define PREV_H 512
-#define PREV_W 351
-CvMat *invt[MAX_WTS];
-
-static IplImage *oimg; // Original image;
-static IplImage *prv_img[MAX_WTS];
-static IplImage *mw_img;
-static char win_str[64];
 
 void init_wts(void);
 void main_mouseHandler(int event, int x, int y, int flags, void *param);
@@ -157,7 +137,7 @@ void prev_mouseHandler(int event, int x, int y, int flags, void *param) {
 	Uint8 cur_chan;
 	Uint32 nwidth, nheight;
 
-	char tmp_file[STRSIZE];
+	char tmp_file[STR_BUF_SIZE];
 	char winsrc[16];
 	tmp_file[0] = '\0';
 
