@@ -27,8 +27,8 @@ $(BINDIR)/wtrap.o:	$(SRCDIR)/warptrap/wtrap.c
 $(BINDIR)/spotclear.o:	$(SRCDIR)/spotclear/spotclear.c
 	gcc -c $(CFLAGS) $(SRCDIR)/spotclear/spotclear.c -o $(BINDIR)/spotclear.o
 
-$(BINDIR)/handlers.o:	$(SRCDIR)/handlers/handlers.c
-	gcc -c $(CFLAGS) $(SRCDIR)/handlers/handlers.c -o $(BINDIR)/handlers.o
+$(BINDIR)/handlers.o:	$(SRCDIR)/gui/handlers.c
+	gcc -c $(CFLAGS) $(SRCDIR)/gui/handlers.c -o $(BINDIR)/handlers.o
 
 $(BINDIR)/globs.o:	$(SRCDIR)/common/globs.c
 	gcc -c $(CFLAGS) $(SRCDIR)/common/globs.c -o $(BINDIR)/globs.o

@@ -1,6 +1,10 @@
 #ifndef _DEFS_HEADER_
 #define _DEFS_HEADER_
 
+// Standard headers
+#include <stdio.h>
+#include <stdlib.h>
+
 // OpenCV headers
 #include <cv.h>
 #include <cvaux.h>
