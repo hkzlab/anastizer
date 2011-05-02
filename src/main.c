@@ -35,7 +35,7 @@ void cntrl_trk_bgr_handler(int pos);
 void cntrl_trk_tmask_handler(int pos);
 void cntrl_trk_avr_handler(int pos);
 
-void update_preview_win(IplImage *pim, const char *win, IplImage *oim, CvMat *tm, WTrap *wt);
+void redraw_preview_win(IplImage *pim, const char *win, IplImage *oim, CvMat *tm, WTrap *wt);
 
 int main(int argc, char *argv[]) {
 	Uint32 nwidth, nheight;
@@ -108,7 +108,7 @@ int main(int argc, char *argv[]) {
 	for (i = 0; i < MAX_WTS; i++) {
 		win_str[19] = 49 + i;
 		invt[i] = build_transf_mat(&wt[i], invt[i], oimg, mw_img, prv_img[i]->width, prv_img[i]->height);
-		update_preview_win(prv_img[i], win_str, oimg, invt[i], &wt[i]);
+		redraw_preview_win(prv_img[i], win_str, oimg, invt[i], &wt[i]);
 	}
 
 	update_wt_win(MAIN_WIN, mw_img, wt, MAX_WTS);
@@ -285,7 +285,7 @@ void main_mouseHandler(int event, int x, int y, int flags, void *param) {
 		if (curnode >= 0) { // And in this case we should update a preview window...
 			win_str[19] = 49 + cur_wts;
 			invt[cur_wts] = build_transf_mat(&wt[cur_wts], invt[cur_wts], oimg, mw_img, prv_img[cur_wts]->width, prv_img[cur_wts]->height);
-			update_preview_win(prv_img[cur_wts], win_str, oimg, invt[cur_wts], &wt[cur_wts]);
+			redraw_preview_win(prv_img[cur_wts], win_str, oimg, invt[cur_wts], &wt[cur_wts]);
 		}
 
 		curnode = -1;
@@ -470,7 +470,7 @@ void init_wts(void) {
 	}
 }
 
-void update_preview_win(IplImage *pim, const char *win, IplImage *oim, CvMat *tm, WTrap *wt) {
+void redraw_preview_win(IplImage *pim, const char *win, IplImage *oim, CvMat *tm, WTrap *wt) {
 	assert(pim);
 	assert(oim);
 	assert(tm);
@@ -490,7 +490,7 @@ void cntrl_trk_bgr_handler(int pos) {
 	for (i = 0; i < MAX_WTS; i++) {
 		win_str[19] = 49 + i;
 		invt[i] = build_transf_mat(&wt[i], invt[i], oimg, mw_img, prv_img[i]->width, prv_img[i]->height);
-		update_preview_win(prv_img[i], win_str, oimg, invt[i], &wt[i]);
+		redraw_preview_win(prv_img[i], win_str, oimg, invt[i], &wt[i]);
 	}
 }
 
