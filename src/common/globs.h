@@ -4,19 +4,22 @@
 #include "common/defs.h"
 #include "warptrap/wtrap.h"
 
-extern Uint16 tmask_size;
+// These are global vars required by OpenCV gui handler's callbacks
+
+extern Uint16 tmask_size; // parameters for local thresh
 extern Uint16 tmask_avr;
 
-extern char dest_file[STR_BUF_SIZE];
+extern char dest_file[STR_BUF_SIZE]; // File destination path buffer
 
-extern WTrap wt[MAX_WTS];
+extern WTrap wt[MAX_WTS]; // WarpTraps data
 extern Uint16 wtcode[MAX_WTS];
 
-extern CvMat *invt[MAX_WTS];
+extern CvMat *invt[MAX_WTS]; // Inversion matrices for screen warping
 
 extern IplImage *oimg; // Original image;
-extern IplImage *prv_img[MAX_WTS];
-extern IplImage *mw_img;
-extern char win_str[64];
+extern IplImage *prv_img[MAX_WTS]; // Preview images
+extern IplImage *mw_img; // Main window resized image
+
+extern char win_str[64]; // Window title string for preview windows
 
 #endif /* _GLOBS_HEADER_ */
