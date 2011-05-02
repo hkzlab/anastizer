@@ -105,15 +105,7 @@ int main(int argc, char *argv[]) {
 	cvWaitKey(0);
 
 	// Destroy windows
-	cvDestroyWindow(MAIN_WIN);
-
-	for (i = 0; i < MAX_WTS; i++) {
-		win_str[19] = 49 + i;
-		cvDestroyWindow(win_str);
-	}
-
-	cvDestroyWindow(CNTRL_WIN);
-//	cvDestroyAllWindows();
+	cvDestroyAllWindows();
 
 	cvReleaseImage(&oimg); // Release greyscale image
 	cvReleaseImage(&mw_img);
