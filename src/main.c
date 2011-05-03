@@ -6,13 +6,14 @@
 #include "gui/handlers.h"
 #include "gui/windraw.h"
 
-void init_wts(void);
+void init_wts(Uint32 wtn);
 
 
 int main(int argc, char *argv[]) {
 	Uint32 nwidth, nheight;
 	Uint32 i;
 
+	// Check parameters and load image file
 	if (argc < 2) {
 		fprintf(stdout, "%s [imagefile]\n", argv[0]);
 		return 1;
@@ -25,51 +26,51 @@ int main(int argc, char *argv[]) {
 		fprintf(stdout, "Loaded image %s\n", argv[1]);
 	}
 
-	// Load file path
+	// Prepare file path, removing last 4 chars (extension)
 	strncat(dest_file, argv[1], strlen(argv[1]) - 4);
 
 	// Load preview win names
 	strncpy(win_str, PREV_WIN_1, 64);
 
-	init_wts();
+	// Initialize the warptraps
+	init_wts(MAX_WTS);
 
+	// Prepare the memory for warp matrices
 	for (i = 0; i < MAX_WTS; i++) {
 		wtcode[i] = i;
-		invt[i] = cvCreateMat(3, 3, CV_32FC1); // Allocate space for transf matrices
+		invt[i] = cvCreateMat(3, 3, CV_32FC1);
 	}
 
 	nwidth = oimg->width;
 	nheight = oimg->height;
 
+	// Calculate width proportional to PREV_H
 	recalc_img_size(&nwidth, &nheight, PREV_H);
 	mw_img = cvCreateImage(cvSize(nwidth , nheight), oimg->depth, oimg->nChannels); // Create a resized image
 	cvResize(oimg, mw_img, CV_INTER_LINEAR); // Resize
 
+	// Create images for preview
 	for (i = 0; i < MAX_WTS; i++)
 		prv_img[i] = cvCreateImage(cvSize(PREV_W, PREV_H), oimg->depth, oimg->nChannels);
 
 	// Create windows
 	cvNamedWindow(MAIN_WIN, CV_WINDOW_AUTOSIZE);
 
-
+	// Create and move preview windows
 	for (i = 0; i < MAX_WTS; i++) {
 		win_str[19] = 49 + i;
 		cvNamedWindow(win_str, CV_WINDOW_AUTOSIZE);
-		//cvResizeWindow(win_str, PREV_W, PREV_H);
 		cvMoveWindow(win_str, (18 + PREV_W) *(i + 1), 10);
 	}
 
+	// Build control window
 	cvNamedWindow(CNTRL_WIN, CV_WINDOW_NORMAL);
 
-	// Resize windows
-	cvResizeWindow(MAIN_WIN, PREV_W, PREV_H);
-
-	// Move them
+	// Move main and control window
 	cvMoveWindow(MAIN_WIN, 10, 10);
 	cvMoveWindow(CNTRL_WIN, 40 + PREV_W * 2, 50);
 
-
-
+	// Prepare handlers for trackbars
 	int bgr_trkval = 1;
 	int msk_trkval = (DEFAULT_TMASK - 1) / 20;
 	int avr_trkval = DEFAULT_RMTH;
@@ -77,17 +78,20 @@ int main(int argc, char *argv[]) {
 	cvCreateTrackbar(PREV_TRK_MSK, CNTRL_WIN, &msk_trkval, 30, cntrl_trk_tmask_handler);
 	cvCreateTrackbar(PREV_TRK_AVR, CNTRL_WIN, &avr_trkval, 255, cntrl_trk_avr_handler);
 
+	// Build transform matrices
 	for (i = 0; i < MAX_WTS; i++) {
 		win_str[19] = 49 + i;
 		invt[i] = build_transf_mat(&wt[i], invt[i], oimg, mw_img, prv_img[i]->width, prv_img[i]->height);
 		redraw_preview_win(prv_img[i], win_str, oimg, invt[i], &wt[i]);
 	}
 
+	// Draw main window with warptraps
 	draw_wt_win(MAIN_WIN, mw_img, wt, MAX_WTS);
 
 	// Register mouse handler for main window
 	cvSetMouseCallback(MAIN_WIN, main_mouseHandler, (void *)mw_img);
 
+	// Register mouse handlers for previews
 	for (i = 0; i < MAX_WTS; i++) {
 		win_str[19] = 49 + i;
 		cvSetMouseCallback(win_str, prev_mouseHandler, &wtcode[i]);
@@ -99,9 +103,9 @@ int main(int argc, char *argv[]) {
 	// Destroy windows
 	cvDestroyAllWindows();
 
-	cvReleaseImage(&oimg); // Release greyscale image
+	// Release memory
+	cvReleaseImage(&oimg);
 	cvReleaseImage(&mw_img);
-
 	for (i = 0; i < MAX_WTS; i++) {
 		cvReleaseImage(&prv_img[i]);
 		cvReleaseMat(&invt[i]);
@@ -110,13 +114,13 @@ int main(int argc, char *argv[]) {
 	return 0;
 }
 
-void init_wts(void) {
+void init_wts(Uint32 wtn) {
 	Uint16 i;
 
 	Sint32 x = 40;
 	Sint32 y = 20;
 
-	for (i = 0; i < MAX_WTS; i++) {
+	for (i = 0; i < wtn; i++) {
 		wt[i].a.x = x + (i * 140);
 		wt[i].a.y = y;
 
