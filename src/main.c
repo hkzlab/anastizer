@@ -51,14 +51,14 @@ int main(int argc, char *argv[]) {
 	// Create windows
 	cvNamedWindow(MAIN_WIN, CV_WINDOW_AUTOSIZE);
 
-	
+
 	for (i = 0; i < MAX_WTS; i++) {
 		win_str[19] = 49 + i;
 		cvNamedWindow(win_str, CV_WINDOW_AUTOSIZE);
 		//cvResizeWindow(win_str, PREV_W, PREV_H);
-		cvMoveWindow(win_str, (18 + PREV_W) * (i + 1), 10);
+		cvMoveWindow(win_str, (18 + PREV_W) *(i + 1), 10);
 	}
-	
+
 	cvNamedWindow(CNTRL_WIN, CV_WINDOW_NORMAL);
 
 	// Resize windows
@@ -71,7 +71,7 @@ int main(int argc, char *argv[]) {
 
 
 	int bgr_trkval = 1;
-	int msk_trkval = (DEFAULT_TMASK - 1)/20;
+	int msk_trkval = (DEFAULT_TMASK - 1) / 20;
 	int avr_trkval = DEFAULT_RMTH;
 	cvCreateTrackbar(PREV_TRK_BGR, CNTRL_WIN, &bgr_trkval, 2, cntrl_trk_bgr_handler);
 	cvCreateTrackbar(PREV_TRK_MSK, CNTRL_WIN, &msk_trkval, 30, cntrl_trk_tmask_handler);
@@ -101,7 +101,7 @@ int main(int argc, char *argv[]) {
 
 	cvReleaseImage(&oimg); // Release greyscale image
 	cvReleaseImage(&mw_img);
-	
+
 	for (i = 0; i < MAX_WTS; i++) {
 		cvReleaseImage(&prv_img[i]);
 		cvReleaseMat(&invt[i]);
