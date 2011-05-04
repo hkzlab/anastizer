@@ -19,7 +19,7 @@ typedef signed int Sint32;
 typedef unsigned long Uint64;
 typedef signed long Sint64;
 
-#define MAX_WTS 2 // Max warptraps on screen
+#define MAX_WTS 4 // Max warptraps on screen
 
 #define PREV_H 512 // Preview windows sizes
 #define PREV_W 351

@@ -38,7 +38,11 @@ int main(int argc, char *argv[]) {
 	// Prepare the memory for warp matrices
 	for (i = 0; i < MAX_WTS; i++) {
 		wtcode[i] = i;
-		invt[i] = cvCreateMat(3, 3, CV_32FC1);
+
+		if (i < used_wts)
+			invt[i] = cvCreateMat(3, 3, CV_32FC1);
+		else
+			invt[i] = NULL;
 	}
 
 	nwidth = oimg->width;
@@ -50,14 +54,18 @@ int main(int argc, char *argv[]) {
 	cvResize(oimg, mw_img, CV_INTER_LINEAR); // Resize
 
 	// Create images for preview
-	for (i = 0; i < MAX_WTS; i++)
-		prv_img[i] = cvCreateImage(cvSize(PREV_W, PREV_H), oimg->depth, oimg->nChannels);
+	for (i = 0; i < MAX_WTS; i++) {
+		if (i < used_wts)
+			prv_img[i] = cvCreateImage(cvSize(PREV_W, PREV_H), oimg->depth, oimg->nChannels);
+		else
+			prv_img[i] = NULL;
+	}
 
 	// Create windows
 	cvNamedWindow(MAIN_WIN, CV_WINDOW_AUTOSIZE);
 
 	// Create and move preview windows
-	for (i = 0; i < MAX_WTS; i++) {
+	for (i = 0; i < used_wts; i++) {
 		win_str[19] = 49 + i;
 		cvNamedWindow(win_str, CV_WINDOW_AUTOSIZE);
 		cvMoveWindow(win_str, (18 + PREV_W) *(i + 1), 10);
@@ -79,20 +87,20 @@ int main(int argc, char *argv[]) {
 	cvCreateTrackbar(PREV_TRK_AVR, CNTRL_WIN, &avr_trkval, 255, cntrl_trk_avr_handler);
 
 	// Build transform matrices
-	for (i = 0; i < MAX_WTS; i++) {
+	for (i = 0; i < used_wts; i++) {
 		win_str[19] = 49 + i;
 		invt[i] = build_transf_mat(&wt[i], invt[i], oimg, mw_img, prv_img[i]->width, prv_img[i]->height);
 		redraw_preview_win(prv_img[i], win_str, oimg, invt[i], &wt[i]);
 	}
 
 	// Draw main window with warptraps
-	draw_wt_win(MAIN_WIN, mw_img, wt, MAX_WTS);
+	draw_wt_win(MAIN_WIN, mw_img, wt, used_wts);
 
 	// Register mouse handler for main window
 	cvSetMouseCallback(MAIN_WIN, main_mouseHandler, (void *)mw_img);
 
 	// Register mouse handlers for previews
-	for (i = 0; i < MAX_WTS; i++) {
+	for (i = 0; i < used_wts; i++) {
 		win_str[19] = 49 + i;
 		cvSetMouseCallback(win_str, prev_mouseHandler, &wtcode[i]);
 	}
@@ -106,7 +114,7 @@ int main(int argc, char *argv[]) {
 	// Release memory
 	cvReleaseImage(&oimg);
 	cvReleaseImage(&mw_img);
-	for (i = 0; i < MAX_WTS; i++) {
+	for (i = 0; i < used_wts; i++) {
 		cvReleaseImage(&prv_img[i]);
 		cvReleaseMat(&invt[i]);
 	}

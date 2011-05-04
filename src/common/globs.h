@@ -13,6 +13,7 @@ extern char dest_file[STR_BUF_SIZE]; // File destination path buffer
 
 extern WTrap wt[MAX_WTS]; // WarpTraps data
 extern Uint16 wtcode[MAX_WTS];
+extern Uint8 used_wts; // Currently used warptraps
 
 extern CvMat *invt[MAX_WTS]; // Inversion matrices for screen warping
 
