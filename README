@@ -1,7 +1,8 @@
 ANASTIZER
 
-Tool to interactively warp a photo and make an anastatic-like filtered
-version out of it.
+Tool to interactively warp a photo of a book page and make an 
+anastatic-like b/w version out of it. Useful to speed up a book
+digitalization process if you can't use a scanner.
 
 This software uses OpenCV - http://opencv.willowgarage.com/wiki/
 The use of this software is FREE for non-commercial purposes,
