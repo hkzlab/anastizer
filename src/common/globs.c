@@ -10,7 +10,7 @@ char dest_file[STR_BUF_SIZE];
 
 WTrap wt[MAX_WTS];
 Uint16 wtcode[MAX_WTS];
-Uint8 used_wts = 2;
+Uint8 used_wts = DEF_WTS; // Default 
 
 CvMat *invt[MAX_WTS];
 

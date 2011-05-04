@@ -26,6 +26,10 @@ int main(int argc, char *argv[]) {
 		fprintf(stdout, "Loaded image %s\n", argv[1]);
 	}
 
+	// This is probably a shot of a single page, only one wts needed
+	if (oimg->height > oimg->width) 
+		used_wts = 1;
+
 	// Prepare file path, removing last 4 chars (extension)
 	strncat(dest_file, argv[1], strlen(argv[1]) - 4);
 
