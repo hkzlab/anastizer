@@ -164,7 +164,7 @@ CvRect *getRoiFromPic(IplImage *in, Sint32 *tot_rois) {
 	//cvThreshold(wpic, wpic, 200, 255, CV_THRESH_BINARY);
 	cvErode(wpic, wpic, NULL, 30); // And erode it so we get BIG black squares in place of text
 
-	//cvSaveImage("./testroiblur.jpg", wpic, 0);
+	cvSaveImage("./testroiblur.jpg", wpic, 0);
 
 	// Go through the image
 	for (i = 0; i < wpic->height; i += 4) {
