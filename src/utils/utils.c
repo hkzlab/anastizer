@@ -109,7 +109,8 @@ IplImage *gray_from_colour(IplImage *in, Uint8 chan) {
 IplImage *anastize_image(IplImage *wimg) {
 	assert(wimg);
 
-	Sint32 tot_rois;
+	Sint32 tot_rois, i;
+	IplImage *tmpi;
 
 	IplImage *mimg = cvCreateImage(cvGetSize(wimg), 8, 1);	
 
@@ -126,8 +127,22 @@ IplImage *anastize_image(IplImage *wimg) {
 	remove_spot_thin(mimg, 1, 5 * WARP_MULT, 0.6, Conn8); // Do a cleanup based on thinness of the element
 	
 	CvRect *rois = getRoiFromPic(wimg, &tot_rois);
-	free(rois);
 
+	tmpi = cvCreateImage(cvGetSize(mimg), mimg->depth, mimg->nChannels);
+	cvRectangle(tmpi, cvPoint(0, 0), cvPoint(tmpi->width - 1, tmpi->height - 1), cvScalar(255, 255, 255, 0), CV_FILLED, 8, 0);
+
+	for (i = 0; i < tot_rois; i++) {
+		cvSetImageROI(mimg, rois[i]);
+		cvSetImageROI(tmpi, rois[i]);
+		cvCopy(mimg, tmpi, NULL);
+	}
+	cvResetImageROI(mimg);
+	cvResetImageROI(tmpi);
+
+	cvReleaseImage(&mimg);
+	mimg = tmpi;
+
+	free(rois);
 	return mimg;
 }
 
@@ -137,7 +152,7 @@ CvRect *getRoiFromPic(IplImage *in, Sint32 *tot_rois) {
 
 	IplImage *wpic = cvCloneImage(in);
 	Uint8 *wpic_dat = wpic->imageData;
-	Sint32 max_rects = 256;
+	Sint32 max_rects = 512;
 	Sint32 trois = -1;
 	CvRect *drois = (CvRect*)malloc(sizeof(CvRect) * max_rects);
 	Sint32 i,j;
@@ -147,10 +162,12 @@ CvRect *getRoiFromPic(IplImage *in, Sint32 *tot_rois) {
 
 	cvSmooth(wpic, wpic, CV_BLUR, 19, 0, 0, 0); // Smooth the input image, so only blobs remain
 	cvThreshold(wpic, wpic, 200, 255, CV_THRESH_BINARY); // Now, threshold it
-	cvErode(wpic, wpic, NULL, 60); // And erode it so we get BIG black squares in place of text
+	cvErode(wpic, wpic, NULL, 20); // And erode it so we get BIG black squares in place of text
+
+	//cvSaveImage("./testroi.jpg",wpic, 0);
 
 	// Go through the image
-	for (i = 0; i < wpic->height; i += 32) {
+	for (i = 0; i < wpic->height; i += 8) {
 		xmin = xmax = -1;
 		for (j = 0; j < wpic->width; j++) {
 			if(wpic_dat[(i * wpic->widthStep) + (j * wpic->nChannels) + 0] == 0) {
@@ -163,7 +180,7 @@ CvRect *getRoiFromPic(IplImage *in, Sint32 *tot_rois) {
 			drois[trois + 1].x = xmin;
 			drois[trois + 1].y = i;
 			drois[trois + 1].width = xmax-xmin;
-			drois[trois + 1].height = MIN(32, wpic->height - i);
+			drois[trois + 1].height = MIN(8, wpic->height - i);
 
 			trois++;
 		}
