@@ -110,7 +110,7 @@ int main(int argc, char *argv[]) {
 	}
 
 	// wait for a key
-	cvWaitKey(0);
+	while(cvWaitKey(0) != 'q');
 
 	// Destroy windows
 	cvDestroyAllWindows();
