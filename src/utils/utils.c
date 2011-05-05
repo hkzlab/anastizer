@@ -112,18 +112,14 @@ IplImage *anastize_image(IplImage *wimg, Uint8 cur_chan) {
 	fprintf(stdout, " Applying local thresholding to image...\n");
 	cvAdaptiveThreshold(wimg, mimg, 255, CV_ADAPTIVE_THRESH_GAUSSIAN_C, CV_THRESH_BINARY, tmask_size, tmask_avr);
 
-	fprintf(stdout, " Applying spot cleanup based on size...\n");
-	remove_spot_size(mimg, 3 * WARP_MULT, Conn8); // Do a spot cleanup
-		
-	fprintf(stdout, " Applying spot cleanup based on intensity...\n");
-	remove_spot_intensity(mimg, wimg, 125 * WARP_MULT, -50, cur_chan, Conn8);
-		
-	fprintf(stdout, " Applying spot cleanup based on thinness...\n");
-	spot_thin(mimg, 12 * WARP_MULT, 0.125 * WARP_MULT, Conn8);
-		
-	fprintf(stdout, " Applying spot cleanup based on distance...\n");
-	spot_neighbour_dist(mimg, 12 * WARP_MULT, 5 * WARP_MULT, Conn8);
-	spot_neighbour_dist(mimg, 100 * WARP_MULT, 22 * WARP_MULT, Conn8);
+	fprintf(stdout, " Filtering...\n");
+	remove_spot_size(mimg, 3 * WARP_MULT, Conn8); // Do a spot cleanup based on size
+	remove_spot_intensity(mimg, wimg, 200 * WARP_MULT, 400 * WARP_MULT, 15, cur_chan, Conn8); // Do a cleanup based on intensity
+	remove_spot_intensity(mimg, wimg, 50 * WARP_MULT, 200 * WARP_MULT, 100, cur_chan, Conn8); // Do a cleanup based on intensity
+
+	//spot_thin(mimg, 12 * WARP_MULT, 0.125 * WARP_MULT, Conn8);
+	spot_neighbour_dist(mimg, 8 * WARP_MULT, 8 * WARP_MULT, Conn8);
+	//spot_neighbour_dist(mimg, 100 * WARP_MULT, 22 * WARP_MULT, Conn8);
 
 	return mimg;
 }

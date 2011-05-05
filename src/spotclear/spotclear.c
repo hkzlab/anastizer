@@ -336,6 +336,8 @@ Uint32 size_spot(Uint32 x, Uint32 y, IplImage *in, enum PConn pc, Uint8 nval, Si
 }
 
 void spot_neighbour_dist(IplImage *in, Uint16 ssize, Uint16 maxdist, enum PConn pc) {
+	fprintf(stdout, " Removing spots with area %u or less and distant at least %u pix from others.\n", ssize, maxdist);
+
     IplImage *cin = cvCloneImage(in);
 
     Sint32 xmin, xmax, ymin, ymax, xscenter, yscenter;
@@ -370,6 +372,7 @@ void spot_neighbour_dist(IplImage *in, Uint16 ssize, Uint16 maxdist, enum PConn 
 }
 
 void remove_spot_size(IplImage *in, Uint16 ssize, enum PConn pc) {
+	fprintf(stdout, " Removing spots with area %u or less.\n", ssize);
     IplImage *cin = cvCloneImage(in);
 
     Uint32 xmin, xmax, ymin, ymax;
@@ -397,8 +400,9 @@ void remove_spot_size(IplImage *in, Uint16 ssize, enum PConn pc) {
     cvReleaseImage(&cin);
 }
 
-void remove_spot_intensity(IplImage *in, IplImage *gin, Uint16 ssize, Sint16 inc, Uint8 chan, enum PConn pc) {
-    Uint8 medium_int = get_medium_intensity(gin, 0);
+void remove_spot_intensity(IplImage *in, IplImage *gin, Uint32 minsize, Uint32 maxsize, Sint16 inc, Uint8 chan, enum PConn pc) {
+	fprintf(stdout, " Removing spots with area in range [%u-%u] and with intensity less than average spot intensity + %d.\n", minsize, maxsize, inc);
+	Uint8 medium_int = get_medium_intensity(gin, 0);
     Sint32 medium_spot = 0;
     Uint32 tot_spots = 0;
     Sint32 cur_spot_int;
@@ -435,11 +439,12 @@ void remove_spot_intensity(IplImage *in, IplImage *gin, Uint16 ssize, Sint16 inc
             if (cin->imageData[(i * cin->widthStep) + (j * cin->nChannels) + 0] == 0) {
                 cssize = size_spot(j, i, cin, pc, 1, NULL, NULL, NULL, NULL);
 
-                if(cssize > 0 && cssize <= ssize) {
+                if(cssize >= minsize && cssize <= maxsize) {
                     cur_spot_int = intensity_spot(j, i, cin2, gin, pc, chan) / cssize;
 
-                    if (cur_spot_int + inc >= medium_spot)
+                    if (cur_spot_int + inc <= medium_spot) {
                         size_spot(j, i, in, pc, 255, NULL, NULL, NULL, NULL);
+					}
                 }
             }
         }
