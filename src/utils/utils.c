@@ -152,7 +152,7 @@ CvRect *getRoiFromPic(IplImage *in, Sint32 *tot_rois) {
 
 	IplImage *wpic = cvCloneImage(in);
 	Uint8 *wpic_dat = wpic->imageData;
-	Sint32 max_rects = 512;
+	Sint32 max_rects = 1024;
 	Sint32 trois = -1;
 	CvRect *drois = (CvRect*)malloc(sizeof(CvRect) * max_rects);
 	Sint32 i,j;
@@ -160,14 +160,14 @@ CvRect *getRoiFromPic(IplImage *in, Sint32 *tot_rois) {
 
 	xmin = xmax = -1;
 
-	cvSmooth(wpic, wpic, CV_BLUR, 19, 0, 0, 0); // Smooth the input image, so only blobs remain
-	cvThreshold(wpic, wpic, 200, 255, CV_THRESH_BINARY); // Now, threshold it
-	cvErode(wpic, wpic, NULL, 20); // And erode it so we get BIG black squares in place of text
+	cvSmooth(wpic, wpic, CV_BLUR, 15, 0, 0, 0); // Smooth the input image, so only blobs remain
+	cvThreshold(wpic, wpic, 255, 255, CV_THRESH_BINARY | CV_THRESH_OTSU); // Now, threshold it (thresh val is calculated automatically)
+	cvErode(wpic, wpic, NULL, 15); // And erode it so we get BIG black squares in place of text
 
 	//cvSaveImage("./testroi.jpg",wpic, 0);
 
 	// Go through the image
-	for (i = 0; i < wpic->height; i += 8) {
+	for (i = 0; i < wpic->height; i += 4) {
 		xmin = xmax = -1;
 		for (j = 0; j < wpic->width; j++) {
 			if(wpic_dat[(i * wpic->widthStep) + (j * wpic->nChannels) + 0] == 0) {
@@ -180,7 +180,7 @@ CvRect *getRoiFromPic(IplImage *in, Sint32 *tot_rois) {
 			drois[trois + 1].x = xmin;
 			drois[trois + 1].y = i;
 			drois[trois + 1].width = xmax-xmin;
-			drois[trois + 1].height = MIN(8, wpic->height - i);
+			drois[trois + 1].height = MIN(4, wpic->height - i);
 
 			trois++;
 		}
