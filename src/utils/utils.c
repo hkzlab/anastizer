@@ -3,6 +3,8 @@
 #include "common/globs.h"
 #include "spotclear/spotclear.h"
 
+//CvRect *get_ROIs_from_pic(IplImage *inUint32 *tot_rois);
+
 CvMat *build_transf_mat(WTrap *w, CvMat *mm, IplImage *or, IplImage *pw, Uint32 dwidth, Uint32 dheight) {
 	// SEE cvWarpPerspectiveQMatrix
 	// here: http://www.comp.leeds.ac.uk/vision/opencv/opencvref_cv.html
@@ -104,7 +106,7 @@ IplImage *gray_from_colour(IplImage *in, Uint8 chan) {
 	return grey;
 }
 
-IplImage *anastize_image(IplImage *wimg, Uint8 cur_chan) {
+IplImage *anastize_image(IplImage *wimg) {
 	assert(wimg);
 
 	IplImage *mimg = cvCreateImage(cvGetSize(wimg), 8, 1);	
@@ -113,9 +115,9 @@ IplImage *anastize_image(IplImage *wimg, Uint8 cur_chan) {
 	cvAdaptiveThreshold(wimg, mimg, 255, CV_ADAPTIVE_THRESH_GAUSSIAN_C, CV_THRESH_BINARY, tmask_size, tmask_avr);
 
 	remove_spot_size(mimg, 1, 3 * WARP_MULT, Conn8); // Do a spot cleanup based on size
-	remove_spot_intensity(mimg, wimg, 1, 8 * WARP_MULT, 15, cur_chan, Conn8); // Do a cleanup based on intensity
-	remove_spot_intensity(mimg, wimg, 8 * WARP_MULT + 1, 400 * WARP_MULT, 100, cur_chan, Conn8);
-	remove_spot_intensity(mimg, wimg, 400 * WARP_MULT + 1, 600 * WARP_MULT, 80, cur_chan, Conn8);
+	remove_spot_intensity(mimg, wimg, 1, 8 * WARP_MULT, 15, 0, Conn8); // Do a cleanup based on intensity
+	remove_spot_intensity(mimg, wimg, 8 * WARP_MULT + 1, 400 * WARP_MULT, 100, 0, Conn8);
+	remove_spot_intensity(mimg, wimg, 400 * WARP_MULT + 1, 600 * WARP_MULT, 80, 0, Conn8);
 	remove_spot_neighbour_dist(mimg, 1, 4 * WARP_MULT, 2 * WARP_MULT, Conn8); // Do a cleanup based on distance
 	remove_spot_neighbour_dist(mimg, 4 * WARP_MULT + 1, 8 * WARP_MULT, 8 * WARP_MULT, Conn8); 
 	remove_spot_neighbour_dist(mimg, 8 * WARP_MULT + 1, 150 * WARP_MULT, 30 * WARP_MULT, Conn8);
