@@ -155,28 +155,16 @@ CvRect *getRoiFromPic(IplImage *in, Sint32 *tot_rois) {
 	Sint32 max_rects = 1024;
 	Sint32 trois = -1;
 	CvRect *drois = (CvRect*)malloc(sizeof(CvRect) * max_rects);
-	CvRect roir;
 	Sint32 xmin, xmax, i, j, whites;
 
 	xmin = xmax = -1;
 
-	cvSmooth(wpic, wpic, CV_BLUR, 25, 0, 0, 0); // Smooth the input image, so only blobs remain
-	cvEqualizeHist(wpic, wpic);
+	cvSmooth(wpic, wpic, CV_GAUSSIAN, 95, 0, 0, 0); // Smooth the input image, so only blobs remain
+	cvAdaptiveThreshold(wpic, wpic, 255, CV_ADAPTIVE_THRESH_MEAN_C, CV_THRESH_BINARY, 30 * WARP_MULT + 1, 3);
+	//cvThreshold(wpic, wpic, 200, 255, CV_THRESH_BINARY);
+	cvErode(wpic, wpic, NULL, 30); // And erode it so we get BIG black squares in place of text
 
-	// Threshold the image, slice by slice
-	roir.x = 0; roir.width = wpic->width;
-	for (i = 0; i < wpic->height; i += 64) {
-		roir.y = i;
-		roir.height = MIN(64, wpic->height - i);
-
-		cvSetImageROI(wpic, roir);
-		cvThreshold(wpic, wpic, 255, 255, CV_THRESH_BINARY | CV_THRESH_OTSU); // Now, threshold it (thresh val is calculated automatically)
-	}
-	cvResetImageROI(wpic);
-
-	cvErode(wpic, wpic, NULL, 10); // And erode it so we get BIG black squares in place of text
-
-	//cvSaveImage("./testroi.jpg",wpic, 0);
+	//cvSaveImage("./testroiblur.jpg", wpic, 0);
 
 	// Go through the image
 	for (i = 0; i < wpic->height; i += 4) {
@@ -190,7 +178,7 @@ CvRect *getRoiFromPic(IplImage *in, Sint32 *tot_rois) {
 			} else if (xmin != -1) {
 				whites++;
 
-				if (whites >= 12 * WARP_MULT) {
+				if (whites >= 130 * WARP_MULT) {
 					drois[trois + 1].x = xmin;
 					drois[trois + 1].y = i;
 					drois[trois + 1].width = xmax-xmin;
