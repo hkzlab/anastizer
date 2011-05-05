@@ -159,15 +159,15 @@ CvRect *getRoiFromPic(IplImage *in, Sint32 *tot_rois) {
 
 	xmin = xmax = -1;
 
-	cvSmooth(wpic, wpic, CV_BLUR, 45, 0, 0, 0); // Smooth the input image, so only blobs remain
-	cvAdaptiveThreshold(wpic, wpic, 255, CV_ADAPTIVE_THRESH_MEAN_C, CV_THRESH_BINARY, 30 * WARP_MULT + 1, 3);
+	cvSmooth(wpic, wpic, CV_BLUR, 35, 0, 0, 0); // Smooth the input image, so only blobs remain
+	cvAdaptiveThreshold(wpic, wpic, 255, CV_ADAPTIVE_THRESH_MEAN_C, CV_THRESH_BINARY, 10 * WARP_MULT + 1, 3);
 	//cvThreshold(wpic, wpic, 200, 255, CV_THRESH_BINARY);
-	cvErode(wpic, wpic, NULL, 30); // And erode it so we get BIG black squares in place of text
+	cvErode(wpic, wpic, NULL, 20); // And erode it so we get BIG black squares in place of text
 
 	cvSaveImage("./testroiblur.jpg", wpic, 0);
 
 	// Go through the image
-	for (i = 0; i < wpic->height; i += 4) {
+	for (i = 0; i < wpic->height; i += 16) {
 		whites = 0;
 		xmin = xmax = -1;
 		for (j = 0; j < wpic->width; j++) {
@@ -179,10 +179,10 @@ CvRect *getRoiFromPic(IplImage *in, Sint32 *tot_rois) {
 				whites++;
 
 				if (whites >= 130 * WARP_MULT) {
-					drois[trois + 1].x = xmin;
+					drois[trois + 1].x = xmin - 10;
 					drois[trois + 1].y = i;
-					drois[trois + 1].width = xmax-xmin;
-					drois[trois + 1].height = MIN(4, wpic->height - i);
+					drois[trois + 1].width = (xmax-xmin) + 10;
+					drois[trois + 1].height = MIN(16, wpic->height - i);
 					trois++;
 					
 					whites = 0;
@@ -192,10 +192,10 @@ CvRect *getRoiFromPic(IplImage *in, Sint32 *tot_rois) {
 		}
 
 		if (xmin != -1 && (trois + 1) < max_rects) { // We found a rect!
-			drois[trois + 1].x = xmin;
+			drois[trois + 1].x = xmin - 10;
 			drois[trois + 1].y = i;
-			drois[trois + 1].width = xmax-xmin;
-			drois[trois + 1].height = MIN(4, wpic->height - i);
+			drois[trois + 1].width = (xmax-xmin) + 10;
+			drois[trois + 1].height = MIN(16, wpic->height - i);
 			trois++;
 		}
 	}
