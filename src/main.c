@@ -8,6 +8,7 @@
 
 void init_wts(Uint32 wtn);
 
+// ************* // 
 
 int main(int argc, char *argv[]) {
 	Uint32 nwidth, nheight;
@@ -55,13 +56,27 @@ int main(int argc, char *argv[]) {
 			invt[i] = NULL;
 	}
 
+	IplImage *tmp_img;
 	nwidth = oimg->width;
 	nheight = oimg->height;
 
-	// Calculate width proportional to PREV_H
+	// Prepare original image to work on (size preview * 4)
+	recalc_img_size(&nwidth, &nheight, PREV_H * 4);
+	tmp_img = cvCreateImage(cvSize(nwidth , nheight), oimg->depth, oimg->nChannels); // Create a resized image
+	cvResize(oimg, tmp_img, CV_INTER_CUBIC); // Resize
+
+	// Save as new original image
+	cvReleaseImage(&oimg);
+	oimg = tmp_img;
+
+	nwidth = oimg->width;
+	nheight = oimg->height;
+
+	// Prepare preview image
 	recalc_img_size(&nwidth, &nheight, PREV_H);
 	mw_img = cvCreateImage(cvSize(nwidth , nheight), oimg->depth, oimg->nChannels); // Create a resized image
 	cvResize(oimg, mw_img, CV_INTER_LINEAR); // Resize
+
 
 	// Create images for preview
 	for (i = 0; i < MAX_WTS; i++) {
