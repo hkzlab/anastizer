@@ -30,8 +30,8 @@ typedef signed long Sint64;
 
 #define STR_BUF_SIZE 256 // Temporary dest file string size
 
-#define DEFAULT_RMTH 3 // Default filter options for local thresholding
+#define DEFAULT_RMTH 5 // Default filter options for local thresholding
 #define TMASK_MULTIPLIER 10
-#define DEFAULT_TMASK ((9 * TMASK_MULTIPLIER * WARP_MULT) + 1)
+#define DEFAULT_TMASK ((8 * TMASK_MULTIPLIER * WARP_MULT) + 1)
 
 #endif /* _DEFS_HEADER_ */
