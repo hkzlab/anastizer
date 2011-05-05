@@ -23,7 +23,8 @@ typedef struct {
 
 /***/
 
-void spot_thin(IplImage *in, Uint16 ssize, float edge_mult, enum PConn pc) {
+void remove_spot_thin(IplImage *in, Uint32 minsize, Uint32 maxsize, float edge_mult, enum PConn pc) {
+	fprintf(stdout, " Removing spots with area in range [%u-%u] and smallest side at least %.3f the other\n", minsize, maxsize, edge_mult);	
     IplImage *cin = cvCloneImage(in);
 
     Sint32 xmin, xmax, ymin, ymax, xsize, ysize;
@@ -48,7 +49,7 @@ void spot_thin(IplImage *in, Uint16 ssize, float edge_mult, enum PConn pc) {
                 lside = MAX(xsize, ysize);
                 sside = MIN(xsize, ysize);
 
-                if (cssize <= ssize && lside * edge_mult > sside) {
+                if (cssize >= minsize && cssize <= maxsize && lside * edge_mult > sside) {
                     size_spot(j, i, in, pc, 255, NULL, NULL, NULL, NULL);
                 }
             }
@@ -335,7 +336,7 @@ Uint32 size_spot(Uint32 x, Uint32 y, IplImage *in, enum PConn pc, Uint8 nval, Si
     return tot_p2d;
 }
 
-void spot_neighbour_dist(IplImage *in, Uint32 minsize, Uint32 maxsize, Uint16 maxdist, enum PConn pc) {
+void remove_spot_neighbour_dist(IplImage *in, Uint32 minsize, Uint32 maxsize, Uint16 maxdist, enum PConn pc) {
 	fprintf(stdout, " Removing spots with area in range [%u-%u] and distant at least %u pix from others.\n", minsize, maxsize, maxdist);
 
     IplImage *cin = cvCloneImage(in);
