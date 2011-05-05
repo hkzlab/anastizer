@@ -3,7 +3,7 @@
 #include "common/globs.h"
 #include "spotclear/spotclear.h"
 
-CvRect *getRoiFromPic(IplImage *in, Uint32 *tot_rois);
+CvRect *getRoiFromPic(IplImage *in, Sint32 *tot_rois);
 
 CvMat *build_transf_mat(WTrap *w, CvMat *mm, IplImage *or, IplImage *pw, Uint32 dwidth, Uint32 dheight) {
 	// SEE cvWarpPerspectiveQMatrix
@@ -133,26 +133,41 @@ IplImage *anastize_image(IplImage *wimg) {
 	return mimg;
 }
 
-CvRect *getRoiFromPic(IplImage *in, Uint32 *tot_rois) {
+CvRect *getRoiFromPic(IplImage *in, Sint32 *tot_rois) {
 	assert(in);
 	assert(tot_rois);
 
 	IplImage *wpic = cvCloneImage(in);
-	Uint32 max_rects = 64;
-	Uint32 tot_rects = 0;
+	Uint8 *wpic_dat = wpic->imageData;
+	Sint32 max_rects = 256;
+	*tot_rois = -1;
 	CvRect *drois = (CvRect*)malloc(sizeof(CvRect) * max_rects);
 	Sint32 i,j;
-	Sint32 xmin, xmax, ymin, ymax;
+	Sint32 xmin, xmax;
 
 	cvSmooth(wpic, wpic, CV_BLUR, 19, 0, 0, 0); // Smooth the input image, so only blobs remain
 	cvThreshold(wpic, wpic, 200, 255, CV_THRESH_BINARY); // Now, threshold it
 	cvErode(wpic, wpic, NULL, 60); // And erode it so we get BIG black squares in place of text
 
 	// Go through the image
-	for (i = 0; i < wpic->height; i++)
+	for (i = 0; i < wpic->height; i += 32) {
+		xmin = xmax = -1;
 		for (j = 0; j < wpic->width; j++) {
-			;
+			if(wpic_dat[(i * wpic->widthStep) + (j * wpic->nChannels) + 0] == 0) {
+				if (xmin == -1) xmin = j;
+				xmax = j;
+			}
 		}
+
+		if (xmin != -1 && (*tot_rois + 1) < max_rects) { // We found a rect!
+			drois[*tot_rois + 1].x = xmin;
+			drois[*tot_rois + 1].y = i;
+			drois[*tot_rois + 1].width = xmax-xmin;
+			drois[*tot_rois + 1].height = MIN(32, wpic->height - i);
+
+			*tot_rois++;
+		}
+	}
 
 	cvReleaseImage(&wpic);
 	return drois;
