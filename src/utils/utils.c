@@ -3,7 +3,7 @@
 #include "common/globs.h"
 #include "spotclear/spotclear.h"
 
-//CvRect *get_ROIs_from_pic(IplImage *inUint32 *tot_rois);
+CvRect *getRoiFromPic(IplImage *in, Uint32 *tot_rois);
 
 CvMat *build_transf_mat(WTrap *w, CvMat *mm, IplImage *or, IplImage *pw, Uint32 dwidth, Uint32 dheight) {
 	// SEE cvWarpPerspectiveQMatrix
@@ -133,3 +133,25 @@ IplImage *anastize_image(IplImage *wimg) {
 	return mimg;
 }
 
+CvRect *getRoiFromPic(IplImage *in, Uint32 *tot_rois) {
+	assert(in);
+	assert(tot_rois);
+
+	IplImage *wpic = cvCloneImage(in);
+	CvRect *drois = NULL;
+	Uint32 i,j;
+	Sint32 xmin, xmax, ymin, ymax;
+
+	cvSmooth(wpic, wpic, CV_BLUR, 19, 0, 0, 0); // Smooth the input image, so only blobs remain
+	cvThreshold(wpic, wpic, 200, 255, CV_THRESH_BINARY); // Now, threshold it
+	cvErode(wpic, wpic, NULL, 60); // And erode it so we get BIG black squares in place of text
+
+	// Go through the image
+	for (i = 0; i < wpic->height; i++)
+		for (j = 0; j < wpic->width; j++) {
+			size_spot(j, i, wpic, Conn8, 1, &xmin, &xmax, &ymin, &ymax); // Calculate rectangle containing black blob...
+		}
+
+	cvReleaseImage(&wpic);
+	return drois;
+}
