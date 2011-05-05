@@ -109,8 +109,6 @@ IplImage *anastize_image(IplImage *wimg, Uint8 cur_chan) {
 
 	IplImage *mimg = cvCreateImage(cvGetSize(wimg), 8, 1);	
 
-	cvSmooth(wimg, wimg, CV_BLUR, 19, 0, 0, 0);
-
 	fprintf(stdout, " Applying local thresholding to image...\n");
 	cvAdaptiveThreshold(wimg, mimg, 255, CV_ADAPTIVE_THRESH_GAUSSIAN_C, CV_THRESH_BINARY, tmask_size, tmask_avr);
 
@@ -124,7 +122,8 @@ IplImage *anastize_image(IplImage *wimg, Uint8 cur_chan) {
 	remove_spot_thin(mimg, 1, 5 * WARP_MULT, 0.6, Conn8); // Do a cleanup based on thinness of the element
 	
 	// This code might be useful for segmentation: a way to find where main text really is
-	/*
+	/* 
+	cvSmooth(wimg, wimg, CV_BLUR, 19, 0, 0, 0);
 	cvThreshold(wimg, mimg, 200, 255, CV_THRESH_BINARY);
 	cvErode(mimg, mimg, NULL, 60);
 	*/
