@@ -155,8 +155,7 @@ CvRect *getRoiFromPic(IplImage *in, Sint32 *tot_rois) {
 	Sint32 max_rects = 1024;
 	Sint32 trois = -1;
 	CvRect *drois = (CvRect*)malloc(sizeof(CvRect) * max_rects);
-	Sint32 i,j;
-	Sint32 xmin, xmax;
+	Sint32 xmin, xmax, i, j, whites;
 
 	xmin = xmax = -1;
 
@@ -168,11 +167,26 @@ CvRect *getRoiFromPic(IplImage *in, Sint32 *tot_rois) {
 
 	// Go through the image
 	for (i = 0; i < wpic->height; i += 4) {
+		whites = 0;
 		xmin = xmax = -1;
 		for (j = 0; j < wpic->width; j++) {
 			if(wpic_dat[(i * wpic->widthStep) + (j * wpic->nChannels) + 0] == 0) {
 				if (xmin == -1) xmin = j;
 				xmax = j;
+				whites = 0;
+			} else if (xmin != -1) {
+				whites++;
+
+				if (whites >= 12 * WARP_MULT) {
+					drois[trois + 1].x = xmin;
+					drois[trois + 1].y = i;
+					drois[trois + 1].width = xmax-xmin;
+					drois[trois + 1].height = MIN(4, wpic->height - i);
+					trois++;
+					
+					whites = 0;
+					xmin = xmax = -1;
+				}
 			}
 		}
 
@@ -181,7 +195,6 @@ CvRect *getRoiFromPic(IplImage *in, Sint32 *tot_rois) {
 			drois[trois + 1].y = i;
 			drois[trois + 1].width = xmax-xmin;
 			drois[trois + 1].height = MIN(4, wpic->height - i);
-
 			trois++;
 		}
 	}
