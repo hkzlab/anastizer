@@ -109,6 +109,8 @@ IplImage *gray_from_colour(IplImage *in, Uint8 chan) {
 IplImage *anastize_image(IplImage *wimg) {
 	assert(wimg);
 
+	Sint32 tot_rois;
+
 	IplImage *mimg = cvCreateImage(cvGetSize(wimg), 8, 1);	
 
 	fprintf(stdout, " Applying local thresholding to image...\n");
@@ -123,12 +125,8 @@ IplImage *anastize_image(IplImage *wimg) {
 	remove_spot_neighbour_dist(mimg, 8 * WARP_MULT + 1, 150 * WARP_MULT, 30 * WARP_MULT, Conn8);
 	remove_spot_thin(mimg, 1, 5 * WARP_MULT, 0.6, Conn8); // Do a cleanup based on thinness of the element
 	
-	// This code might be useful for segmentation: a way to find where main text really is
-	/* 
-	cvSmooth(wimg, wimg, CV_BLUR, 19, 0, 0, 0);
-	cvThreshold(wimg, mimg, 200, 255, CV_THRESH_BINARY);
-	cvErode(mimg, mimg, NULL, 60);
-	*/
+	CvRect *rois = getRoiFromPic(wimg, &tot_rois);
+	free(rois);
 
 	return mimg;
 }
@@ -140,10 +138,12 @@ CvRect *getRoiFromPic(IplImage *in, Sint32 *tot_rois) {
 	IplImage *wpic = cvCloneImage(in);
 	Uint8 *wpic_dat = wpic->imageData;
 	Sint32 max_rects = 256;
-	*tot_rois = -1;
+	Sint32 trois = -1;
 	CvRect *drois = (CvRect*)malloc(sizeof(CvRect) * max_rects);
 	Sint32 i,j;
 	Sint32 xmin, xmax;
+
+	xmin = xmax = -1;
 
 	cvSmooth(wpic, wpic, CV_BLUR, 19, 0, 0, 0); // Smooth the input image, so only blobs remain
 	cvThreshold(wpic, wpic, 200, 255, CV_THRESH_BINARY); // Now, threshold it
@@ -159,16 +159,17 @@ CvRect *getRoiFromPic(IplImage *in, Sint32 *tot_rois) {
 			}
 		}
 
-		if (xmin != -1 && (*tot_rois + 1) < max_rects) { // We found a rect!
-			drois[*tot_rois + 1].x = xmin;
-			drois[*tot_rois + 1].y = i;
-			drois[*tot_rois + 1].width = xmax-xmin;
-			drois[*tot_rois + 1].height = MIN(32, wpic->height - i);
+		if (xmin != -1 && (trois + 1) < max_rects) { // We found a rect!
+			drois[trois + 1].x = xmin;
+			drois[trois + 1].y = i;
+			drois[trois + 1].width = xmax-xmin;
+			drois[trois + 1].height = MIN(32, wpic->height - i);
 
-			*tot_rois++;
+			trois++;
 		}
 	}
 
+	*tot_rois = trois;
 	cvReleaseImage(&wpic);
 	return drois;
 }
