@@ -22,6 +22,7 @@ typedef signed long Sint64;
 #define MAX_WTS 4 // Max warptraps on screen
 #define DEF_WTS 2 // Default warptraps on screen
 
+#define ORIG_H 2048 // Size of original image
 #define PREV_H 512 // Preview windows sizes
 #define PREV_W 351
 

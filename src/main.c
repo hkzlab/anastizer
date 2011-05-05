@@ -61,7 +61,7 @@ int main(int argc, char *argv[]) {
 	nheight = oimg->height;
 
 	// Prepare original image to work on (size preview * 4)
-	recalc_img_size(&nwidth, &nheight, PREV_H * 4);
+	recalc_img_size(&nwidth, &nheight, ORIG_H);
 	tmp_img = cvCreateImage(cvSize(nwidth , nheight), oimg->depth, oimg->nChannels); // Create a resized image
 	cvResize(oimg, tmp_img, CV_INTER_CUBIC); // Resize
 
