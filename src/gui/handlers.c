@@ -3,11 +3,7 @@
 
 #include "common/globs.h"
 #include "common/win_names.h"
-#include "spotclear/spotclear.h"
 #include "utils/utils.h"
-
-// Apply anastizer filters to an image
-IplImage *anastize_image(IplImage *wimg, Uint8 cur_chan);
 
 void prev_mouseHandler(int event, int x, int y, int flags, void *param) {
 	Uint16 cur_win = *(Uint16*)param;
@@ -315,29 +311,5 @@ void cntrl_trk_tmask_handler(int pos) {
 
 void cntrl_trk_avr_handler(int pos) {
 	tmask_avr = pos;
-}
-
-IplImage *anastize_image(IplImage *wimg, Uint8 cur_chan) {
-	assert(wimg);
-
-	IplImage *mimg = cvCreateImage(cvGetSize(wimg), 8, 1);	
-
-	fprintf(stdout, " Applying local thresholding to image...\n");
-	cvAdaptiveThreshold(wimg, mimg, 255, CV_ADAPTIVE_THRESH_GAUSSIAN_C, CV_THRESH_BINARY, tmask_size, tmask_avr);
-
-	fprintf(stdout, " Applying spot cleanup based on size...\n");
-	remove_spot_size(mimg, 10, Conn8); // Do a spot cleanup
-		
-	fprintf(stdout, " Applying spot cleanup based on intensity...\n");
-	remove_spot_intensity(mimg, wimg, 500, -50, cur_chan, Conn4);
-		
-	fprintf(stdout, " Applying spot cleanup based on thinness...\n");
-	spot_thin(mimg, 50, 0.5, Conn8);
-		
-	fprintf(stdout, " Applying spot cleanup based on distance...\n");
-	spot_neighbour_dist(mimg, 50, 20, Conn8);
-	spot_neighbour_dist(mimg, 400, 45, Conn8);
-
-	return mimg;
 }
 

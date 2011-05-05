@@ -1,5 +1,8 @@
 #include "utils.h"
 
+#include "common/globs.h"
+#include "spotclear/spotclear.h"
+
 CvMat *build_transf_mat(WTrap *w, CvMat *mm, IplImage *or, IplImage *pw, Uint32 dwidth, Uint32 dheight) {
 	// SEE cvWarpPerspectiveQMatrix
 	// here: http://www.comp.leeds.ac.uk/vision/opencv/opencvref_cv.html
@@ -99,5 +102,29 @@ IplImage *gray_from_colour(IplImage *in, Uint8 chan) {
 		}
 
 	return grey;
+}
+
+IplImage *anastize_image(IplImage *wimg, Uint8 cur_chan) {
+	assert(wimg);
+
+	IplImage *mimg = cvCreateImage(cvGetSize(wimg), 8, 1);	
+
+	fprintf(stdout, " Applying local thresholding to image...\n");
+	cvAdaptiveThreshold(wimg, mimg, 255, CV_ADAPTIVE_THRESH_GAUSSIAN_C, CV_THRESH_BINARY, tmask_size, tmask_avr);
+
+	fprintf(stdout, " Applying spot cleanup based on size...\n");
+	remove_spot_size(mimg, 10, Conn8); // Do a spot cleanup
+		
+	fprintf(stdout, " Applying spot cleanup based on intensity...\n");
+	remove_spot_intensity(mimg, wimg, 500, -50, cur_chan, Conn4);
+		
+	fprintf(stdout, " Applying spot cleanup based on thinness...\n");
+	spot_thin(mimg, 50, 0.5, Conn8);
+		
+	fprintf(stdout, " Applying spot cleanup based on distance...\n");
+	spot_neighbour_dist(mimg, 50, 20, Conn8);
+	spot_neighbour_dist(mimg, 400, 45, Conn8);
+
+	return mimg;
 }
 
