@@ -114,14 +114,13 @@ IplImage *anastize_image(IplImage *wimg, Uint8 cur_chan) {
 
 	fprintf(stdout, " Filtering...\n");
 	remove_spot_size(mimg, 1, 3 * WARP_MULT, Conn8); // Do a spot cleanup based on size
-	remove_spot_intensity(mimg, wimg, 1, 50 * WARP_MULT, 50, cur_chan, Conn8);
-	remove_spot_intensity(mimg, wimg, 50 * WARP_MULT + 1, 200 * WARP_MULT, 100, cur_chan, Conn8); // Do a cleanup based on intensity
+	remove_spot_intensity(mimg, wimg, 1, 15 * WARP_MULT, 10, cur_chan, Conn8); // Do a cleanup based on intensity
+	remove_spot_intensity(mimg, wimg, 15 * WARP_MULT + 1, 200 * WARP_MULT, 100, cur_chan, Conn8);
 	remove_spot_intensity(mimg, wimg, 200 * WARP_MULT + 1, 400 * WARP_MULT, 15, cur_chan, Conn8);
 	spot_neighbour_dist(mimg, 1, 8 * WARP_MULT, 8 * WARP_MULT, Conn8); // Do a cleanup based on distance
 	spot_neighbour_dist(mimg, 8 * WARP_MULT + 1, 150 * WARP_MULT, 30 * WARP_MULT, Conn8);	
 
 	//spot_thin(mimg, 12 * WARP_MULT, 0.125 * WARP_MULT, Conn8);
-
 
 	return mimg;
 }
