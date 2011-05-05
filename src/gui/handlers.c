@@ -13,7 +13,7 @@ void prev_mouseHandler(int event, int x, int y, int flags, void *param) {
 	IplImage *rprev;
 
 	int sres;
-	Uint8 cur_chan;
+	Sint8 cur_chan = 0;
 	Uint32 nwidth, nheight;
 
 	char tmp_file[STR_BUF_SIZE];
@@ -31,10 +31,10 @@ void prev_mouseHandler(int event, int x, int y, int flags, void *param) {
 		strcat(tmp_file, winsrc);
 
 		cur_chan = cvGetTrackbarPos(PREV_TRK_BGR, CNTRL_WIN);
-		invt[cur_win] = build_transf_mat(&wt[cur_win], invt[cur_win], oimg, mw_img, prv_img[cur_win]->width * 4, prv_img[cur_win]->height * 4);
+		invt[cur_win] = build_transf_mat(&wt[cur_win], invt[cur_win], oimg, mw_img, prv_img[cur_win]->width * WARP_MULT, prv_img[cur_win]->height * WARP_MULT);
 		
 		if (event == CV_EVENT_MBUTTONDBLCLK) { // Save a color version
-			gimg = return_warped_img(oimg, invt[cur_win], &wt[cur_win], prv_img[cur_win]->width * 4, prv_img[cur_win]->height * 4, -1);
+			gimg = return_warped_img(oimg, invt[cur_win], &wt[cur_win], prv_img[cur_win]->width * WARP_MULT, prv_img[cur_win]->height * WARP_MULT, -1);
 
 			// Calculate output filename (JPG format)
 			strcat(tmp_file, "_WARPED.jpg");
@@ -53,7 +53,7 @@ void prev_mouseHandler(int event, int x, int y, int flags, void *param) {
 			break;
 
 		} else {
-			gimg = return_warped_img(oimg, invt[cur_win], &wt[cur_win], prv_img[cur_win]->width * 4, prv_img[cur_win]->height * 4, cur_chan);
+			gimg = return_warped_img(oimg, invt[cur_win], &wt[cur_win], prv_img[cur_win]->width * WARP_MULT, prv_img[cur_win]->height * WARP_MULT, cur_chan);
 		}
 
 		mimg = anastize_image(gimg, cur_chan);
@@ -306,7 +306,7 @@ void cntrl_trk_bgr_handler(int pos) {
 }
 
 void cntrl_trk_tmask_handler(int pos) {
-	tmask_size = ((pos + 1) * 20) + 1;
+	tmask_size = ((pos + 1) * TMASK_MULTIPLIER * WARP_MULT) + 1;
 }
 
 void cntrl_trk_avr_handler(int pos) {

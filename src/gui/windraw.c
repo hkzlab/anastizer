@@ -10,7 +10,10 @@ void redraw_preview_win(IplImage *pim, const char *win, IplImage *oim, CvMat *tm
 
 	cvWarpPerspective(oim, pim, tm, /*CV_INTER_LINEAR +*/ CV_WARP_FILL_OUTLIERS + CV_WARP_INVERSE_MAP, cvScalarAll(0));
 
-	IplImage *mono = gray_from_colour(pim, cvGetTrackbarPos(PREV_TRK_BGR, CNTRL_WIN));
+	Sint8 cur_chan = 0;
+	cur_chan = cvGetTrackbarPos(PREV_TRK_BGR, CNTRL_WIN);
+
+	IplImage *mono = gray_from_colour(pim, cur_chan);
 
 	cvShowImage(win, mono);
 

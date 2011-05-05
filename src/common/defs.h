@@ -26,9 +26,12 @@ typedef signed long Sint64;
 #define PREV_H 512 // Preview windows sizes
 #define PREV_W 351
 
+#define WARP_MULT 2 // Multiplier for resized/anastized images in respect to preview size
+
 #define STR_BUF_SIZE 256 // Temporary dest file string size
 
-#define DEFAULT_RMTH 5 // Default filter options for local thresholding
-#define DEFAULT_TMASK 301
+#define DEFAULT_RMTH 3 // Default filter options for local thresholding
+#define TMASK_MULTIPLIER 10
+#define DEFAULT_TMASK ((9 * TMASK_MULTIPLIER * WARP_MULT) + 1)
 
 #endif /* _DEFS_HEADER_ */
