@@ -138,8 +138,10 @@ CvRect *getRoiFromPic(IplImage *in, Uint32 *tot_rois) {
 	assert(tot_rois);
 
 	IplImage *wpic = cvCloneImage(in);
-	CvRect *drois = NULL;
-	Uint32 i,j;
+	Uint32 max_rects = 64;
+	Uint32 tot_rects = 0;
+	CvRect *drois = (CvRect*)malloc(sizeof(CvRect) * max_rects);
+	Sint32 i,j;
 	Sint32 xmin, xmax, ymin, ymax;
 
 	cvSmooth(wpic, wpic, CV_BLUR, 19, 0, 0, 0); // Smooth the input image, so only blobs remain
@@ -149,7 +151,7 @@ CvRect *getRoiFromPic(IplImage *in, Uint32 *tot_rois) {
 	// Go through the image
 	for (i = 0; i < wpic->height; i++)
 		for (j = 0; j < wpic->width; j++) {
-			size_spot(j, i, wpic, Conn8, 1, &xmin, &xmax, &ymin, &ymax); // Calculate rectangle containing black blob...
+			;
 		}
 
 	cvReleaseImage(&wpic);

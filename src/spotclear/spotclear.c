@@ -4,6 +4,14 @@
 #include <stdio.h>
 #include <math.h>
 
+/* x, y -> start coords for spot measuring
+ * in -> image where spot is measured
+ * pc -> kind of connection between pixels (4 or 8 edge connection)
+ * nval -> this value is substituted to original pixel values in spot, must be different to 0
+ * xmin, xmax, ymin, ymax -> pointers to Uint32s, will be set to corners of a rectangle containing the spot
+ */
+Uint32 size_spot(Uint32 x, Uint32 y, IplImage *in, enum PConn pc, Uint8 nval, Sint32 *xmin, Sint32 *xmax, Sint32 *ymin, Sint32 *ymax);
+
 Uint32 intensity_spot(Uint32 x, Uint32 y, IplImage *in, IplImage *inc, enum PConn pc, Uint8 chan); // Returns the SUM of all intensities in the spot! not the MEDIUM intensity!
 void circle_check(IplImage *in, Sint32 xmin, Sint32 xmax, Sint32 ymin, Sint32 ymax, Uint32 *dist);
 
