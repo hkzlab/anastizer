@@ -335,8 +335,8 @@ Uint32 size_spot(Uint32 x, Uint32 y, IplImage *in, enum PConn pc, Uint8 nval, Si
     return tot_p2d;
 }
 
-void spot_neighbour_dist(IplImage *in, Uint16 ssize, Uint16 maxdist, enum PConn pc) {
-	fprintf(stdout, " Removing spots with area %u or less and distant at least %u pix from others.\n", ssize, maxdist);
+void spot_neighbour_dist(IplImage *in, Uint32 minsize, Uint32 maxsize, Uint16 maxdist, enum PConn pc) {
+	fprintf(stdout, " Removing spots with area in range [%u-%u] and distant at least %u pix from others.\n", minsize, maxsize, maxdist);
 
     IplImage *cin = cvCloneImage(in);
 
@@ -363,7 +363,7 @@ void spot_neighbour_dist(IplImage *in, Uint16 ssize, Uint16 maxdist, enum PConn 
                 dist = maxdist;
                 circle_check(in, xmin, xmax, ymin, ymax, &dist);
 
-                if (dist >= maxdist && cssize <= ssize)
+                if (dist >= maxdist && cssize <= maxsize && cssize >= minsize)
                     size_spot(j, i, in, pc, 255, NULL, NULL, NULL, NULL);
             }
         }
@@ -371,8 +371,8 @@ void spot_neighbour_dist(IplImage *in, Uint16 ssize, Uint16 maxdist, enum PConn 
     cvReleaseImage(&cin);
 }
 
-void remove_spot_size(IplImage *in, Uint16 ssize, enum PConn pc) {
-	fprintf(stdout, " Removing spots with area %u or less.\n", ssize);
+void remove_spot_size(IplImage *in, Uint32 minsize, Uint32 maxsize, enum PConn pc) {
+	fprintf(stdout, " Removing spots with area in range [%u-%u].\n", minsize, maxsize);
     IplImage *cin = cvCloneImage(in);
 
     Uint32 xmin, xmax, ymin, ymax;
@@ -391,7 +391,7 @@ void remove_spot_size(IplImage *in, Uint16 ssize, enum PConn pc) {
 
                 //fprintf(stdout, " This spot size is %u,  %ux%u\n", cssize,  (xmax - xmin) + 1, (ymax - ymin) + 1);
 
-                if(cssize > 0 && cssize <= ssize) {
+                if(cssize >= minsize && cssize <= maxsize) {
                     size_spot(j, i, in, pc, 255, NULL, NULL, NULL, NULL);
                 }
             }
