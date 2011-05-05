@@ -113,7 +113,7 @@ IplImage *anastize_image(IplImage *wimg, Uint8 cur_chan) {
 	cvAdaptiveThreshold(wimg, mimg, 255, CV_ADAPTIVE_THRESH_GAUSSIAN_C, CV_THRESH_BINARY, tmask_size, tmask_avr);
 
 	remove_spot_size(mimg, 1, 3 * WARP_MULT, Conn8); // Do a spot cleanup based on size
-	remove_spot_size(mimg, 400 * WARP_MULT, mimg->width * mimg->height, Conn8);
+	//remove_spot_size(mimg, 400 * WARP_MULT, mimg->width * mimg->height, Conn8);
 	remove_spot_intensity(mimg, wimg, 1, 15 * WARP_MULT, 15, cur_chan, Conn8); // Do a cleanup based on intensity
 	remove_spot_intensity(mimg, wimg, 15 * WARP_MULT + 1, 350 * WARP_MULT, 100, cur_chan, Conn8);
 	remove_spot_intensity(mimg, wimg, 350 * WARP_MULT + 1, 400 * WARP_MULT, 15, cur_chan, Conn8);
