@@ -117,15 +117,6 @@ IplImage *anastize_image(IplImage *wimg) {
 	fprintf(stdout, " Applying local thresholding to image...\n");
 	cvAdaptiveThreshold(wimg, mimg, 255, CV_ADAPTIVE_THRESH_GAUSSIAN_C, CV_THRESH_BINARY, tmask_size, tmask_avr);
 
-	remove_spot_size(mimg, 1, 3 * WARP_MULT, Conn8); // Do a spot cleanup based on size
-	remove_spot_intensity(mimg, wimg, 1, 8 * WARP_MULT, 15, 0, Conn8); // Do a cleanup based on intensity
-	remove_spot_intensity(mimg, wimg, 8 * WARP_MULT + 1, 400 * WARP_MULT, 100, 0, Conn8);
-	remove_spot_intensity(mimg, wimg, 400 * WARP_MULT + 1, 600 * WARP_MULT, 80, 0, Conn8);
-	remove_spot_neighbour_dist(mimg, 1, 4 * WARP_MULT, 2 * WARP_MULT, Conn8); // Do a cleanup based on distance
-	remove_spot_neighbour_dist(mimg, 4 * WARP_MULT + 1, 8 * WARP_MULT, 8 * WARP_MULT, Conn8); 
-	remove_spot_neighbour_dist(mimg, 8 * WARP_MULT + 1, 150 * WARP_MULT, 30 * WARP_MULT, Conn8);
-	remove_spot_thin(mimg, 1, 5 * WARP_MULT, 0.6, Conn8); // Do a cleanup based on thinness of the element
-	
 	CvRect *rois = getRoiFromPic(wimg, &tot_rois);
 
 	tmpi = cvCreateImage(cvGetSize(mimg), mimg->depth, mimg->nChannels);
@@ -140,9 +131,20 @@ IplImage *anastize_image(IplImage *wimg) {
 	cvResetImageROI(tmpi);
 
 	cvReleaseImage(&mimg);
-	mimg = tmpi;
-
 	free(rois);
+	mimg = tmpi;
+/*
+	remove_spot_size(mimg, 1, 3 * WARP_MULT, Conn8); // Do a spot cleanup based on size
+	remove_spot_intensity(mimg, wimg, 1, 8 * WARP_MULT, 15, 0, Conn8); // Do a cleanup based on intensity
+	remove_spot_intensity(mimg, wimg, 8 * WARP_MULT + 1, 400 * WARP_MULT, 100, 0, Conn8);
+	remove_spot_intensity(mimg, wimg, 400 * WARP_MULT + 1, 600 * WARP_MULT, 80, 0, Conn8);
+	remove_spot_neighbour_dist(mimg, 1, 4 * WARP_MULT, 2 * WARP_MULT, Conn8); // Do a cleanup based on distance
+	remove_spot_neighbour_dist(mimg, 4 * WARP_MULT + 1, 8 * WARP_MULT, 8 * WARP_MULT, Conn8); 
+	remove_spot_neighbour_dist(mimg, 8 * WARP_MULT + 1, 150 * WARP_MULT, 30 * WARP_MULT, Conn8);
+	remove_spot_thin(mimg, 1, 5 * WARP_MULT, 0.6, Conn8); // Do a cleanup based on thinness of the element
+
+	
+*/
 	return mimg;
 }
 
@@ -150,7 +152,14 @@ CvRect *getRoiFromPic(IplImage *in, Sint32 *tot_rois) {
 	assert(in);
 	assert(tot_rois);
 
-	IplImage *wpic = cvCloneImage(in);
+	Uint32 nwidth, nheight;
+	nwidth = in->width;
+	nheight = in->height;
+	recalc_img_size(&nwidth, &nheight, 300);
+
+	IplImage *wpic = cvCreateImage(cvSize(nwidth , nheight), in->depth, in->nChannels);
+	cvResize(in, wpic, CV_INTER_CUBIC);
+	//IplImage *wpic = cvCloneImage(in);
 	Uint8 *wpic_dat = wpic->imageData;
 	Sint32 max_rects = 1024;
 	Sint32 trois = -1;
@@ -159,15 +168,18 @@ CvRect *getRoiFromPic(IplImage *in, Sint32 *tot_rois) {
 
 	xmin = xmax = -1;
 
-	cvSmooth(wpic, wpic, CV_BLUR, 35, 0, 0, 0); // Smooth the input image, so only blobs remain
-	cvAdaptiveThreshold(wpic, wpic, 255, CV_ADAPTIVE_THRESH_MEAN_C, CV_THRESH_BINARY, 10 * WARP_MULT + 1, 3);
-	//cvThreshold(wpic, wpic, 200, 255, CV_THRESH_BINARY);
-	cvErode(wpic, wpic, NULL, 20); // And erode it so we get BIG black squares in place of text
+	cvAdaptiveThreshold(wpic, wpic, 255, /*CV_ADAPTIVE_THRESH_MEAN_C*/CV_ADAPTIVE_THRESH_GAUSSIAN_C, CV_THRESH_BINARY, 15 * WARP_MULT + 1, 40);
+	cvSmooth(wpic, wpic, CV_BLUR, 5, 0, 0, 0); // Smooth the input image, so only blobs remain
+	cvThreshold(wpic, wpic, 200, 255, CV_THRESH_BINARY);
 
 	cvSaveImage("./testroiblur.jpg", wpic, 0);
 
+	cvErode(wpic, wpic, NULL, 10); // And erode it so we get BIG black squares in place of text
+
+	cvSaveImage("./testroiero.jpg", wpic, 0);
+
 	// Go through the image
-	for (i = 0; i < wpic->height; i += 16) {
+	for (i = 0; i < wpic->height; i += 4) {
 		whites = 0;
 		xmin = xmax = -1;
 		for (j = 0; j < wpic->width; j++) {
@@ -178,11 +190,17 @@ CvRect *getRoiFromPic(IplImage *in, Sint32 *tot_rois) {
 			} else if (xmin != -1) {
 				whites++;
 
-				if (whites >= 130 * WARP_MULT) {
-					drois[trois + 1].x = xmin - 10;
+				if (whites >= 70 * WARP_MULT) {
+					drois[trois + 1].x = xmin;
 					drois[trois + 1].y = i;
-					drois[trois + 1].width = (xmax-xmin) + 10;
-					drois[trois + 1].height = MIN(16, wpic->height - i);
+					drois[trois + 1].width = xmax-xmin;
+					drois[trois + 1].height = MIN(4, wpic->height - i);
+
+					drois[trois + 1].x *= 4;
+					drois[trois + 1].y *= 4;
+					drois[trois + 1].width *= 4;
+					drois[trois + 1].height *= 4;
+
 					trois++;
 					
 					whites = 0;
@@ -192,10 +210,16 @@ CvRect *getRoiFromPic(IplImage *in, Sint32 *tot_rois) {
 		}
 
 		if (xmin != -1 && (trois + 1) < max_rects) { // We found a rect!
-			drois[trois + 1].x = xmin - 10;
+			drois[trois + 1].x = xmin;
 			drois[trois + 1].y = i;
-			drois[trois + 1].width = (xmax-xmin) + 10;
-			drois[trois + 1].height = MIN(16, wpic->height - i);
+			drois[trois + 1].width = xmax-xmin;
+			drois[trois + 1].height = MIN(4, wpic->height - i);
+
+			drois[trois + 1].x *= 4;
+			drois[trois + 1].y *= 4;
+			drois[trois + 1].width *= 4;
+			drois[trois + 1].height *= 4;
+
 			trois++;
 		}
 	}
