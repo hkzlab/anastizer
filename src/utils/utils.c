@@ -45,7 +45,7 @@ IplImage *return_warped_img(IplImage *oim, CvMat *tm, WTrap *wt, Uint32 dwidth, 
 	IplImage *d1 = cvCreateImage(cvSize(dwidth, dheight), oim->depth, oim->nChannels);
 	IplImage *dmono;
 
-	cvWarpPerspective(oim, d1, tm, CV_INTER_CUBIC + CV_WARP_FILL_OUTLIERS + CV_WARP_INVERSE_MAP, cvScalarAll(0));
+	cvWarpPerspective(oim, d1, tm, CV_INTER_NN + CV_WARP_FILL_OUTLIERS + CV_WARP_INVERSE_MAP, cvScalarAll(0));
 	
 	if (chan >= 0) {
 		dmono = gray_from_colour(d1,chan);
@@ -117,7 +117,9 @@ IplImage *anastize_image(IplImage *wimg) {
 	fprintf(stdout, " Applying local thresholding to image...\n");
 	cvAdaptiveThreshold(wimg, mimg, 255, CV_ADAPTIVE_THRESH_GAUSSIAN_C, CV_THRESH_BINARY, tmask_size, tmask_avr);
 
+#ifdef DEBUG
 	cvSaveImage("./fstep0.jpg", mimg, 0);
+#endif
 
 	CvRect *rois = getRoiFromPic(wimg, &tot_rois);
 
@@ -136,28 +138,44 @@ IplImage *anastize_image(IplImage *wimg) {
 	free(rois);
 	mimg = tmpi;
 
+#ifdef DEBUG
 	cvSaveImage("./fstep1.jpg", mimg, 0);
+#endif
 
 	remove_spot_size(mimg, 1, 1 * WARP_MULT, Conn8); // Do a spot cleanup based on size
+#ifdef DEBUG
 	cvSaveImage("./fstep2.jpg", mimg, 0);
+#endif
 
 //	remove_spot_intensity(mimg, wimg, 1, 8 * WARP_MULT, 15, 0, Conn8); // Do a cleanup based on intensity
+#ifdef DEBUG
 //	cvSaveImage("./fstep3.jpg", mimg, 0);
+#endif
 	
 //	remove_spot_intensity(mimg, wimg, 8 * WARP_MULT + 1, 400 * WARP_MULT, 100, 0, Conn8);
+#ifdef DEBUG
 //	cvSaveImage("./fstep4.jpg", mimg, 0);
+#endif
 
 //	remove_spot_intensity(mimg, wimg, 400 * WARP_MULT + 1, 600 * WARP_MULT, 80, 0, Conn8);
+#ifdef DEBUG
 //	cvSaveImage("./fstep5.jpg", mimg, 0);
+#endif
 
-	remove_spot_neighbour_dist(mimg, 1, 4 * WARP_MULT, 2 * WARP_MULT, Conn8); // Do a cleanup based on distance
+	remove_spot_neighbour_dist(mimg, 1, 4 * WARP_MULT, 3 * WARP_MULT, Conn8); // Do a cleanup based on distance
+#ifdef DEBUG
 	cvSaveImage("./fstep6.jpg", mimg, 0);
+#endif
 	
 	remove_spot_neighbour_dist(mimg, 4 * WARP_MULT + 1, 8 * WARP_MULT, 8 * WARP_MULT, Conn8); 
+#ifdef DEBUG
 	cvSaveImage("./fstep7.jpg", mimg, 0);
+#endif
 
 //	remove_spot_neighbour_dist(mimg, 8 * WARP_MULT + 1, 150 * WARP_MULT, 30 * WARP_MULT, Conn8);
+#ifdef DEBUG
 //	cvSaveImage("./fstep8.jpg", mimg, 0);
+#endif
 
 	//remove_spot_thin(mimg, 1, 5 * WARP_MULT, 0.6, Conn8); // Do a cleanup based on thinness of the element
 
@@ -179,7 +197,7 @@ CvRect *getRoiFromPic(IplImage *in, Sint32 *tot_rois) {
 
 	// Use a very small image (256 pix height) for get ROIs
 	IplImage *wpic = cvCreateImage(cvSize(nwidth , nheight), in->depth, in->nChannels);
-	cvResize(in, wpic, CV_INTER_CUBIC);
+	cvResize(in, wpic, CV_INTER_NN);
 	Uint8 *wpic_dat = wpic->imageData;
 	Sint32 max_rects = 512;
 	Sint32 trois = -1;
@@ -192,11 +210,15 @@ CvRect *getRoiFromPic(IplImage *in, Sint32 *tot_rois) {
 	cvSmooth(wpic, wpic, CV_BLUR, 5, 0, 0, 0); // Smooth the input image, so only blobs remain
 	cvThreshold(wpic, wpic, 210, 255, CV_THRESH_BINARY);
 
+#ifdef DEBUG
 	cvSaveImage("./testroiblur.jpg", wpic, 0);
+#endif
 
 	cvErode(wpic, wpic, NULL, 7); // And erode it so we get BIG black squares in place of text
 
+#ifdef DEBUG
 	cvSaveImage("./testroiero.jpg", wpic, 0);
+#endif
 
 	// Go through the image
 	for (i = 0; i < wpic->height; i += 2) {
