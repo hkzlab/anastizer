@@ -162,12 +162,12 @@ IplImage *anastize_image(IplImage *wimg) {
 //	cvSaveImage("./fstep5.jpg", mimg, 0);
 #endif
 
-	remove_spot_neighbour_dist(mimg, 1, 4 * WARP_MULT, 3 * WARP_MULT, Conn8); // Do a cleanup based on distance
+	remove_spot_neighbour_dist(mimg, 1, 2 * WARP_MULT, 3 * WARP_MULT, Conn8); // Do a cleanup based on distance
 #ifdef DEBUG
 	cvSaveImage("./fstep6.jpg", mimg, 0);
 #endif
 	
-	remove_spot_neighbour_dist(mimg, 4 * WARP_MULT + 1, 8 * WARP_MULT, 8 * WARP_MULT, Conn8); 
+	remove_spot_neighbour_dist(mimg, 2 * WARP_MULT + 1, 8 * WARP_MULT, 8 * WARP_MULT, Conn8); 
 #ifdef DEBUG
 	cvSaveImage("./fstep7.jpg", mimg, 0);
 #endif
