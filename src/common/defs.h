@@ -23,7 +23,7 @@ typedef signed long Sint64;
 #define DEF_WTS 2 // Default warptraps on screen
 
 #define ORIG_H 2048 // Size of original image
-#define PREV_H 600 // Preview windows sizes
+#define PREV_H 512 // Preview windows sizes
 #define PREV_W (PREV_H / 1.45)
 
 #define WARP_MULT 2 // Multiplier for resized/anastized images in respect to preview size
