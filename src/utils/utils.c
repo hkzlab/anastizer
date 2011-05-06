@@ -1,6 +1,5 @@
 #include "utils.h"
 
-#include "common/globs.h"
 #include "spotclear/spotclear.h"
 
 CvRect *getRoiFromPic(IplImage *in, Sint32 *tot_rois);
@@ -106,7 +105,7 @@ IplImage *gray_from_colour(IplImage *in, Uint8 chan) {
 	return grey;
 }
 
-IplImage *anastize_image(IplImage *wimg) {
+IplImage *anastize_image(IplImage *wimg, int msize, double mrem) {
 	assert(wimg);
 
 	Sint32 tot_rois, i;
@@ -115,7 +114,7 @@ IplImage *anastize_image(IplImage *wimg) {
 	IplImage *mimg = cvCreateImage(cvGetSize(wimg), 8, 1);	
 
 	fprintf(stdout, " Applying local thresholding to image...\n");
-	cvAdaptiveThreshold(wimg, mimg, 255, CV_ADAPTIVE_THRESH_GAUSSIAN_C, CV_THRESH_BINARY, tmask_size, tmask_avr);
+	cvAdaptiveThreshold(wimg, mimg, 255, CV_ADAPTIVE_THRESH_GAUSSIAN_C, CV_THRESH_BINARY, msize, mrem);
 
 #ifdef DEBUG
 	cvSaveImage("./fstep0.jpg", mimg, 0);
