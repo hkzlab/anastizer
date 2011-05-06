@@ -117,6 +117,8 @@ IplImage *anastize_image(IplImage *wimg) {
 	fprintf(stdout, " Applying local thresholding to image...\n");
 	cvAdaptiveThreshold(wimg, mimg, 255, CV_ADAPTIVE_THRESH_GAUSSIAN_C, CV_THRESH_BINARY, tmask_size, tmask_avr);
 
+	cvSaveImage("./fstep0.jpg", mimg, 0);
+
 	CvRect *rois = getRoiFromPic(wimg, &tot_rois);
 
 	tmpi = cvCreateImage(cvGetSize(mimg), mimg->depth, mimg->nChannels);
@@ -134,18 +136,33 @@ IplImage *anastize_image(IplImage *wimg) {
 	free(rois);
 	mimg = tmpi;
 
-	remove_spot_size(mimg, 1, 1 * WARP_MULT, Conn8); // Do a spot cleanup based on size
-/*
-	remove_spot_intensity(mimg, wimg, 1, 8 * WARP_MULT, 15, 0, Conn8); // Do a cleanup based on intensity
-	remove_spot_intensity(mimg, wimg, 8 * WARP_MULT + 1, 400 * WARP_MULT, 100, 0, Conn8);
-	remove_spot_intensity(mimg, wimg, 400 * WARP_MULT + 1, 600 * WARP_MULT, 80, 0, Conn8);
-	remove_spot_neighbour_dist(mimg, 1, 4 * WARP_MULT, 2 * WARP_MULT, Conn8); // Do a cleanup based on distance
-	remove_spot_neighbour_dist(mimg, 4 * WARP_MULT + 1, 8 * WARP_MULT, 8 * WARP_MULT, Conn8); 
-	remove_spot_neighbour_dist(mimg, 8 * WARP_MULT + 1, 150 * WARP_MULT, 30 * WARP_MULT, Conn8);
-	remove_spot_thin(mimg, 1, 5 * WARP_MULT, 0.6, Conn8); // Do a cleanup based on thinness of the element
+	cvSaveImage("./fstep1.jpg", mimg, 0);
 
+	remove_spot_size(mimg, 1, 1 * WARP_MULT, Conn8); // Do a spot cleanup based on size
+	cvSaveImage("./fstep2.jpg", mimg, 0);
+
+//	remove_spot_intensity(mimg, wimg, 1, 8 * WARP_MULT, 15, 0, Conn8); // Do a cleanup based on intensity
+//	cvSaveImage("./fstep3.jpg", mimg, 0);
 	
-*/
+//	remove_spot_intensity(mimg, wimg, 8 * WARP_MULT + 1, 400 * WARP_MULT, 100, 0, Conn8);
+//	cvSaveImage("./fstep4.jpg", mimg, 0);
+
+//	remove_spot_intensity(mimg, wimg, 400 * WARP_MULT + 1, 600 * WARP_MULT, 80, 0, Conn8);
+//	cvSaveImage("./fstep5.jpg", mimg, 0);
+
+	//
+	remove_spot_neighbour_dist(mimg, 1, 4 * WARP_MULT, 2 * WARP_MULT, Conn8); // Do a cleanup based on distance
+	cvSaveImage("./fstep6.jpg", mimg, 0);
+	
+	//
+	remove_spot_neighbour_dist(mimg, 4 * WARP_MULT + 1, 8 * WARP_MULT, 8 * WARP_MULT, Conn8); 
+	cvSaveImage("./fstep7.jpg", mimg, 0);
+
+//	remove_spot_neighbour_dist(mimg, 8 * WARP_MULT + 1, 150 * WARP_MULT, 30 * WARP_MULT, Conn8);
+//	cvSaveImage("./fstep8.jpg", mimg, 0);
+
+	//remove_spot_thin(mimg, 1, 5 * WARP_MULT, 0.6, Conn8); // Do a cleanup based on thinness of the element
+
 	return mimg;
 }
 
