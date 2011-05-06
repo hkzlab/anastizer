@@ -12,7 +12,7 @@ int main(int argc, char *argv[]) {
 		return 1;
 	}
 
-	if (!(oimg = cvLoadImage(argv[1], CV_LOAD_IMAGE_UNCHANGED))) {
+	if (!(oimg = cvLoadImage(argv[1], CV_LOAD_IMAGE_GRAYSCALE))) {
 		fprintf(stderr, "Unable to load image %s\n", argv[1]);
 		return 1;
 	} else {
@@ -33,7 +33,7 @@ int main(int argc, char *argv[]) {
 	smimg = cvCreateImage(cvSize(nwidth , nheight), oimg->depth, oimg->nChannels);
 	cvResize(oimg, smimg, CV_INTER_NN); // Create a very small preview image
 
-	cvSmooth(smimg, smimg, CV_BLUR, 25, 0, 0, 0);
+	cvSmooth(smimg, smimg, CV_BLUR, 10, 0, 0, 0);
 	cvThreshold(smimg, smimg, 190, 255, CV_THRESH_BINARY_INV);
 	cvSaveImage("./test.jpg", smimg, 0);
 
