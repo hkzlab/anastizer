@@ -1,5 +1,5 @@
-#ifndef _WIN_NAMES_HEADER_
-#define _WIN_NAMES_HEADER_
+#ifndef _WIN_NAMES_ANASTIZER_HEADER_
+#define _WIN_NAMES_ANASTIZER_HEADER_
 
 #define MAIN_WIN "ANASTIZER: Loaded Picture"
 #define PREV_WIN_1 "ANASTIZER: Preview 1"
@@ -9,4 +9,4 @@
 #define PREV_TRK_MSK "Thr. msk."
 #define PREV_TRK_AVR "Aver. rem."
 
-#endif /* _WIN_NAMES_HEADER_ */
+#endif /* _WIN_NAMES_ANASTIZER_HEADER_ */

@@ -1,6 +1,6 @@
 #include "windraw.h"
 
-#include "common/win_names.h"
+#include "common/win_names_anastizer.h"
 #include "utils/utils.h"
 
 void redraw_preview_win(IplImage *pim, const char *win, IplImage *oim, CvMat *tm, WTrap *wt) {

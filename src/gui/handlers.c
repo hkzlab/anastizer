@@ -2,7 +2,7 @@
 #include "windraw.h"
 
 #include "common/globs.h"
-#include "common/win_names.h"
+#include "common/win_names_anastizer.h"
 #include "utils/utils.h"
 
 void prev_mouseHandler(int event, int x, int y, int flags, void *param) {
