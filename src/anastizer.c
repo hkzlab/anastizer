@@ -15,8 +15,6 @@ int main(int argc, char *argv[]) {
 	Uint32 nwidth, nheight;
 	Uint32 i;
 
-	Uint8 autoWarp = 0; // Auto warp learning
-
 	// Check parameters and load image file
 	if (argc < 2) {
 		fprintf(stdout, "%s imagefile [-a]\n", argv[0]);
@@ -28,10 +26,6 @@ int main(int argc, char *argv[]) {
 		return 1;
 	} else {
 		fprintf(stdout, "Loaded image %s\n", argv[1]);
-	}
-
-	if (argc > 2) {
-		if (strcmp(argv[2], "-a") == 0) autoWarp = 1; // try to automatize warp windows positions
 	}
 
 	// This is probably a shot of a single page, only one wts needed
