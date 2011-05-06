@@ -133,8 +133,9 @@ IplImage *anastize_image(IplImage *wimg) {
 	cvReleaseImage(&mimg);
 	free(rois);
 	mimg = tmpi;
+
+	remove_spot_size(mimg, 1, 1 * WARP_MULT, Conn8); // Do a spot cleanup based on size
 /*
-	remove_spot_size(mimg, 1, 3 * WARP_MULT, Conn8); // Do a spot cleanup based on size
 	remove_spot_intensity(mimg, wimg, 1, 8 * WARP_MULT, 15, 0, Conn8); // Do a cleanup based on intensity
 	remove_spot_intensity(mimg, wimg, 8 * WARP_MULT + 1, 400 * WARP_MULT, 100, 0, Conn8);
 	remove_spot_intensity(mimg, wimg, 400 * WARP_MULT + 1, 600 * WARP_MULT, 80, 0, Conn8);
