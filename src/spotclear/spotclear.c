@@ -23,13 +23,13 @@ typedef struct {
 
 /***/
 
-void find_biggest_blob(IplImage *in, Sint32 *x, Sint32 *y, Sint32 *width, Sint32 *height) {
+void find_biggest_blob(IplImage *in, CvRect *box) {
 	IplImage *cin = cvCloneImage(in);
 	Uint8 *cin_dat = cin->imageData;
 	Uint32 cssize, old_cssize;
 	Sint32 xmin, xmax, ymin, ymax, xsize, ysize, i, j;
 
-	*x = *y = *width = *height = -1;
+	box->x = box->y = box->width = box->height = -1;
 	cssize = old_cssize = 0;
 
     for (i = 0; i < cin->height; i++)
@@ -45,11 +45,11 @@ void find_biggest_blob(IplImage *in, Sint32 *x, Sint32 *y, Sint32 *width, Sint32
 				if (cssize > old_cssize) {
 					old_cssize = cssize;
 
-					*x = xmin;
-					*y = ymin;
+					box->x = xmin;
+					box->y = ymin;
 
-					*width = xsize;
-					*height = ysize;
+					box->width = xsize;
+					box->height = ysize;
 				}
             }
         }

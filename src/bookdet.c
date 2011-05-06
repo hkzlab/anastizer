@@ -41,13 +41,13 @@ int main(int argc, char *argv[]) {
 	cvThreshold(smimg, smimg, 190, 255, CV_THRESH_BINARY_INV);
 	cvDilate(smimg, smimg, NULL, 4);
 
-	Sint32 bx, by, bwidth, bheight;
-	find_biggest_blob(smimg, &bx, &by, &bwidth, &bheight);
-	bx *= xratio;
-	by *= yratio;
-	bwidth *= xratio;
-	bheight *= yratio;
-	fprintf(stdout, "Biggest blobs is contained in a box starting at [%dx%d], %d pix wide and %d pix tall\n", bx, by, bwidth, bheight);
+	CvRect box;
+	find_biggest_blob(smimg, &box);
+	box.x *= xratio;
+	box.y *= yratio;
+	box.width *= xratio;
+	box.height *= yratio;
+	fprintf(stdout, "Biggest blobs is contained in a box starting at [%dx%d], %d pix wide and %d pix tall\n", box.x, box.y, box.width, box.height);
 
 	cvSaveImage("./test.jpg", smimg, 0);
 
