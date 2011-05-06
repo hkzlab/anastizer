@@ -33,8 +33,10 @@ int main(int argc, char *argv[]) {
 	smimg = cvCreateImage(cvSize(nwidth , nheight), oimg->depth, oimg->nChannels);
 	cvResize(oimg, smimg, CV_INTER_NN); // Create a very small preview image
 
-	cvSmooth(smimg, smimg, CV_BLUR, 10, 0, 0, 0);
+	cvSmooth(smimg, smimg, CV_BLUR, 8, 0, 0, 0);
 	cvThreshold(smimg, smimg, 190, 255, CV_THRESH_BINARY_INV);
+	cvDilate(smimg, smimg, NULL, 4);
+
 	cvSaveImage("./test.jpg", smimg, 0);
 
 	cvReleaseImage(&smimg);
