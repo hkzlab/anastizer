@@ -4,16 +4,16 @@ BINDIR=bin
 CFLAGS=-O2 -Isrc/ -I/usr/include/opencv/ -g -std=c99 -Wextra -DDEBUG
 LDFLAGS=  -lm -lcv -lcvaux -lhighgui
 
-MODULES=$(BINDIR)/anastizer.o $(BINDIR)/utils.o $(BINDIR)/wtrap.o $(BINDIR)/spotclear.o \
+MODULES=$(BINDIR)/utils.o $(BINDIR)/wtrap.o $(BINDIR)/spotclear.o \
 		$(BINDIR)/handlers.o $(BINDIR)/globs.o $(BINDIR)/windraw.o
 
-PROGNAME=anastizer
+PROG1=anastizer
 
-all: bin/$(PROGNAME)
+all: bin/$(PROG1)
 
 clean:
 	rm $(BINDIR)/*.o
-	rm $(BINDIR)/$(PROGNAME)
+	rm $(BINDIR)/$(PROG1)
 
 $(BINDIR)/anastizer.o:	$(SRCDIR)/anastizer.c
 	gcc -c $(CFLAGS) $(SRCDIR)/anastizer.c -o $(BINDIR)/anastizer.o
@@ -36,6 +36,6 @@ $(BINDIR)/windraw.o:	$(SRCDIR)/gui/windraw.c
 $(BINDIR)/globs.o:	$(SRCDIR)/common/globs.c
 	gcc -c $(CFLAGS) $(SRCDIR)/common/globs.c -o $(BINDIR)/globs.o
 
-bin/$(PROGNAME):	$(MODULES)
-	gcc $(CFLAGS) $(MODULES) $(LDFLAGS) -o $(BINDIR)/$(PROGNAME)
+bin/$(PROG1): $(BINDIR)/anastizer.o $(MODULES)
+	gcc $(CFLAGS) $(BINDIR)/anastizer.o $(MODULES) $(LDFLAGS) -o $(BINDIR)/$(PROG1)
 
