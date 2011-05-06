@@ -201,7 +201,7 @@ CvRect *getRoiFromPic(IplImage *in, Sint32 *tot_rois) {
 	cvSaveImage("./testroiero.jpg", wpic, 0);
 
 	// Go through the image
-	for (i = 0; i < wpic->height; i += 4) {
+	for (i = 0; i < wpic->height; i += 2) {
 		whites = 0;
 		xmin = xmax = -1;
 		for (j = 0; j < wpic->width; j++) {
@@ -216,7 +216,7 @@ CvRect *getRoiFromPic(IplImage *in, Sint32 *tot_rois) {
 					drois[trois + 1].x = xmin;
 					drois[trois + 1].y = i;
 					drois[trois + 1].width = xmax-xmin;
-					drois[trois + 1].height = MIN(4, wpic->height - i);
+					drois[trois + 1].height = MIN(2, wpic->height - i);
 
 					drois[trois + 1].x *= xratio;
 					drois[trois + 1].y *= yratio;
@@ -235,7 +235,7 @@ CvRect *getRoiFromPic(IplImage *in, Sint32 *tot_rois) {
 			drois[trois + 1].x = xmin;
 			drois[trois + 1].y = i;
 			drois[trois + 1].width = xmax-xmin;
-			drois[trois + 1].height = MIN(4, wpic->height - i);
+			drois[trois + 1].height = MIN(2, wpic->height - i);
 
 			drois[trois + 1].x *= xratio;
 			drois[trois + 1].y *= yratio;
