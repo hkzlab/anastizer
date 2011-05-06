@@ -160,6 +160,7 @@ CvRect *getRoiFromPic(IplImage *in, Sint32 *tot_rois) {
 	xratio = in->width / nwidth;
 	yratio = in->height / nheight;
 
+	// Use a very small image (256 pix height) for get ROIs
 	IplImage *wpic = cvCreateImage(cvSize(nwidth , nheight), in->depth, in->nChannels);
 	cvResize(in, wpic, CV_INTER_CUBIC);
 	//IplImage *wpic = cvCloneImage(in);
