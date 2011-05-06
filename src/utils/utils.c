@@ -45,7 +45,7 @@ IplImage *return_warped_img(IplImage *oim, CvMat *tm, WTrap *wt, Uint32 dwidth, 
 	IplImage *d1 = cvCreateImage(cvSize(dwidth, dheight), oim->depth, oim->nChannels);
 	IplImage *dmono;
 
-	cvWarpPerspective(oim, d1, tm, CV_INTER_NN + CV_WARP_FILL_OUTLIERS + CV_WARP_INVERSE_MAP, cvScalarAll(0));
+	cvWarpPerspective(oim, d1, tm, CV_INTER_CUBIC + CV_WARP_FILL_OUTLIERS + CV_WARP_INVERSE_MAP, cvScalarAll(0));
 	
 	if (chan >= 0) {
 		dmono = gray_from_colour(d1,chan);
@@ -208,7 +208,7 @@ CvRect *getRoiFromPic(IplImage *in, Sint32 *tot_rois) {
 
 	cvAdaptiveThreshold(wpic, wpic, 255, /*CV_ADAPTIVE_THRESH_MEAN_C*/CV_ADAPTIVE_THRESH_GAUSSIAN_C, CV_THRESH_BINARY, 16 * WARP_MULT + 1, 40);
 	cvSmooth(wpic, wpic, CV_BLUR, 5, 0, 0, 0); // Smooth the input image, so only blobs remain
-	cvThreshold(wpic, wpic, 210, 255, CV_THRESH_BINARY);
+	cvThreshold(wpic, wpic, 215, 255, CV_THRESH_BINARY);
 
 #ifdef DEBUG
 	cvSaveImage("./testroiblur.jpg", wpic, 0);
