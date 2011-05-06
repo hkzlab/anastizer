@@ -1,4 +1,5 @@
 #include "common/defs.h"
+#include "common/anast_defs.h"
 #include "common/win_names_anastizer.h"
 #include "common/globs_anastizer.h"
 #include "utils/utils.h"

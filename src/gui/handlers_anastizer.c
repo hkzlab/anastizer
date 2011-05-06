@@ -1,6 +1,7 @@
 #include "handlers_anastizer.h"
 #include "windraw_anastizer.h"
 
+#include "common/anast_defs.h"
 #include "common/globs_anastizer.h"
 #include "common/win_names_anastizer.h"
 #include "utils/utils.h"
@@ -56,7 +57,7 @@ void prev_mouseHandler(int event, int x, int y, int flags, void *param) {
 			gimg = return_warped_img(oimg, invt[cur_win], &wt[cur_win], prv_img[cur_win]->width * WARP_MULT, prv_img[cur_win]->height * WARP_MULT, cur_chan);
 		}
 
-		mimg = anastize_image(gimg, tmask_size, tmask_avr);
+		mimg = anastize_image(gimg, tmask_size, tmask_avr, WARP_MULT);
 
 		cvReleaseImage(&gimg);
 

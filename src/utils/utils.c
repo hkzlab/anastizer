@@ -2,7 +2,7 @@
 
 #include "spotclear/spotclear.h"
 
-CvRect *getRoiFromPic(IplImage *in, Sint32 *tot_rois);
+CvRect *getRoiFromPic(IplImage *in, Sint32 *tot_rois, Uint32 wmult);
 
 CvMat *build_transf_mat(WTrap *w, CvMat *mm, IplImage *or, IplImage *pw, Uint32 dwidth, Uint32 dheight) {
 	// SEE cvWarpPerspectiveQMatrix
@@ -105,7 +105,7 @@ IplImage *gray_from_colour(IplImage *in, Uint8 chan) {
 	return grey;
 }
 
-IplImage *anastize_image(IplImage *wimg, int msize, double mrem) {
+IplImage *anastize_image(IplImage *wimg, int msize, double mrem, Uint32 wmult) {
 	assert(wimg);
 
 	Sint32 tot_rois, i;
@@ -120,7 +120,7 @@ IplImage *anastize_image(IplImage *wimg, int msize, double mrem) {
 	cvSaveImage("./fstep0.jpg", mimg, 0);
 #endif
 
-	CvRect *rois = getRoiFromPic(wimg, &tot_rois);
+	CvRect *rois = getRoiFromPic(wimg, &tot_rois, wmult);
 
 	tmpi = cvCreateImage(cvGetSize(mimg), mimg->depth, mimg->nChannels);
 	cvRectangle(tmpi, cvPoint(0, 0), cvPoint(tmpi->width - 1, tmpi->height - 1), cvScalar(255, 255, 255, 0), CV_FILLED, 8, 0);
@@ -141,47 +141,47 @@ IplImage *anastize_image(IplImage *wimg, int msize, double mrem) {
 	cvSaveImage("./fstep1.jpg", mimg, 0);
 #endif
 
-	remove_spot_size(mimg, 1, 1 * WARP_MULT, Conn8); // Do a spot cleanup based on size
+	remove_spot_size(mimg, 1, 1 * wmult, Conn8); // Do a spot cleanup based on size
 #ifdef DEBUG
 	cvSaveImage("./fstep2.jpg", mimg, 0);
 #endif
 
-//	remove_spot_intensity(mimg, wimg, 1, 8 * WARP_MULT, 15, 0, Conn8); // Do a cleanup based on intensity
+//	remove_spot_intensity(mimg, wimg, 1, 8 * wmult, 15, 0, Conn8); // Do a cleanup based on intensity
 #ifdef DEBUG
 //	cvSaveImage("./fstep3.jpg", mimg, 0);
 #endif
 	
-//	remove_spot_intensity(mimg, wimg, 8 * WARP_MULT + 1, 400 * WARP_MULT, 100, 0, Conn8);
+//	remove_spot_intensity(mimg, wimg, 8 * wmult + 1, 400 * wmult, 100, 0, Conn8);
 #ifdef DEBUG
 //	cvSaveImage("./fstep4.jpg", mimg, 0);
 #endif
 
-//	remove_spot_intensity(mimg, wimg, 400 * WARP_MULT + 1, 600 * WARP_MULT, 80, 0, Conn8);
+//	remove_spot_intensity(mimg, wimg, 400 * wmult + 1, 600 * wmult, 80, 0, Conn8);
 #ifdef DEBUG
 //	cvSaveImage("./fstep5.jpg", mimg, 0);
 #endif
 
-	remove_spot_neighbour_dist(mimg, 1, 2 * WARP_MULT, 3 * WARP_MULT, Conn8); // Do a cleanup based on distance
+	remove_spot_neighbour_dist(mimg, 1, 2 * wmult, 3 * wmult, Conn8); // Do a cleanup based on distance
 #ifdef DEBUG
 	cvSaveImage("./fstep6.jpg", mimg, 0);
 #endif
 	
-	remove_spot_neighbour_dist(mimg, 2 * WARP_MULT + 1, 8 * WARP_MULT, 8 * WARP_MULT, Conn8); 
+	remove_spot_neighbour_dist(mimg, 2 * wmult + 1, 8 * wmult, 8 * wmult, Conn8); 
 #ifdef DEBUG
 	cvSaveImage("./fstep7.jpg", mimg, 0);
 #endif
 
-//	remove_spot_neighbour_dist(mimg, 8 * WARP_MULT + 1, 150 * WARP_MULT, 30 * WARP_MULT, Conn8);
+//	remove_spot_neighbour_dist(mimg, 8 * wmult + 1, 150 * wmult, 30 * wmult, Conn8);
 #ifdef DEBUG
 //	cvSaveImage("./fstep8.jpg", mimg, 0);
 #endif
 
-	//remove_spot_thin(mimg, 1, 5 * WARP_MULT, 0.6, Conn8); // Do a cleanup based on thinness of the element
+	//remove_spot_thin(mimg, 1, 5 * wmult, 0.6, Conn8); // Do a cleanup based on thinness of the element
 
 	return mimg;
 }
 
-CvRect *getRoiFromPic(IplImage *in, Sint32 *tot_rois) {
+CvRect *getRoiFromPic(IplImage *in, Sint32 *tot_rois, Uint32 wmult) {
 	assert(in);
 	assert(tot_rois);
 
@@ -205,7 +205,7 @@ CvRect *getRoiFromPic(IplImage *in, Sint32 *tot_rois) {
 
 	xmin = xmax = -1;
 
-	cvAdaptiveThreshold(wpic, wpic, 255, /*CV_ADAPTIVE_THRESH_MEAN_C*/CV_ADAPTIVE_THRESH_GAUSSIAN_C, CV_THRESH_BINARY, 16 * WARP_MULT + 1, 40);
+	cvAdaptiveThreshold(wpic, wpic, 255, /*CV_ADAPTIVE_THRESH_MEAN_C*/CV_ADAPTIVE_THRESH_GAUSSIAN_C, CV_THRESH_BINARY, 16 * wmult + 1, 40);
 	cvSmooth(wpic, wpic, CV_BLUR, 5, 0, 0, 0); // Smooth the input image, so only blobs remain
 	cvThreshold(wpic, wpic, 215, 255, CV_THRESH_BINARY);
 

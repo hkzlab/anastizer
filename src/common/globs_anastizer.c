@@ -1,4 +1,5 @@
 #include "common/defs.h"
+#include "common/anast_defs.h"
 #include "warptrap/wtrap.h"
 
 // See "globs_anastizer.h"
