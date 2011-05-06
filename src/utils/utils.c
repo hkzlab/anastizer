@@ -175,11 +175,11 @@ CvRect *getRoiFromPic(IplImage *in, Sint32 *tot_rois) {
 
 	cvAdaptiveThreshold(wpic, wpic, 255, /*CV_ADAPTIVE_THRESH_MEAN_C*/CV_ADAPTIVE_THRESH_GAUSSIAN_C, CV_THRESH_BINARY, 16 * WARP_MULT + 1, 40);
 	cvSmooth(wpic, wpic, CV_BLUR, 5, 0, 0, 0); // Smooth the input image, so only blobs remain
-	cvThreshold(wpic, wpic, 200, 255, CV_THRESH_BINARY);
+	cvThreshold(wpic, wpic, 210, 255, CV_THRESH_BINARY);
 
 	cvSaveImage("./testroiblur.jpg", wpic, 0);
 
-	cvErode(wpic, wpic, NULL, 9); // And erode it so we get BIG black squares in place of text
+	cvErode(wpic, wpic, NULL, 7); // And erode it so we get BIG black squares in place of text
 
 	cvSaveImage("./testroiero.jpg", wpic, 0);
 
