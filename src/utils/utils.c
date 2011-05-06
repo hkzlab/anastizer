@@ -150,11 +150,9 @@ IplImage *anastize_image(IplImage *wimg) {
 //	remove_spot_intensity(mimg, wimg, 400 * WARP_MULT + 1, 600 * WARP_MULT, 80, 0, Conn8);
 //	cvSaveImage("./fstep5.jpg", mimg, 0);
 
-	//
 	remove_spot_neighbour_dist(mimg, 1, 4 * WARP_MULT, 2 * WARP_MULT, Conn8); // Do a cleanup based on distance
 	cvSaveImage("./fstep6.jpg", mimg, 0);
 	
-	//
 	remove_spot_neighbour_dist(mimg, 4 * WARP_MULT + 1, 8 * WARP_MULT, 8 * WARP_MULT, Conn8); 
 	cvSaveImage("./fstep7.jpg", mimg, 0);
 
@@ -170,7 +168,8 @@ CvRect *getRoiFromPic(IplImage *in, Sint32 *tot_rois) {
 	assert(in);
 	assert(tot_rois);
 
-	Uint32 nwidth, nheight, xratio, yratio;
+	Uint32 nwidth, nheight;
+	float xratio, yratio;
 	nwidth = in->width;
 	nheight = in->height;
 	recalc_img_size(&nwidth, &nheight, 256);
@@ -181,7 +180,6 @@ CvRect *getRoiFromPic(IplImage *in, Sint32 *tot_rois) {
 	// Use a very small image (256 pix height) for get ROIs
 	IplImage *wpic = cvCreateImage(cvSize(nwidth , nheight), in->depth, in->nChannels);
 	cvResize(in, wpic, CV_INTER_CUBIC);
-	//IplImage *wpic = cvCloneImage(in);
 	Uint8 *wpic_dat = wpic->imageData;
 	Sint32 max_rects = 512;
 	Sint32 trois = -1;
