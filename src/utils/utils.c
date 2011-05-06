@@ -152,10 +152,13 @@ CvRect *getRoiFromPic(IplImage *in, Sint32 *tot_rois) {
 	assert(in);
 	assert(tot_rois);
 
-	Uint32 nwidth, nheight;
+	Uint32 nwidth, nheight, xratio, yratio;
 	nwidth = in->width;
 	nheight = in->height;
 	recalc_img_size(&nwidth, &nheight, 300);
+
+	xratio = in->width / nwidth;
+	yratio = in->height / nheight;
 
 	IplImage *wpic = cvCreateImage(cvSize(nwidth , nheight), in->depth, in->nChannels);
 	cvResize(in, wpic, CV_INTER_CUBIC);
@@ -196,10 +199,10 @@ CvRect *getRoiFromPic(IplImage *in, Sint32 *tot_rois) {
 					drois[trois + 1].width = xmax-xmin;
 					drois[trois + 1].height = MIN(4, wpic->height - i);
 
-					drois[trois + 1].x *= 4;
-					drois[trois + 1].y *= 4;
-					drois[trois + 1].width *= 4;
-					drois[trois + 1].height *= 4;
+					drois[trois + 1].x *= xratio;
+					drois[trois + 1].y *= yratio;
+					drois[trois + 1].width *= xratio;
+					drois[trois + 1].height *= yratio;
 
 					trois++;
 					
@@ -215,10 +218,10 @@ CvRect *getRoiFromPic(IplImage *in, Sint32 *tot_rois) {
 			drois[trois + 1].width = xmax-xmin;
 			drois[trois + 1].height = MIN(4, wpic->height - i);
 
-			drois[trois + 1].x *= 4;
-			drois[trois + 1].y *= 4;
-			drois[trois + 1].width *= 4;
-			drois[trois + 1].height *= 4;
+			drois[trois + 1].x *= xratio;
+			drois[trois + 1].y *= yratio;
+			drois[trois + 1].width *= xratio;
+			drois[trois + 1].height *= yratio;
 
 			trois++;
 		}
