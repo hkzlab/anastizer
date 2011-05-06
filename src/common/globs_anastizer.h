@@ -1,5 +1,5 @@
-#ifndef _GLOBS_HEADER_
-#define _GLOBS_HEADER_
+#ifndef _GLOBS_ANASTIZER_HEADER_
+#define _GLOBS_ANASTIZER_HEADER_
 
 #include "common/defs.h"
 #include "warptrap/wtrap.h"
@@ -23,4 +23,4 @@ extern IplImage *mw_img; // Main window resized image
 
 extern char win_str[64]; // Window title string for preview windows
 
-#endif /* _GLOBS_HEADER_ */
+#endif /* _GLOBS_ANASTIZER_HEADER_ */

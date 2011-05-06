@@ -1,5 +1,5 @@
-#ifndef _HANDLERS_HEADER_
-#define _HANDLERS_HEADER_
+#ifndef _HANDLERS_ANASTIZER_HEADER_
+#define _HANDLERS_ANASTIZER_HEADER_
 
 #include "common/defs.h"
 
@@ -9,4 +9,4 @@ void cntrl_trk_bgr_handler(int pos);
 void cntrl_trk_tmask_handler(int pos);
 void cntrl_trk_avr_handler(int pos);
 
-#endif /* _HANDLERS_HEADER_ */
+#endif /* _HANDLERS_ANASTIZER_HEADER_ */

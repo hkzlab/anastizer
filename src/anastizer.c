@@ -1,10 +1,10 @@
 #include "common/defs.h"
 #include "common/win_names_anastizer.h"
-#include "common/globs.h"
+#include "common/globs_anastizer.h"
 #include "utils/utils.h"
 #include "warptrap/wtrap.h"
-#include "gui/handlers.h"
-#include "gui/windraw.h"
+#include "gui/handlers_anastizer.h"
+#include "gui/windraw_anastizer.h"
 
 void init_wts(Uint32 wtn);
 

@@ -1,7 +1,7 @@
 #include "common/defs.h"
 #include "warptrap/wtrap.h"
 
-// See "globs.h"
+// See "globs_anastizer.h"
 
 Uint16 tmask_size = DEFAULT_TMASK;
 Uint16 tmask_avr = DEFAULT_RMTH;

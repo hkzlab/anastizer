@@ -1,7 +1,7 @@
-#include "handlers.h"
-#include "windraw.h"
+#include "handlers_anastizer.h"
+#include "windraw_anastizer.h"
 
-#include "common/globs.h"
+#include "common/globs_anastizer.h"
 #include "common/win_names_anastizer.h"
 #include "utils/utils.h"
 
