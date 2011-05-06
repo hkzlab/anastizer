@@ -1,6 +1,7 @@
 #include "common/defs.h"
 #include "common/bookd_defs.h"
 #include "utils/utils.h"
+#include "spotclear/spotclear.h"
 
 int main(int argc, char *argv[]) {
 	Uint32 nwidth, nheight;
@@ -36,6 +37,10 @@ int main(int argc, char *argv[]) {
 	cvSmooth(smimg, smimg, CV_BLUR, 8, 0, 0, 0);
 	cvThreshold(smimg, smimg, 190, 255, CV_THRESH_BINARY_INV);
 	cvDilate(smimg, smimg, NULL, 4);
+
+	Sint32 bx, by, bwidth, bheight;
+	find_biggest_blob(smimg, &bx, &by, &bwidth, &bheight);
+	fprintf(stdout, "Biggest blobs is contained in a box starting at [%dx%d], %d pix wide and %d pix tall\n", bx, by, bwidth, bheight);
 
 	cvSaveImage("./test.jpg", smimg, 0);
 

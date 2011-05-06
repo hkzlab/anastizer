@@ -23,6 +23,41 @@ typedef struct {
 
 /***/
 
+void find_biggest_blob(IplImage *in, Sint32 *x, Sint32 *y, Sint32 *width, Sint32 *height) {
+	IplImage *cin = cvCloneImage(in);
+	Uint8 *cin_dat = cin->imageData;
+	Uint32 cssize, old_cssize;
+	Sint32 xmin, xmax, ymin, ymax, xsize, ysize, i, j;
+
+	*x = *y = *width = *height = -1;
+	cssize = old_cssize = 0;
+
+    for (i = 0; i < cin->height; i++)
+        for (j = 0; j < cin->width; j++) {
+            if (cin_dat[(i * cin->widthStep) + (j * cin->nChannels) + 0] == 0) {
+                ymin = ymax = i;
+                xmin = xmax = j;
+
+                cssize = size_spot(j, i, cin, Conn8, 1, &xmin, &xmax, &ymin, &ymax);
+                xsize = (xmax - xmin) + 1;
+                ysize = (ymax - ymin) + 1;
+				
+				if (cssize > old_cssize) {
+					old_cssize = cssize;
+
+					*x = xmin;
+					*y = ymin;
+
+					*width = xsize;
+					*height = ysize;
+				}
+            }
+        }
+
+
+	cvReleaseImage(&cin);
+}
+
 void remove_spot_thin(IplImage *in, Uint32 minsize, Uint32 maxsize, float edge_mult, enum PConn pc) {
 	fprintf(stdout, " Removing spots with area in range [%u-%u] and smallest side at least %.3f the other\n", minsize, maxsize, edge_mult);	
     IplImage *cin = cvCloneImage(in);
