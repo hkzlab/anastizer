@@ -166,7 +166,7 @@ CvRect *getRoiFromPic(IplImage *in, Sint32 *tot_rois) {
 	cvResize(in, wpic, CV_INTER_CUBIC);
 	//IplImage *wpic = cvCloneImage(in);
 	Uint8 *wpic_dat = wpic->imageData;
-	Sint32 max_rects = 1024;
+	Sint32 max_rects = 512;
 	Sint32 trois = -1;
 	CvRect *drois = (CvRect*)malloc(sizeof(CvRect) * max_rects);
 	Sint32 xmin, xmax, i, j, whites;
