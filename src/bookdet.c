@@ -28,11 +28,14 @@ int main(int argc, char *argv[]) {
 	cvReleaseImage(&oimg);
 	oimg = tmp_img; // Replace original image with the resized version
 
+	float xratio, yratio;
 	nwidth = oimg->width;
 	nheight = oimg->height;
 	recalc_img_size(&nwidth, &nheight, 256);
 	smimg = cvCreateImage(cvSize(nwidth , nheight), oimg->depth, oimg->nChannels);
 	cvResize(oimg, smimg, CV_INTER_NN); // Create a very small preview image
+	xratio = oimg->width / smimg->width;
+	yratio = oimg->height / smimg->height;
 
 	cvSmooth(smimg, smimg, CV_BLUR, 8, 0, 0, 0);
 	cvThreshold(smimg, smimg, 190, 255, CV_THRESH_BINARY_INV);
@@ -40,6 +43,10 @@ int main(int argc, char *argv[]) {
 
 	Sint32 bx, by, bwidth, bheight;
 	find_biggest_blob(smimg, &bx, &by, &bwidth, &bheight);
+	bx *= xratio;
+	by *= yratio;
+	bwidth *= xratio;
+	bheight *= yratio;
 	fprintf(stdout, "Biggest blobs is contained in a box starting at [%dx%d], %d pix wide and %d pix tall\n", bx, by, bwidth, bheight);
 
 	cvSaveImage("./test.jpg", smimg, 0);
