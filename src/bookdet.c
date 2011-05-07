@@ -111,7 +111,7 @@ double get_optimum_angle(IplImage *img) {
 		bsize = find_biggest_blob(cimg, &box, Conn4);
 		bmed = bsize / (float)(box.width * box.height);
 
-		fprintf(stdout, "bmed %f, obmed %f\n", bmed, obmed);
+		//fprintf(stdout, "bmed %f, obmed %f\n", bmed, obmed);
 
 		cvReleaseImage(&cimg);
 
