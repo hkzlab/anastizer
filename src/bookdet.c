@@ -50,7 +50,9 @@ int main(int argc, char *argv[]) {
 	cvSaveImage("./05testdil.jpg", timg, 0);
 
 	CvRect box;
-	find_biggest_blob(timg, &box);
+	Uint32 spotsize = find_biggest_blob(timg, &box, Conn4);
+	remove_spot_size(timg, 1, spotsize - 1, Conn4);
+	cvSaveImage("./06testrem.jpg", timg, 0);
 	box.x *= xratio;
 	box.y *= yratio;
 	box.width *= xratio;
@@ -59,6 +61,17 @@ int main(int argc, char *argv[]) {
 
 	cvRectangleR(oimg, box, cvScalar(0, 0, 255, 0), 2, 8, 0);
 	cvSaveImage("./bookfound.jpg", oimg, 0);
+
+	IplImage *turnout = cvCreateImage(cvGetSize(timg), 8, 1);
+	CvPoint2D32f center;
+	center.x = timg->width / 2.0F;
+	center.y = timg->height / 2.0F;
+	CvMat* rot_mat = cvCreateMat(2, 3, CV_32FC1);
+	rot_mat = cv2DRotationMatrix(center, -15.0, 1.0, rot_mat);
+	cvWarpAffine(timg, turnout, rot_mat, CV_INTER_NN | CV_WARP_FILL_OUTLIERS, cvScalarAll(255));
+	cvSaveImage("./saved.jpg", turnout, 0);
+	cvReleaseMat(&rot_mat);
+	cvReleaseImage(&turnout);
 
 	cvReleaseImage(&smimg);
 	cvReleaseImage(&timg);
