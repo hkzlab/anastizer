@@ -3,6 +3,8 @@
 #include "utils/utils.h"
 #include "spotclear/spotclear.h"
 
+double get_optimum_angle(IplImage *img);
+
 int main(int argc, char *argv[]) {
 	Uint32 nwidth, nheight;
 	IplImage *oimg, *tmp_img, *smimg;
@@ -62,13 +64,16 @@ int main(int argc, char *argv[]) {
 	cvRectangleR(oimg, box, cvScalar(0, 0, 255, 0), 2, 8, 0);
 	cvSaveImage("./bookfound.jpg", oimg, 0);
 
-	IplImage *turnout = cvCreateImage(cvGetSize(timg), 8, 1);
+	double optangle = get_optimum_angle(timg);
+	fprintf(stdout, "optangle %f\n", optangle);
+
+	IplImage *turnout = cvCloneImage(oimg);
 	CvPoint2D32f center;
-	center.x = timg->width / 2.0F;
-	center.y = timg->height / 2.0F;
+	center.x = box.x + box.width/2;
+	center.y = box.y + box.height/2;
 	CvMat* rot_mat = cvCreateMat(2, 3, CV_32FC1);
-	rot_mat = cv2DRotationMatrix(center, -15.0, 1.0, rot_mat);
-	cvWarpAffine(timg, turnout, rot_mat, CV_INTER_NN | CV_WARP_FILL_OUTLIERS, cvScalarAll(255));
+	rot_mat = cv2DRotationMatrix(center, optangle, 1.0, rot_mat);
+	cvWarpAffine(oimg, turnout, rot_mat, CV_INTER_NN | CV_WARP_FILL_OUTLIERS, cvScalarAll(255));
 	cvSaveImage("./saved.jpg", turnout, 0);
 	cvReleaseMat(&rot_mat);
 	cvReleaseImage(&turnout);
@@ -79,3 +84,43 @@ int main(int argc, char *argv[]) {
 	return 0;
 }
 
+double get_optimum_angle(IplImage *img) {
+	double cur_angle;
+	Sint32 i, j;
+
+	CvRect box;
+	CvPoint2D32f cp;
+	IplImage *cimg;
+	CvMat* rot_mat; 
+
+	rot_mat = cvCreateMat(2, 3, CV_32FC1);
+	find_biggest_blob(img, &box, Conn4);
+
+	// Calculate blob approximate center
+	cp.x = box.x + box.width/2;
+	cp.y = box.y + box.height/2;
+
+	Uint32 bsize;
+	double obmed, bmed;
+	bmed = obmed = 0.0;
+	for (cur_angle = 0.0; cur_angle > -180.0; cur_angle -= 0.25) {
+		cimg = cvCreateImage(cvGetSize(img), 8, 1);
+		cv2DRotationMatrix(cp, cur_angle, 1.0, rot_mat);
+		cvWarpAffine(img, cimg, rot_mat, CV_INTER_NN | CV_WARP_FILL_OUTLIERS, cvScalarAll(255));
+
+		bsize = find_biggest_blob(cimg, &box, Conn4);
+		bmed = bsize / (float)(box.width * box.height);
+
+		fprintf(stdout, "bmed %f, obmed %f\n", bmed, obmed);
+
+		cvReleaseImage(&cimg);
+
+		// 0.005 tolerance
+		if (bmed < (obmed - 0.005)) break;
+		else obmed = bmed;
+	}
+
+	cvReleaseMat(&rot_mat);
+
+	return cur_angle - 0.25;
+}
