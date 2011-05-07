@@ -36,10 +36,17 @@ int main(int argc, char *argv[]) {
 	cvResize(oimg, smimg, CV_INTER_NN); // Create a very small preview image
 	xratio = oimg->width / smimg->width;
 	yratio = oimg->height / smimg->height;
+	cvSaveImage("./01testresi.jpg", smimg, 0);
 
-	cvSmooth(smimg, smimg, CV_BLUR, 8, 0, 0, 0);
-	cvThreshold(smimg, smimg, 190, 255, CV_THRESH_BINARY_INV);
-	cvDilate(smimg, smimg, NULL, 4);
+	cvSmooth(smimg, smimg, CV_BLUR, 3, 0, 0, 0);
+	cvSaveImage("./02testsmooth.jpg", smimg, 0);
+	cvEqualizeHist(smimg, smimg);
+	cvSaveImage("./03testhist.jpg", smimg, 0);
+	cvThreshold(smimg, smimg, 180, 255, CV_THRESH_BINARY_INV);
+	cvSaveImage("./04testthres.jpg", smimg, 0);
+	cvDilate(smimg, smimg, NULL, 1);
+	//cvErode(smimg, smimg, NULL, 5);
+	cvSaveImage("./05testdil.jpg", smimg, 0);
 
 	CvRect box;
 	find_biggest_blob(smimg, &box);
@@ -48,8 +55,6 @@ int main(int argc, char *argv[]) {
 	box.width *= xratio;
 	box.height *= yratio;
 	fprintf(stdout, "Biggest blobs is contained in a box starting at [%dx%d], %d pix wide and %d pix tall\n", box.x, box.y, box.width, box.height);
-
-	cvSaveImage("./test.jpg", smimg, 0);
 
 	cvReleaseImage(&smimg);
 	cvReleaseImage(&oimg);
