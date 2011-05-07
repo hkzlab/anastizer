@@ -4,6 +4,7 @@
 #include "common/defs.h"
 #include "warptrap/wtrap.h"
 
+IplImage *whiteThresh(IplImage *in, Uint8 thresh, Uint8 tolerance, Uint8 inv);
 Uint8 get_medium_intensity(IplImage *in, Uint8 chan);
 void recalc_img_size(Uint32 *width, Uint32 *height, Uint32 theight);
 IplImage *gray_from_colour(IplImage *in, Uint8 chan);

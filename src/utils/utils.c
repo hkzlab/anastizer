@@ -4,6 +4,42 @@
 
 CvRect *getRoiFromPic(IplImage *in, Sint32 *tot_rois, Uint32 wmult);
 
+IplImage *whiteThresh(IplImage *in, Uint8 thresh, Uint8 tolerance, Uint8 inv) {
+	IplImage *ths = cvCreateImage(cvGetSize(in), 8, 1);
+	
+	Uint8 *in_dat = in->imageData;
+	Uint8 *ths_dat = ths->imageData;
+	Sint32 rgb[3], diff, med, i, j;
+
+	Uint8 back, fore;
+
+	if (inv) {
+		back = 255;
+		fore = 0;
+	} else {
+		back = 0;
+		fore = 255;
+	}
+
+	for (i = 0; i < in->height; i++)
+		for (j = 0; j < in->width; j++) {
+			rgb[0] = in_dat[(i * in->widthStep) + (j * in->nChannels) + 0];
+			rgb[1] = in_dat[(i * in->widthStep) + (j * in->nChannels) + 1];
+			rgb[2] = in_dat[(i * in->widthStep) + (j * in->nChannels) + 2];	
+
+			diff = abs(rgb[0] - rgb[1]) + abs(rgb[1] - rgb[2]) + abs(rgb[0] - rgb[2]);
+			med = (rgb[0] + rgb[1] + rgb[2]) / 3;
+
+			if (diff <= tolerance && med >= thresh)
+				ths_dat[(i * ths->widthStep) + (j * ths->nChannels) + 0] = fore;
+			else
+				ths_dat[(i * ths->widthStep) + (j * ths->nChannels) + 0] = back;
+
+		}
+
+	return ths;
+}
+
 CvMat *build_transf_mat(WTrap *w, CvMat *mm, IplImage *or, IplImage *pw, Uint32 dwidth, Uint32 dheight) {
 	// SEE cvWarpPerspectiveQMatrix
 	// here: http://www.comp.leeds.ac.uk/vision/opencv/opencvref_cv.html
