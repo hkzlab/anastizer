@@ -13,7 +13,7 @@ int main(int argc, char *argv[]) {
 		return 1;
 	}
 
-	if (!(oimg = cvLoadImage(argv[1], CV_LOAD_IMAGE_GRAYSCALE))) {
+	if (!(oimg = cvLoadImage(argv[1], CV_LOAD_IMAGE_UNCHANGED))) {
 		fprintf(stderr, "Unable to load image %s\n", argv[1]);
 		return 1;
 	} else {
@@ -38,28 +38,30 @@ int main(int argc, char *argv[]) {
 	yratio = oimg->height / smimg->height;
 	cvSaveImage("./01testresi.jpg", smimg, 0);
 
-	cvSmooth(smimg, smimg, CV_BLUR, 3, 0, 0, 0);
+	cvSmooth(smimg, smimg, CV_BLUR, 4, 0, 0, 0);
 	cvSaveImage("./02testsmooth.jpg", smimg, 0);
-	cvEqualizeHist(smimg, smimg);
-	cvSaveImage("./03testhist.jpg", smimg, 0);
-	cvThreshold(smimg, smimg, 180, 255, CV_THRESH_BINARY_INV);
-	cvSaveImage("./04testthres.jpg", smimg, 0);
-//	cvErode(smimg, smimg, NULL, 3);
-	cvDilate(smimg, smimg, NULL, 1);
-	cvSaveImage("./05testdil.jpg", smimg, 0);
+//	cvEqualizeHist(smimg, smimg);
+//	cvSaveImage("./03testhist.jpg", smimg, 0);
+//	cvThreshold(smimg, smimg, 160, 255, CV_THRESH_BINARY_INV);
+	IplImage *timg = whiteThresh(smimg, 120, 25, 1);	
+	cvSaveImage("./04testthres.jpg", timg, 0);
+	cvErode(timg, timg, NULL, 1);
+//	cvDilate(timg, timg, NULL, 5);
+	cvSaveImage("./05testdil.jpg", timg, 0);
 
 	CvRect box;
-	find_biggest_blob(smimg, &box);
+	find_biggest_blob(timg, &box);
 	box.x *= xratio;
 	box.y *= yratio;
 	box.width *= xratio;
 	box.height *= yratio;
 	fprintf(stdout, "Biggest blobs is contained in a box starting at [%dx%d], %d pix wide and %d pix tall\n", box.x, box.y, box.width, box.height);
 
-	cvRectangleR(oimg, box, cvScalar(255, 255, 255, 0), 1, 8, 0);
+	cvRectangleR(oimg, box, cvScalar(0, 0, 255, 0), 2, 8, 0);
 	cvSaveImage("./bookfound.jpg", oimg, 0);
 
 	cvReleaseImage(&smimg);
+	cvReleaseImage(&timg);
 	cvReleaseImage(&oimg);
 	return 0;
 }
