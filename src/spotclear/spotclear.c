@@ -23,7 +23,7 @@ typedef struct {
 
 /***/
 
-void find_biggest_blob(IplImage *in, CvRect *box, enum PConn pc) {
+Uint32 find_biggest_blob(IplImage *in, CvRect *box, enum PConn pc) {
 	IplImage *cin = cvCloneImage(in);
 	Uint8 *cin_dat = cin->imageData;
 	Uint32 cssize, old_cssize;
@@ -56,6 +56,7 @@ void find_biggest_blob(IplImage *in, CvRect *box, enum PConn pc) {
 
 
 	cvReleaseImage(&cin);
+	return old_cssize;
 }
 
 void remove_spot_thin(IplImage *in, Uint32 minsize, Uint32 maxsize, float edge_mult, enum PConn pc) {
