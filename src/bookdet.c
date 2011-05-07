@@ -116,7 +116,7 @@ double get_optimum_angle(IplImage *img) {
 		cvReleaseImage(&cimg);
 
 		// 0.005 tolerance
-		if (bmed < (obmed - 0.005)) break;
+		if (bmed < (obmed - 0.005) && box.width > box.height) break;
 		else obmed = bmed;
 	}
 
