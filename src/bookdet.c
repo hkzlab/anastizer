@@ -7,8 +7,8 @@ double get_optimum_angle(IplImage *img);
 
 int main(int argc, char *argv[]) {
 	Uint32 nwidth, nheight;
-	IplImage *oimg, *tmp_img, *smimg, *rot_img;
-	Sint32 i, j;
+	IplImage *oimg, *tmp_img, *smimg, *rot_img, *rotc_img;
+	Sint32 i, j, k;
 
 	// Check parameters and load image file
 	if (argc < 2) {
@@ -57,12 +57,14 @@ int main(int argc, char *argv[]) {
 	fprintf(stdout, "opt. rot. angle %f\n", optangle);
 
 	rot_img = cvCloneImage(timg);
+	rotc_img = cvCloneImage(smimg);
 	CvPoint2D32f center;
 	center.x = box.x + box.width/2;
 	center.y = box.y + box.height/2;
 	CvMat* rot_mat = cvCreateMat(2, 3, CV_32FC1);
 	rot_mat = cv2DRotationMatrix(center, optangle, 1.0, rot_mat);
 	cvWarpAffine(timg, rot_img, rot_mat, CV_INTER_NN | CV_WARP_FILL_OUTLIERS, cvScalarAll(255));
+	cvWarpAffine(smimg, rotc_img, rot_mat, CV_INTER_NN | CV_WARP_FILL_OUTLIERS, cvScalarAll(255));
 	cvReleaseMat(&rot_mat);
 
 	Sint32 fblack, lblack;
@@ -81,19 +83,18 @@ int main(int argc, char *argv[]) {
 			cvLine(rot_img, cvPoint(j, fblack), cvPoint(j, lblack), cvScalarAll(0), 1, 8, 0);
 	}
 
-	cvSaveImage("./saved.jpg", rot_img, 0);
-
-	Uint32 *rot_proj = (Uint32*)malloc(sizeof(Uint32) * rot_img->width);
-	memset(rot_proj, 0, sizeof(Uint32) * rot_img->width);
+	cvSaveImage("./savedbw.jpg", rot_img, 0);
 
 	for (j = 0; j < rot_img->width; j++)
 		for (i = 0; i < rot_img->height; i++) {
 			if (rot_img->imageData[(i * rot_img->widthStep) + (j * rot_img->nChannels) + 0])
-				rot_proj[i] += 1;
+				for (k = 0; k < rotc_img->nChannels; k++)
+					rotc_img->imageData[(i * rotc_img->widthStep) + (j * rotc_img->nChannels) + k] = 255;
 		}
 
-	free(rot_proj);
+	cvSaveImage("./savedcol.jpg", rotc_img, 0);
 
+	cvReleaseImage(&rotc_img);
 	cvReleaseImage(&rot_img);
 	cvReleaseImage(&smimg);
 	cvReleaseImage(&timg);
