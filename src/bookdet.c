@@ -212,6 +212,8 @@ int main(int argc, char *argv[]) {
 
 	fprintf(stdout, "a.x %d a.y %d - b.x %d b.y %d - c.x %d c.y %d - d.x %d d.y %d\n", a.x, a.y, b.x, b.y, c.x, c.y, d.x, d.y);
 
+	// We should now scale the points and rotate them back
+
 	cvReleaseImage(&rot_img);
 	cvReleaseImage(&smimg);
 	cvReleaseImage(&timg);
