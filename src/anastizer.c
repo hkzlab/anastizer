@@ -9,7 +9,7 @@
 
 void init_wts(Uint32 wtn);
 
-// ************* // 
+// ************* //
 
 int main(int argc, char *argv[]) {
 	Uint32 nwidth, nheight;
@@ -29,7 +29,7 @@ int main(int argc, char *argv[]) {
 	}
 
 	// This is probably a shot of a single page, only one wts needed
-	if (oimg->height > oimg->width) 
+	if (oimg->height > oimg->width)
 		used_wts = 1;
 
 	// Prepare file path, removing last 4 chars (extension)
@@ -126,7 +126,7 @@ int main(int argc, char *argv[]) {
 	}
 
 	// wait for a key
-	while(cvWaitKey(0) != 'q');
+	while (cvWaitKey(0) != 'q');
 
 	// Destroy windows
 	cvDestroyAllWindows();

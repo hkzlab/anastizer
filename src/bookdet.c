@@ -43,7 +43,7 @@ int main(int argc, char *argv[]) {
 
 	cvSmooth(smimg, smimg, CV_BLUR, 4, 0, 0, 0);
 	cvSaveImage("./02testsmooth.jpg", smimg, 0);
-	IplImage *timg = whiteThresh(smimg, 120, 25, 1);	
+	IplImage *timg = whiteThresh(smimg, 120, 25, 1);
 	cvSaveImage("./04testthres.jpg", timg, 0);
 	cvErode(timg, timg, NULL, 1);
 	cvSaveImage("./05testdil.jpg", timg, 0);
@@ -58,9 +58,9 @@ int main(int argc, char *argv[]) {
 
 	rot_img = cvCloneImage(timg);
 	CvPoint2D32f center;
-	center.x = box.x + box.width/2;
-	center.y = box.y + box.height/2;
-	CvMat* rot_mat = cvCreateMat(2, 3, CV_32FC1);
+	center.x = box.x + box.width / 2;
+	center.y = box.y + box.height / 2;
+	CvMat *rot_mat = cvCreateMat(2, 3, CV_32FC1);
 	rot_mat = cv2DRotationMatrix(center, optangle, 1.0, rot_mat);
 	cvWarpAffine(timg, rot_img, rot_mat, CV_INTER_NN | CV_WARP_FILL_OUTLIERS, cvScalarAll(255));
 	cvReleaseMat(&rot_mat);
@@ -72,8 +72,9 @@ int main(int argc, char *argv[]) {
 
 		for (i = 0; i < rot_img->height; i++) {
 			if (!rot_img->imageData[(i * rot_img->widthStep) + (j * rot_img->nChannels) + 0]) {
-				if (fblack < 0) { fblack = lblack = i; }
-				else lblack = i;
+				if (fblack < 0) {
+					fblack = lblack = i;
+				} else lblack = i;
 			}
 		}
 
@@ -87,8 +88,9 @@ int main(int argc, char *argv[]) {
 	// Try to find the CENTER of the book
 	Sint32 xmin, xmax;
 	find_biggest_blob(rot_img, &box, Conn4);
-	
-	xmin = box.x; xmax = box.width - 1;
+
+	xmin = box.x;
+	xmax = box.width - 1;
 	for (j = box.x; j < box.x + box.width - 1; j++)
 		for (i = box.y; i < box.y + box.height - 1; i++) {
 			if (!rot_img->imageData[(i * rot_img->widthStep) + (j * rot_img->nChannels) + 0]) {
@@ -98,7 +100,7 @@ int main(int argc, char *argv[]) {
 		}
 
 	box.x = xmin;
-	box.width = xmax-xmin;
+	box.width = xmax - xmin;
 
 	// Make sure the width is odd
 	if (!(box.width % 2)) box.width--;
@@ -136,29 +138,47 @@ int main(int argc, char *argv[]) {
 		lval = rval = 0;
 	}
 
-	fprintf(stdout, "minval %f - %d\n", minval, xmin);
+	CvPoint ca, cb;
 
+	ca.x = cb.x = xmin;
+
+	fblack = -1;
+	lblack = -1;
+
+	for (i = 0; i < rot_img->height; i++) {
+		if (!rot_img->imageData[(i * rot_img->widthStep) + (xmin * rot_img->nChannels) + 0]) {
+			if (fblack < 0) {
+				fblack = lblack = i;
+			} else lblack = i;
+		}
+	}
+
+	ca.y = fblack;
+	cb.y = lblack;
+
+	fprintf(stdout, "ca.x %d ca.y %d - cb.x %d cb.y %d\n", ca.x, ca.y, cb.x, cb.y);
+
+	// Try to find BORDER points
 	find_biggest_blob(timg, &box, Conn4);
 
 	CvPoint a, b, c, d;
+	float da, db, dc, dd, dp;
 
 	a.x = b.x = c.x = d.x = box.x + box.width / 2;
 	a.y = b.y = c.y = d.y = box.y + box.height / 2;
-	float da, db, dc, dd;
 
 	da = sqrtf(powf(a.x - box.x, 2) + powf(a.y - box.y, 2));
 	db = sqrtf(powf(b.x - (box.x + box.width - 1), 2) + powf(b.y - box.y, 2));
 	dc = sqrtf(powf(c.x - box.x, 2) + powf(c.y - (box.y + box.height - 1), 2));
 	dd = sqrtf(powf(d.x - (box.x + box.width - 1), 2) + powf(d.y - (box.y + box.height - 1), 2));
 
-	float dp;
 	for (j = box.x; j < box.x + box.width - 1; j++)
 		for (i = box.y; i < box.y + box.height - 1; i++) {
 			if (!rot_img->imageData[(i * rot_img->widthStep) + (j * rot_img->nChannels) + 0]) {
 				if (j == 0 || j == rot_img->width - 1 || i == 0 || i == rot_img->height || rot_img->imageData[((i - 1) * rot_img->widthStep) + (j * rot_img->nChannels) + 0] || \
-					rot_img->imageData[((i + 1) * rot_img->widthStep) + (j * rot_img->nChannels) + 0] || rot_img->imageData[(i * rot_img->widthStep) + ((j - 1) * rot_img->nChannels) + 0] || \
-					rot_img->imageData[(i * rot_img->widthStep) + ((j + 1) * rot_img->nChannels) + 0]) {
-				
+				        rot_img->imageData[((i + 1) * rot_img->widthStep) + (j * rot_img->nChannels) + 0] || rot_img->imageData[(i * rot_img->widthStep) + ((j - 1) * rot_img->nChannels) + 0] || \
+				        rot_img->imageData[(i * rot_img->widthStep) + ((j + 1) * rot_img->nChannels) + 0]) {
+
 					dp = sqrtf(powf(j - box.x, 2) + powf(i - box.y, 2));
 					if (dp < da) {
 						da = dp;
@@ -206,14 +226,14 @@ double get_optimum_angle(IplImage *img) {
 	CvRect box;
 	CvPoint2D32f cp;
 	IplImage *cimg;
-	CvMat* rot_mat; 
+	CvMat *rot_mat;
 
 	rot_mat = cvCreateMat(2, 3, CV_32FC1);
 	find_biggest_blob(img, &box, Conn4);
 
 	// Calculate blob approximate center
-	cp.x = box.x + box.width/2;
-	cp.y = box.y + box.height/2;
+	cp.x = box.x + box.width / 2;
+	cp.y = box.y + box.height / 2;
 
 	Uint32 bsize;
 	double obmed, bmed;
