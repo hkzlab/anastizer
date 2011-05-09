@@ -7,7 +7,7 @@ double get_optimum_angle(IplImage *img);
 
 int main(int argc, char *argv[]) {
 	Uint32 nwidth, nheight;
-	IplImage *oimg, *tmp_img, *smimg, *rot_img, *rotc_img;
+	IplImage *oimg, *tmp_img, *smimg, *rot_img;
 	Sint32 i, j, k;
 
 	// Check parameters and load image file
@@ -57,14 +57,12 @@ int main(int argc, char *argv[]) {
 	fprintf(stdout, "opt. rot. angle %f\n", optangle);
 
 	rot_img = cvCloneImage(timg);
-	rotc_img = cvCloneImage(smimg);
 	CvPoint2D32f center;
 	center.x = box.x + box.width/2;
 	center.y = box.y + box.height/2;
 	CvMat* rot_mat = cvCreateMat(2, 3, CV_32FC1);
 	rot_mat = cv2DRotationMatrix(center, optangle, 1.0, rot_mat);
 	cvWarpAffine(timg, rot_img, rot_mat, CV_INTER_NN | CV_WARP_FILL_OUTLIERS, cvScalarAll(255));
-	cvWarpAffine(smimg, rotc_img, rot_mat, CV_INTER_NN | CV_WARP_FILL_OUTLIERS, cvScalarAll(255));
 	cvReleaseMat(&rot_mat);
 
 	Sint32 fblack, lblack;
@@ -85,16 +83,59 @@ int main(int argc, char *argv[]) {
 
 	cvSaveImage("./savedbw.jpg", rot_img, 0);
 
-	for (j = 0; j < rot_img->width; j++)
-		for (i = 0; i < rot_img->height; i++) {
-			if (rot_img->imageData[(i * rot_img->widthStep) + (j * rot_img->nChannels) + 0])
-				for (k = 0; k < rotc_img->nChannels; k++)
-					rotc_img->imageData[(i * rotc_img->widthStep) + (j * rotc_img->nChannels) + k] = 255;
+	Sint32 xmin, xmax;
+	find_biggest_blob(rot_img, &box, Conn4);
+	
+	xmin = box.x; xmax = box.width - 1;
+	for (j = box.x; j < box.x + box.width - 1; j++)
+		for (i = box.y; i < box.y + box.height - 1; i++) {
+			if (!rot_img->imageData[(i * rot_img->widthStep) + (j * rot_img->nChannels) + 0]) {
+				xmax = MAX(xmax, j);
+				xmin = MIN(xmin, j);
+			}
 		}
 
-	cvSaveImage("./savedcol.jpg", rotc_img, 0);
+	box.x = xmin;
+	box.width = xmax-xmin;
 
-	cvReleaseImage(&rotc_img);
+	// Make sure the width is odd
+	if (!(box.width % 2)) box.width--;
+
+	float val_dec = 1.0 / (box.width / 2);
+	float prob_val = 1.0;
+	Uint32 step, min, lval, rval;
+	float minval = 1.0;
+
+	// Top half
+	step = lval = rval = xmin = 0;
+	min = 0xFFFFFFFF;
+	for (j = box.x + box.width / 2 + 1; j < box.x + box.width - 1 && prob_val > 0.5; j++) {
+		for (i = box.y; i < box.y + box.height / 2; i++) {
+			if (!rot_img->imageData[(i * rot_img->widthStep) + (((box.x + box.width / 2 + 1) - step) * rot_img->nChannels) + 0])
+				lval++;
+			if (!rot_img->imageData[(i * rot_img->widthStep) + (((box.x + box.width / 2 + 1) + step) * rot_img->nChannels) + 0])
+				rval++;
+		}
+
+		if (min > lval && lval > 10) {
+			min = lval;
+			minval = prob_val;
+			xmin = (box.x + box.width / 2 + 1) - step;
+		}
+
+		if (min > rval && rval > 10) {
+			min = rval;
+			minval = prob_val;
+			xmin = (box.x + box.width / 2 + 1) + step;
+		}
+
+		step++;
+		prob_val -= val_dec;
+		lval = rval = 0;
+	}
+
+	fprintf(stdout, "minval %f - %d\n", minval, xmin);
+
 	cvReleaseImage(&rot_img);
 	cvReleaseImage(&smimg);
 	cvReleaseImage(&timg);
