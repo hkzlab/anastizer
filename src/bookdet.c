@@ -8,6 +8,7 @@ double get_optimum_angle(IplImage *img);
 int main(int argc, char *argv[]) {
 	Uint32 nwidth, nheight;
 	IplImage *oimg, *tmp_img, *smimg, *rot_img;
+	Sint32 i, j;
 
 	// Check parameters and load image file
 	if (argc < 2) {
@@ -62,18 +63,34 @@ int main(int argc, char *argv[]) {
 	CvMat* rot_mat = cvCreateMat(2, 3, CV_32FC1);
 	rot_mat = cv2DRotationMatrix(center, optangle, 1.0, rot_mat);
 	cvWarpAffine(timg, rot_img, rot_mat, CV_INTER_NN | CV_WARP_FILL_OUTLIERS, cvScalarAll(255));
-	cvSaveImage("./saved.jpg", rot_img, 0);
 	cvReleaseMat(&rot_mat);
+
+	Sint32 fblack, lblack;
+	for (j = 0; j < rot_img->width; j++) {
+		fblack = -1;
+		lblack = -1;
+
+		for (i = 0; i < rot_img->height; i++) {
+			if (!rot_img->imageData[(i * rot_img->widthStep) + (j * rot_img->nChannels) + 0]) {
+				if (fblack < 0) { fblack = lblack = i; }
+				else lblack = i;
+			}
+		}
+
+		if (fblack > 0)
+			cvLine(rot_img, cvPoint(j, fblack), cvPoint(j, lblack), cvScalarAll(0), 1, 8, 0);
+	}
+
+	cvSaveImage("./saved.jpg", rot_img, 0);
 
 	Uint32 *rot_proj = (Uint32*)malloc(sizeof(Uint32) * rot_img->width);
 	memset(rot_proj, 0, sizeof(Uint32) * rot_img->width);
-	Sint32 i, j;
 
-	for (j = 0; j < rot_img->width; j++)
-		for (i = 0; i < rot_img->height; i++) {
-			if (rot_img->imageData[(i * rot_img->widthStep) + (j * rot_img->nChannels) + 0])
-				rot_proj[i] += 1;
-		}
+//	for (j = 0; j < rot_img->width; j++)
+//		for (i = 0; i < rot_img->height; i++) {
+//			if (rot_img->imageData[(i * rot_img->widthStep) + (j * rot_img->nChannels) + 0])
+//				rot_proj[i] += 1;
+//		}
 
 	free(rot_proj);
 
