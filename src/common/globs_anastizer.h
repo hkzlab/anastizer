@@ -6,9 +6,6 @@
 
 // These are global vars required by OpenCV gui handler's callbacks
 
-extern Uint16 tmask_size; // parameters for local thresh
-extern Uint16 tmask_avr;
-
 extern char dest_file[STR_BUF_SIZE]; // File destination path buffer
 
 extern WTrap wt[MAX_WTS]; // WarpTraps data

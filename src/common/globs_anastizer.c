@@ -4,9 +4,6 @@
 
 // See "globs_anastizer.h"
 
-Uint16 tmask_size = DEFAULT_TMASK;
-Uint16 tmask_avr = DEFAULT_RMTH;
-
 char dest_file[STR_BUF_SIZE];
 
 WTrap wt[MAX_WTS];

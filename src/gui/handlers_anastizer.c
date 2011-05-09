@@ -57,7 +57,7 @@ void prev_mouseHandler(int event, int x, int y, int flags, void *param) {
 			gimg = return_warped_img(oimg, invt[cur_win], &wt[cur_win], prv_img[cur_win]->width * WARP_MULT, prv_img[cur_win]->height * WARP_MULT, cur_chan);
 		}
 
-		mimg = anastize_image(gimg, tmask_size, tmask_avr, WARP_MULT);
+		mimg = anastize_image(gimg, ((cvGetTrackbarPos(PREV_TRK_MSK, CNTRL_WIN) + 1) * TMASK_MULTIPLIER * WARP_MULT) + 1, cvGetTrackbarPos(PREV_TRK_AVR, CNTRL_WIN), WARP_MULT);
 
 		cvReleaseImage(&gimg);
 
@@ -307,10 +307,10 @@ void cntrl_trk_bgr_handler(int pos) {
 }
 
 void cntrl_trk_tmask_handler(int pos) {
-	tmask_size = ((pos + 1) * TMASK_MULTIPLIER * WARP_MULT) + 1;
+	;
 }
 
 void cntrl_trk_avr_handler(int pos) {
-	tmask_avr = pos;
+	;
 }
 
