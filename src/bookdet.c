@@ -7,7 +7,7 @@ double get_optimum_angle(IplImage *img);
 
 int main(int argc, char *argv[]) {
 	Uint32 nwidth, nheight;
-	IplImage *oimg, *tmp_img, *smimg;
+	IplImage *oimg, *tmp_img, *smimg, *rot_img;
 
 	// Check parameters and load image file
 	if (argc < 2) {
@@ -42,42 +42,48 @@ int main(int argc, char *argv[]) {
 
 	cvSmooth(smimg, smimg, CV_BLUR, 4, 0, 0, 0);
 	cvSaveImage("./02testsmooth.jpg", smimg, 0);
-//	cvEqualizeHist(smimg, smimg);
-//	cvSaveImage("./03testhist.jpg", smimg, 0);
-//	cvThreshold(smimg, smimg, 160, 255, CV_THRESH_BINARY_INV);
 	IplImage *timg = whiteThresh(smimg, 120, 25, 1);	
 	cvSaveImage("./04testthres.jpg", timg, 0);
 	cvErode(timg, timg, NULL, 1);
-//	cvDilate(timg, timg, NULL, 5);
 	cvSaveImage("./05testdil.jpg", timg, 0);
 
 	CvRect box;
 	Uint32 spotsize = find_biggest_blob(timg, &box, Conn4);
 	remove_spot_size(timg, 1, spotsize - 1, Conn4);
 	cvSaveImage("./06testrem.jpg", timg, 0);
+
+	double optangle = get_optimum_angle(timg);
+	fprintf(stdout, "opt. rot. angle %f\n", optangle);
+
+	rot_img = cvCloneImage(timg);
+	CvPoint2D32f center;
+	center.x = box.x + box.width/2;
+	center.y = box.y + box.height/2;
+	CvMat* rot_mat = cvCreateMat(2, 3, CV_32FC1);
+	rot_mat = cv2DRotationMatrix(center, optangle, 1.0, rot_mat);
+	cvWarpAffine(timg, rot_img, rot_mat, CV_INTER_NN | CV_WARP_FILL_OUTLIERS, cvScalarAll(255));
+	cvSaveImage("./saved.jpg", rot_img, 0);
+	cvReleaseMat(&rot_mat);
+
+	Uint32 *rot_proj = (Uint32*)malloc(sizeof(Uint32) * rot_img->width);
+	memset(rot_proj, 0, sizeof(Uint32) * rot_img->width);
+	Sint32 i, j;
+
+	for (j = 0; j < rot_img->width; j++)
+		for (i = 0; i < rot_img->height; i++) {
+			if (rot_img->imageData[(i * rot_img->widthStep) + (j * rot_img->nChannels) + 0])
+				rot_proj[i] += 1;
+		}
+
+	free(rot_proj);
+
 	box.x *= xratio;
 	box.y *= yratio;
 	box.width *= xratio;
 	box.height *= yratio;
 	fprintf(stdout, "Biggest blobs is contained in a box starting at [%dx%d], %d pix wide and %d pix tall\n", box.x, box.y, box.width, box.height);
 
-	cvRectangleR(oimg, box, cvScalar(0, 0, 255, 0), 2, 8, 0);
-	cvSaveImage("./bookfound.jpg", oimg, 0);
-
-	double optangle = get_optimum_angle(timg);
-	fprintf(stdout, "optangle %f\n", optangle);
-
-	IplImage *turnout = cvCloneImage(oimg);
-	CvPoint2D32f center;
-	center.x = box.x + box.width/2;
-	center.y = box.y + box.height/2;
-	CvMat* rot_mat = cvCreateMat(2, 3, CV_32FC1);
-	rot_mat = cv2DRotationMatrix(center, optangle, 1.0, rot_mat);
-	cvWarpAffine(oimg, turnout, rot_mat, CV_INTER_NN | CV_WARP_FILL_OUTLIERS, cvScalarAll(255));
-	cvSaveImage("./saved.jpg", turnout, 0);
-	cvReleaseMat(&rot_mat);
-	cvReleaseImage(&turnout);
-
+	cvReleaseImage(&rot_img);
 	cvReleaseImage(&smimg);
 	cvReleaseImage(&timg);
 	cvReleaseImage(&oimg);
