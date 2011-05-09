@@ -6,10 +6,16 @@
 double get_optimum_angle(IplImage *img);
 
 int main(int argc, char *argv[]) {
-	Uint32 nwidth, nheight;
+	Uint32 nwidth, nheight, spotsize;
 	IplImage *oimg, *tmp_img, *smimg, *rot_img;
 	CvMat *rot_mat;
-	Sint32 i, j, k;
+	Sint32 i, j, k, fblack, lblack, xmin, xmax;
+	CvRect box;
+	double xratio, yratio, optangle;
+	float da, db, dc, dd, dp;
+
+	CvPoint2D32f center;
+	CvPoint a, b, c, d, ca, cb;
 
 	// Check parameters and load image file
 	if (argc < 2) {
@@ -32,7 +38,6 @@ int main(int argc, char *argv[]) {
 	cvReleaseImage(&oimg);
 	oimg = tmp_img; // Replace original image with the resized version
 
-	double xratio, yratio;
 	nwidth = oimg->width;
 	nheight = oimg->height;
 	recalc_img_size(&nwidth, &nheight, 256);
@@ -49,16 +54,14 @@ int main(int argc, char *argv[]) {
 	cvErode(timg, timg, NULL, 1);
 	cvSaveImage("./05testdil.jpg", timg, 0);
 
-	CvRect box;
-	Uint32 spotsize = find_biggest_blob(timg, &box, Conn4);
+	spotsize = find_biggest_blob(timg, &box, Conn4);
 	remove_spot_size(timg, 1, spotsize - 1, Conn4);
 	cvSaveImage("./06testrem.jpg", timg, 0);
 
-	double optangle = get_optimum_angle(timg);
+	optangle = get_optimum_angle(timg);
 	fprintf(stdout, "opt. rot. angle %f\n", optangle);
 
 	rot_img = cvCloneImage(timg);
-	CvPoint2D32f center;
 	center.x = box.x + box.width / 2;
 	center.y = box.y + box.height / 2;
 	rot_mat = cvCreateMat(2, 3, CV_32FC1);
@@ -66,7 +69,6 @@ int main(int argc, char *argv[]) {
 	cvWarpAffine(timg, rot_img, rot_mat, CV_INTER_NN | CV_WARP_FILL_OUTLIERS, cvScalarAll(255));
 	cvReleaseMat(&rot_mat);
 
-	Sint32 fblack, lblack;
 	for (j = 0; j < rot_img->width; j++) {
 		fblack = -1;
 		lblack = -1;
@@ -87,7 +89,6 @@ int main(int argc, char *argv[]) {
 
 
 	// Try to find the CENTER of the book
-	Sint32 xmin, xmax;
 	find_biggest_blob(rot_img, &box, Conn4);
 
 	xmin = box.x;
@@ -139,8 +140,6 @@ int main(int argc, char *argv[]) {
 		lval = rval = 0;
 	}
 
-	CvPoint ca, cb;
-
 	ca.x = cb.x = xmin;
 
 	fblack = -1;
@@ -161,9 +160,6 @@ int main(int argc, char *argv[]) {
 
 	// Try to find BORDER points
 	find_biggest_blob(timg, &box, Conn4);
-
-	CvPoint a, b, c, d;
-	float da, db, dc, dd, dp;
 
 	a.x = b.x = c.x = d.x = box.x + box.width / 2;
 	a.y = b.y = c.y = d.y = box.y + box.height / 2;
