@@ -86,19 +86,13 @@ int main(int argc, char *argv[]) {
 	Uint32 *rot_proj = (Uint32*)malloc(sizeof(Uint32) * rot_img->width);
 	memset(rot_proj, 0, sizeof(Uint32) * rot_img->width);
 
-//	for (j = 0; j < rot_img->width; j++)
-//		for (i = 0; i < rot_img->height; i++) {
-//			if (rot_img->imageData[(i * rot_img->widthStep) + (j * rot_img->nChannels) + 0])
-//				rot_proj[i] += 1;
-//		}
+	for (j = 0; j < rot_img->width; j++)
+		for (i = 0; i < rot_img->height; i++) {
+			if (rot_img->imageData[(i * rot_img->widthStep) + (j * rot_img->nChannels) + 0])
+				rot_proj[i] += 1;
+		}
 
 	free(rot_proj);
-
-	box.x *= xratio;
-	box.y *= yratio;
-	box.width *= xratio;
-	box.height *= yratio;
-	fprintf(stdout, "Biggest blobs is contained in a box starting at [%dx%d], %d pix wide and %d pix tall\n", box.x, box.y, box.width, box.height);
 
 	cvReleaseImage(&rot_img);
 	cvReleaseImage(&smimg);
