@@ -8,6 +8,7 @@ double get_optimum_angle(IplImage *img);
 int main(int argc, char *argv[]) {
 	Uint32 nwidth, nheight;
 	IplImage *oimg, *tmp_img, *smimg, *rot_img;
+	CvMat *rot_mat;
 	Sint32 i, j, k;
 
 	// Check parameters and load image file
@@ -31,14 +32,14 @@ int main(int argc, char *argv[]) {
 	cvReleaseImage(&oimg);
 	oimg = tmp_img; // Replace original image with the resized version
 
-	float xratio, yratio;
+	double xratio, yratio;
 	nwidth = oimg->width;
 	nheight = oimg->height;
 	recalc_img_size(&nwidth, &nheight, 256);
 	smimg = cvCreateImage(cvSize(nwidth , nheight), oimg->depth, oimg->nChannels);
 	cvResize(oimg, smimg, CV_INTER_NN); // Create a very small preview image
-	xratio = oimg->width / smimg->width;
-	yratio = oimg->height / smimg->height;
+	xratio = oimg->width / (float)smimg->width;
+	yratio = oimg->height / (float)smimg->height;
 	cvSaveImage("./01testresi.jpg", smimg, 0);
 
 	cvSmooth(smimg, smimg, CV_BLUR, 4, 0, 0, 0);
@@ -60,7 +61,7 @@ int main(int argc, char *argv[]) {
 	CvPoint2D32f center;
 	center.x = box.x + box.width / 2;
 	center.y = box.y + box.height / 2;
-	CvMat *rot_mat = cvCreateMat(2, 3, CV_32FC1);
+	rot_mat = cvCreateMat(2, 3, CV_32FC1);
 	rot_mat = cv2DRotationMatrix(center, optangle, 1.0, rot_mat);
 	cvWarpAffine(timg, rot_img, rot_mat, CV_INTER_NN | CV_WARP_FILL_OUTLIERS, cvScalarAll(255));
 	cvReleaseMat(&rot_mat);
@@ -213,6 +214,89 @@ int main(int argc, char *argv[]) {
 	fprintf(stdout, "a.x %d a.y %d - b.x %d b.y %d - c.x %d c.y %d - d.x %d d.y %d\n", a.x, a.y, b.x, b.y, c.x, c.y, d.x, d.y);
 
 	// We should now scale the points and rotate them back
+	a.x *= xratio; b.x *= xratio; c.x *= xratio; d.x *= xratio; ca.x *= xratio; cb.x *= xratio;
+	a.y *= yratio; b.y *= yratio; c.y *= yratio; d.y *= yratio; ca.y *= yratio; cb.y *= yratio;
+
+	center.x *= xratio;
+	center.y *= yratio;
+
+	rot_mat = cvCreateMat(2, 3, CV_32FC1);
+	CvMat *pntm = cvCreateMat(3, 1, CV_32FC1);
+	CvMat *dpntm = cvCreateMat(2, 1, CV_32FC1);
+	rot_mat = cv2DRotationMatrix(center, -1.0 * optangle, 1.0, rot_mat);
+
+	//
+	cvmSet(pntm, 0, 0, a.x);
+	cvmSet(pntm, 1, 0, a.y);
+	cvmSet(pntm, 2, 0, 1.0);
+
+	cvMatMul(rot_mat, pntm, dpntm);
+
+	a.x = round(cvmGet(dpntm, 0, 0));
+	a.y = round(cvmGet(dpntm, 1, 0));
+
+	//
+	cvmSet(pntm, 0, 0, b.x);
+	cvmSet(pntm, 1, 0, b.y);
+	cvmSet(pntm, 2, 0, 1.0);
+
+	cvMatMul(rot_mat, pntm, dpntm);
+
+	b.x = round(cvmGet(dpntm, 0, 0));
+	b.y = round(cvmGet(dpntm, 1, 0));
+
+	//
+	cvmSet(pntm, 0, 0, c.x);
+	cvmSet(pntm, 1, 0, c.y);
+	cvmSet(pntm, 2, 0, 1.0);
+
+	cvMatMul(rot_mat, pntm, dpntm);
+
+	c.x = round(cvmGet(dpntm, 0, 0));
+	c.y = round(cvmGet(dpntm, 1, 0));
+
+	//
+	cvmSet(pntm, 0, 0, d.x);
+	cvmSet(pntm, 1, 0, d.y);
+	cvmSet(pntm, 2, 0, 1.0);
+
+	cvMatMul(rot_mat, pntm, dpntm);
+
+	d.x = round(cvmGet(dpntm, 0, 0));
+	d.y = round(cvmGet(dpntm, 1, 0));
+
+	//
+	cvmSet(pntm, 0, 0, ca.x);
+	cvmSet(pntm, 1, 0, ca.y);
+	cvmSet(pntm, 2, 0, 1.0);
+
+	cvMatMul(rot_mat, pntm, dpntm);
+
+	ca.x = round(cvmGet(dpntm, 0, 0));
+	ca.y = round(cvmGet(dpntm, 1, 0));
+
+	//
+	cvmSet(pntm, 0, 0, cb.x);
+	cvmSet(pntm, 1, 0, cb.y);
+	cvmSet(pntm, 2, 0, 1.0);
+
+	cvMatMul(rot_mat, pntm, dpntm);
+
+	cb.x = round(cvmGet(dpntm, 0, 0));
+	cb.y = round(cvmGet(dpntm, 1, 0));
+
+	cvCircle(oimg, a, 5, cvScalar(0, 0, 255, 0), 3, 8, 0);
+	cvCircle(oimg, b, 5, cvScalar(0, 0, 255, 0), 3, 8, 0);
+	cvCircle(oimg, c, 5, cvScalar(0, 0, 255, 0), 3, 8, 0);
+	cvCircle(oimg, d, 5, cvScalar(0, 0, 255, 0), 3, 8, 0);
+	cvCircle(oimg, ca, 5, cvScalar(0, 0, 255, 0), 3, 8, 0);
+	cvCircle(oimg, cb, 5, cvScalar(0, 0, 255, 0), 3, 8, 0);
+
+	cvSaveImage("./orrore.jpg", oimg, 0);
+
+	cvReleaseMat(&pntm);
+	cvReleaseMat(&dpntm);
+	cvReleaseMat(&rot_mat);
 
 	cvReleaseImage(&rot_img);
 	cvReleaseImage(&smimg);
