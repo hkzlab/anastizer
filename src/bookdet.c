@@ -83,6 +83,8 @@ int main(int argc, char *argv[]) {
 
 	cvSaveImage("./savedbw.jpg", rot_img, 0);
 
+
+	// Try to find the CENTER of the book
 	Sint32 xmin, xmax;
 	find_biggest_blob(rot_img, &box, Conn4);
 	
@@ -135,6 +137,60 @@ int main(int argc, char *argv[]) {
 	}
 
 	fprintf(stdout, "minval %f - %d\n", minval, xmin);
+
+	find_biggest_blob(timg, &box, Conn4);
+
+	CvPoint a, b, c, d;
+
+	a.x = b.x = c.x = d.x = box.x + box.width / 2;
+	a.y = b.y = c.y = d.y = box.y + box.height / 2;
+	float da, db, dc, dd;
+
+	da = sqrtf(powf(a.x - box.x, 2) + powf(a.y - box.y, 2));
+	db = sqrtf(powf(b.x - (box.x + box.width - 1), 2) + powf(b.y - box.y, 2));
+	dc = sqrtf(powf(c.x - box.x, 2) + powf(c.y - (box.y + box.height - 1), 2));
+	dd = sqrtf(powf(d.x - (box.x + box.width - 1), 2) + powf(d.y - (box.y + box.height - 1), 2));
+
+	float dp;
+	for (j = box.x; j < box.x + box.width - 1; j++)
+		for (i = box.y; i < box.y + box.height - 1; i++) {
+			if (!rot_img->imageData[(i * rot_img->widthStep) + (j * rot_img->nChannels) + 0]) {
+				if (j == 0 || j == rot_img->width - 1 || i == 0 || i == rot_img->height || rot_img->imageData[((i - 1) * rot_img->widthStep) + (j * rot_img->nChannels) + 0] || \
+					rot_img->imageData[((i + 1) * rot_img->widthStep) + (j * rot_img->nChannels) + 0] || rot_img->imageData[(i * rot_img->widthStep) + ((j - 1) * rot_img->nChannels) + 0] || \
+					rot_img->imageData[(i * rot_img->widthStep) + ((j + 1) * rot_img->nChannels) + 0]) {
+				
+					dp = sqrtf(powf(j - box.x, 2) + powf(i - box.y, 2));
+					if (dp < da) {
+						da = dp;
+						a.x = j;
+						a.y = i;
+					}
+
+					dp = sqrtf(powf(j - (box.x + box.width - 1), 2) + powf(i - box.y, 2));
+					if (dp < db) {
+						db = dp;
+						b.x = j;
+						b.y = i;
+					}
+
+					dp = sqrtf(powf(j - box.x, 2) + powf(i - (box.y + box.height - 1), 2));
+					if (dp < dc) {
+						dc = dp;
+						c.x = j;
+						c.y = i;
+					}
+
+					dp = sqrtf(powf(j - (box.x + box.width - 1), 2) + powf(i - (box.y + box.height - 1), 2));
+					if (dp < dd) {
+						dd = dp;
+						d.x = j;
+						d.y = i;
+					}
+				}
+			}
+		}
+
+	fprintf(stdout, "a.x %d a.y %d - b.x %d b.y %d - c.x %d c.y %d - d.x %d d.y %d\n", a.x, a.y, b.x, b.y, c.x, c.y, d.x, d.y);
 
 	cvReleaseImage(&rot_img);
 	cvReleaseImage(&smimg);
