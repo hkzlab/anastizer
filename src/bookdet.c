@@ -30,6 +30,8 @@ int main(int argc, char *argv[]) {
 		fprintf(stdout, "Loaded image %s\n", argv[1]);
 	}
 
+	// Resize the original image into a smaller version
+#if 0
 	nwidth = oimg->width;
 	nheight = oimg->height;
 	recalc_img_size(&nwidth, &nheight, ORIG_H);
@@ -37,7 +39,9 @@ int main(int argc, char *argv[]) {
 	cvResize(oimg, tmp_img, CV_INTER_CUBIC);
 	cvReleaseImage(&oimg);
 	oimg = tmp_img; // Replace original image with the resized version
+#endif
 
+	// Produce a very small working image
 	nwidth = oimg->width;
 	nheight = oimg->height;
 	recalc_img_size(&nwidth, &nheight, 256);
@@ -47,6 +51,7 @@ int main(int argc, char *argv[]) {
 	yratio = oimg->height / (float)smimg->height;
 	cvSaveImage("./01testresi.jpg", smimg, 0);
 
+	// Smooth, threshold and erode the small image
 	cvSmooth(smimg, smimg, CV_BLUR, 4, 0, 0, 0);
 	cvSaveImage("./02testsmooth.jpg", smimg, 0);
 	IplImage *timg = whiteThresh(smimg, 120, 25, 1);
@@ -54,10 +59,12 @@ int main(int argc, char *argv[]) {
 	cvErode(timg, timg, NULL, 1);
 	cvSaveImage("./05testdil.jpg", timg, 0);
 
+	// Find where the book probably is and clean the rest
 	spotsize = find_biggest_blob(timg, &box, Conn4);
 	remove_spot_size(timg, 1, spotsize - 1, Conn4);
 	cvSaveImage("./06testrem.jpg", timg, 0);
 
+	// Try to find the optimum rotation angle for the book
 	optangle = get_optimum_angle(timg);
 	fprintf(stdout, "opt. rot. angle %f\n", optangle);
 
