@@ -7,7 +7,7 @@ double get_optimum_angle(IplImage *img);
 
 int main(int argc, char *argv[]) {
 	Uint32 nwidth, nheight, spotsize;
-	IplImage *oimg, *tmp_img, *smimg, *rot_img;
+	IplImage *oimg, *smimg, *rot_img;
 	CvMat *rot_mat;
 	Sint32 i, j, k, fblack, lblack, xmin, xmax;
 	CvRect box;
@@ -29,17 +29,6 @@ int main(int argc, char *argv[]) {
 	} else {
 		fprintf(stdout, "Loaded image %s\n", argv[1]);
 	}
-
-	// Resize the original image into a smaller version
-#if 0
-	nwidth = oimg->width;
-	nheight = oimg->height;
-	recalc_img_size(&nwidth, &nheight, ORIG_H);
-	tmp_img = cvCreateImage(cvSize(nwidth , nheight), oimg->depth, oimg->nChannels);
-	cvResize(oimg, tmp_img, CV_INTER_CUBIC);
-	cvReleaseImage(&oimg);
-	oimg = tmp_img; // Replace original image with the resized version
-#endif
 
 	// Produce a very small working image
 	nwidth = oimg->width;
@@ -68,6 +57,7 @@ int main(int argc, char *argv[]) {
 	optangle = get_optimum_angle(timg);
 	fprintf(stdout, "opt. rot. angle %f\n", optangle);
 
+	// Rotate the small image
 	rot_img = cvCloneImage(timg);
 	center.x = box.x + box.width / 2;
 	center.y = box.y + box.height / 2;
@@ -76,6 +66,7 @@ int main(int argc, char *argv[]) {
 	cvWarpAffine(timg, rot_img, rot_mat, CV_INTER_NN | CV_WARP_FILL_OUTLIERS, cvScalarAll(255));
 	cvReleaseMat(&rot_mat);
 
+	// Fill the white blobs inside the book silouette
 	for (j = 0; j < rot_img->width; j++) {
 		fblack = -1;
 		lblack = -1;
@@ -95,13 +86,13 @@ int main(int argc, char *argv[]) {
 	cvSaveImage("./savedbw.jpg", rot_img, 0);
 
 
-	// Try to find the CENTER of the book
 	find_biggest_blob(rot_img, &box, Conn4);
 
+	// Resize the top part b
 	xmin = box.x;
 	xmax = box.width - 1;
 	for (j = box.x; j < box.x + box.width - 1; j++)
-		for (i = box.y; i < box.y + box.height - 1; i++) {
+		for (i = box.y; i < box.y + box.height / 2; i++) {
 			if (!rot_img->imageData[(i * rot_img->widthStep) + (j * rot_img->nChannels) + 0]) {
 				xmax = MAX(xmax, j);
 				xmin = MIN(xmin, j);
@@ -110,6 +101,7 @@ int main(int argc, char *argv[]) {
 
 	box.x = xmin;
 	box.width = xmax - xmin;
+	box.height = box.height / 2;
 
 	// Make sure the width is odd
 	if (!(box.width % 2)) box.width--;
@@ -119,11 +111,11 @@ int main(int argc, char *argv[]) {
 	Uint32 step, min, lval, rval;
 	float minval = 1.0;
 
-	// Top half
+	// Try to find the CENTER of the book
 	step = lval = rval = xmin = 0;
 	min = 0xFFFFFFFF;
 	for (j = box.x + box.width / 2 + 1; j < box.x + box.width - 1 && prob_val > 0.5; j++) {
-		for (i = box.y; i < box.y + box.height / 2; i++) {
+		for (i = box.y; i < box.y + box.height - 1; i++) {
 			if (!rot_img->imageData[(i * rot_img->widthStep) + (((box.x + box.width / 2 + 1) - step) * rot_img->nChannels) + 0])
 				lval++;
 			if (!rot_img->imageData[(i * rot_img->widthStep) + (((box.x + box.width / 2 + 1) + step) * rot_img->nChannels) + 0])
@@ -147,11 +139,11 @@ int main(int argc, char *argv[]) {
 		lval = rval = 0;
 	}
 
+	// Calculate the coords of the top and bottom center points
 	ca.x = cb.x = xmin;
 
 	fblack = -1;
 	lblack = -1;
-
 	for (i = 0; i < rot_img->height; i++) {
 		if (!rot_img->imageData[(i * rot_img->widthStep) + (xmin * rot_img->nChannels) + 0]) {
 			if (fblack < 0) {
