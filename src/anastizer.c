@@ -103,10 +103,10 @@ int main(int argc, char *argv[]) {
 	int msk_trkval = ((DEFAULT_TMASK - 1) / (TMASK_MULTIPLIER * WARP_MULT)) - 1;
 	int avr_trkval = DEFAULT_RMTH;
 	int qlt_trkval = WARP_MULT / 2 - 1;
+	cvCreateTrackbar(PREV_TRK_QLT, CNTRL_WIN, &qlt_trkval, 2, cntrl_trk_qlt_handler);
 	cvCreateTrackbar(PREV_TRK_BGR, CNTRL_WIN, &bgr_trkval, 2, cntrl_trk_bgr_handler);
 	cvCreateTrackbar(PREV_TRK_MSK, CNTRL_WIN, &msk_trkval, 60, cntrl_trk_tmask_handler);
 	cvCreateTrackbar(PREV_TRK_AVR, CNTRL_WIN, &avr_trkval, 255, cntrl_trk_avr_handler);
-	cvCreateTrackbar(PREV_TRK_QLT, CNTRL_WIN, &qlt_trkval, 2, cntrl_trk_qlt_handler);
 
 	// Build transform matrices
 	for (i = 0; i < used_wts; i++) {
