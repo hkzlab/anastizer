@@ -12,6 +12,7 @@
 
 #define STR_BUF_SIZE 256 // Temporary dest file string size
 
+#define DEFAULT_TMASK 320
 #define DEFAULT_RMTH 20 // Default filter options for local thresholding
 
 #endif /* _ANAST_DEFS_HEADER_ */
