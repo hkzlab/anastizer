@@ -80,7 +80,7 @@ IplImage *return_warped_img(IplImage *oim, CvMat *tm, WTrap *wt, Uint32 dwidth, 
 	IplImage *d1 = cvCreateImage(cvSize(dwidth, dheight), oim->depth, oim->nChannels);
 	IplImage *dmono;
 
-	cvWarpPerspective(oim, d1, tm, CV_INTER_CUBIC + CV_WARP_FILL_OUTLIERS + CV_WARP_INVERSE_MAP, cvScalarAll(0));
+	cvWarpPerspective(oim, d1, tm, CV_INTER_CUBIC | CV_WARP_FILL_OUTLIERS | CV_WARP_INVERSE_MAP, cvScalarAll(0));
 	
 	if (chan >= 0) {
 		dmono = gray_from_colour(d1,chan);
@@ -143,6 +143,8 @@ IplImage *gray_from_colour(IplImage *in, Uint8 chan) {
 
 IplImage *anastize_image(IplImage *wimg, int msize, double mrem, Uint32 wmult) {
 	assert(wimg);
+
+	fprintf(stdout, "msize %d\n", msize);
 
 	Sint32 tot_rois, i;
 	IplImage *tmpi;

@@ -8,5 +8,6 @@
 #define PREV_TRK_BGR "BGR"
 #define PREV_TRK_MSK "Thr. msk."
 #define PREV_TRK_AVR "Aver. rem."
+#define PREV_TRK_QLT "Quality"
 
 #endif /* _WIN_NAMES_ANASTIZER_HEADER_ */
