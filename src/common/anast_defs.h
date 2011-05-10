@@ -13,7 +13,5 @@
 #define STR_BUF_SIZE 256 // Temporary dest file string size
 
 #define DEFAULT_RMTH 20 // Default filter options for local thresholding
-#define TMASK_MULTIPLIER 10
-#define DEFAULT_TMASK ((16 * TMASK_MULTIPLIER * WARP_MULT) + 1)
 
 #endif /* _ANAST_DEFS_HEADER_ */

@@ -26,7 +26,8 @@ void prev_mouseHandler(int event, int x, int y, int flags, void *param) {
 	Sint32 qlt_pos = cvGetTrackbarPos(PREV_TRK_QLT, CNTRL_WIN);
 	Sint32 msk_pos = cvGetTrackbarPos(PREV_TRK_MSK, CNTRL_WIN);
 	Sint32 avr_pos = cvGetTrackbarPos(PREV_TRK_AVR, CNTRL_WIN);
-	msk_pos++;
+	msk_pos = msk_pos % 2 ? msk_pos : msk_pos + 1;
+	msk_pos = msk_pos < 3 ? 3 : msk_pos;
 	qlt_pos = (qlt_pos + 1) * 2;
 
 	switch (event) {
@@ -63,7 +64,7 @@ void prev_mouseHandler(int event, int x, int y, int flags, void *param) {
 			gimg = return_warped_img(oimg, invt[cur_win], &wt[cur_win], prv_img[cur_win]->width * qlt_pos, prv_img[cur_win]->height * qlt_pos, cur_chan);
 		}
 
-		mimg = anastize_image(gimg, (msk_pos * TMASK_MULTIPLIER * qlt_pos) + 1, avr_pos, qlt_pos);
+		mimg = anastize_image(gimg, msk_pos, avr_pos, qlt_pos);
 
 		cvReleaseImage(&gimg);
 
@@ -321,9 +322,9 @@ void cntrl_trk_avr_handler(int pos) {
 }
 
 void cntrl_trk_qlt_handler(int pos) {
-//	int msk_trkval = ((((16 * TMASK_MULTIPLIER * ((pos + 1) * 2)) + 1) - 1) / (TMASK_MULTIPLIER * ((pos + 1) * 2))) - 1;
-//	cvSetTrackbarPos(PREV_TRK_MSK, CNTRL_WIN, msk_trkval);
-	;
+	Sint32 qlt_pos = cvGetTrackbarPos(PREV_TRK_QLT, CNTRL_WIN);
+	Sint32 msk_trkval = 320 * (qlt_pos + 1);
+	cvSetTrackbarPos(PREV_TRK_MSK, CNTRL_WIN, msk_trkval);
 }
 
 
