@@ -144,8 +144,6 @@ IplImage *gray_from_colour(IplImage *in, Uint8 chan) {
 IplImage *anastize_image(IplImage *wimg, int msize, double mrem, Uint32 wmult) {
 	assert(wimg);
 
-	fprintf(stdout, "msize %d\n", msize);
-
 	Sint32 tot_rois, i;
 	IplImage *tmpi;
 
