@@ -17,6 +17,10 @@ int main(int argc, char *argv[]) {
 	Uint32 i;
 	float oxratio, oyratio; // Original ratios of image, which gets resized at startup
 
+	// Vars needed for loading/saving
+	imc_data *dt = NULL;
+	int saveload_res;
+
 	// Check parameters and load image file
 	if (argc < 2) {
 		fprintf(stdout, "%s imagefile [-a]\n", argv[0]);
@@ -114,6 +118,28 @@ int main(int argc, char *argv[]) {
 	cvCreateTrackbar(PREV_TRK_MSK, CNTRL_WIN, &msk_trkval, 1000, cntrl_trk_tmask_handler);
 	cvCreateTrackbar(PREV_TRK_AVR, CNTRL_WIN, &avr_trkval, 255, cntrl_trk_avr_handler);
 
+	// Load image config file, if present!
+	dt = loadImcData("./test.imc");
+	if (dt) {
+		cvSetTrackbarPos(PREV_TRK_QLT, CNTRL_WIN, dt->qlt_trk);
+		cvSetTrackbarPos(PREV_TRK_MSK, CNTRL_WIN, dt->msk_trk);
+		cvSetTrackbarPos(PREV_TRK_AVR, CNTRL_WIN, dt->avr_trk);
+		cvSetTrackbarPos(PREV_TRK_BGR, CNTRL_WIN, dt->bgr_trk);
+	
+		for (i = 0; i < used_wts; i++) {
+				wt[i].a.x = dt->wt[i].a.x / oxratio;
+				wt[i].a.y = dt->wt[i].a.y / oyratio;
+				wt[i].b.x = dt->wt[i].b.x / oxratio;
+				wt[i].b.y = dt->wt[i].b.y / oyratio;
+				wt[i].c.x = dt->wt[i].c.x / oxratio;
+				wt[i].c.y = dt->wt[i].c.y / oyratio;
+				wt[i].d.x = dt->wt[i].d.x / oxratio;
+				wt[i].d.y = dt->wt[i].d.y / oyratio;
+		}
+
+		freeImcData(&dt);
+	}
+
 	// Build transform matrices
 	for (i = 0; i < used_wts; i++) {
 		win_str[19] = 49 + i;
@@ -132,10 +158,6 @@ int main(int argc, char *argv[]) {
 		win_str[19] = 49 + i;
 		cvSetMouseCallback(win_str, prev_mouseHandler, &wtcode[i]);
 	}
-
-	// Vars needed for loading/saving
-	imc_data *dt = NULL;
-	int saveload_res;
 
 	// Manage keyboard input
 	char key;
