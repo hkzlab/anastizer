@@ -26,6 +26,7 @@ void prev_mouseHandler(int event, int x, int y, int flags, void *param) {
 	Sint32 msk_pos = cvGetTrackbarPos(PREV_TRK_MSK, CNTRL_WIN);
 	Sint32 avr_pos = cvGetTrackbarPos(PREV_TRK_AVR, CNTRL_WIN);
 	Sint8 cur_chan = cvGetTrackbarPos(PREV_TRK_BGR, CNTRL_WIN);
+	Sint32 agg_pos = cvGetTrackbarPos(PREV_TRK_AGG, CNTRL_WIN);
 
 	msk_pos = msk_pos * 2 + 1;
 	msk_pos = msk_pos < 3 ? 3 : msk_pos;
