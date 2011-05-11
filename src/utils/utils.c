@@ -225,7 +225,7 @@ CvRect *getRoiFromPic(IplImage *in, Sint32 *tot_rois, Uint32 wmult) {
 	float xratio, yratio;
 	nwidth = in->width;
 	nheight = in->height;
-	recalc_img_size(&nwidth, &nheight, 256);
+	recalc_img_size(&nwidth, &nheight, 512);
 
 	xratio = in->width / nwidth;
 	yratio = in->height / nheight;
@@ -243,13 +243,13 @@ CvRect *getRoiFromPic(IplImage *in, Sint32 *tot_rois, Uint32 wmult) {
 
 	cvAdaptiveThreshold(wpic, wpic, 255, /*CV_ADAPTIVE_THRESH_MEAN_C*/CV_ADAPTIVE_THRESH_GAUSSIAN_C, CV_THRESH_BINARY, 16 * wmult + 1, 40);
 	cvSmooth(wpic, wpic, CV_BLUR, 5, 0, 0, 0); // Smooth the input image, so only blobs remain
-	cvThreshold(wpic, wpic, 217, 255, CV_THRESH_BINARY);
+	cvThreshold(wpic, wpic, 210, 255, CV_THRESH_BINARY);
 
 #ifdef DEBUG
 	cvSaveImage("./testroiblur.jpg", wpic, 0);
 #endif
 
-	cvErode(wpic, wpic, NULL, 7); // And erode it so we get BIG black squares in place of text
+	cvErode(wpic, wpic, NULL, 12); // And erode it so we get BIG black squares in place of text
 
 #ifdef DEBUG
 	cvSaveImage("./testroiero.jpg", wpic, 0);
@@ -267,7 +267,7 @@ CvRect *getRoiFromPic(IplImage *in, Sint32 *tot_rois, Uint32 wmult) {
 			} else if (xmin != -1) {
 				whites++;
 
-				if (whites >= 30) {
+				if (whites >= 60) {
 					drois[trois + 1].x = xmin;
 					drois[trois + 1].y = i;
 					drois[trois + 1].width = xmax-xmin;
