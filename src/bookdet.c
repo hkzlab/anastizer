@@ -4,6 +4,8 @@
 #include "spotclear/spotclear.h"
 #include "imc/imc.h"
 
+#define STR_BUF_SIZE 256
+
 double get_optimum_angle(IplImage *img);
 
 int main(int argc, char *argv[]) {
@@ -17,6 +19,13 @@ int main(int argc, char *argv[]) {
 
 	CvPoint2D32f center;
 	CvPoint a, b, c, d, ca, cb;
+
+	char imc_file[STR_BUF_SIZE];
+	imc_file[0] = '\0';
+
+	// Prepare file path, removing last 4 chars (extension)
+	strncat(imc_file, argv[1], strlen(argv[1]) - 4);
+	strcat(imc_file, ".imc"); // And add extension for IMC
 
 	// Check parameters and load image file
 	if (argc < 2) {
@@ -321,7 +330,7 @@ int main(int argc, char *argv[]) {
 	dt->wt[1].d.x = cb.x;
 	dt->wt[1].d.y = cb.y;
 
-	saveImcData("./test.imc", dt);
+	saveImcData(imc_file, dt);
 	freeImcData(&dt);
 
 	return 0;
