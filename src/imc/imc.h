@@ -18,5 +18,6 @@ imc_data *allocImcData(Uint32 wts);
 void freeImcData(imc_data **im);
 
 int saveImcData(const char *fname, imc_data *dt);
+imc_data *loadImcData(const char *fname);
 
 #endif /* _IMC_HEADER_ */

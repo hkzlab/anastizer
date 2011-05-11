@@ -26,14 +26,13 @@ int saveImcData(const char *fname, imc_data *dt) {
 	int ret, i;
 
 	FILE *dfile = fopen(fname, "w");
-	
 	if (dfile == NULL) {
 		fprintf(stderr, "saveImcData: Unable to open %s for writing.\n", fname);
 		return -1;
 	}
 
 	ret = fprintf(dfile, "%s\n", HEADER);
-	ret = fprintf(dfile, "%f\n", VERSION);
+	ret = fprintf(dfile, "ver %f\n", VERSION);
 
 	ret = fprintf(dfile, "nwts %d\n", dt->tot_wts);
 	for (i = 0; i < dt->tot_wts; i++)
@@ -46,10 +45,60 @@ int saveImcData(const char *fname, imc_data *dt) {
 
 	ret = fprintf(dfile, "EOF\n");
 
+	fclose(dfile);
+
 	if (ret < 0) {
 		fprintf(stderr, "saveImcData: unable to save correctly.\n");
 		return -1;
 	}
 
 	return 0;
+}
+
+imc_data *loadImcData(const char *fname) {
+	char bufstr[64];
+	imc_data *dt = NULL;
+	int ret, i, nwts;
+
+	float version; 
+
+	FILE *sfile = fopen(fname, "r");
+	if (sfile == NULL) {
+		fprintf(stderr, "loadImcData: Unable to open %s for reading.\n", fname);
+		return NULL;
+	}
+
+	ret = fscanf(sfile, "%63s\n", bufstr);
+	
+	if(strcmp(bufstr, HEADER) != 0) {
+		fprintf(stderr, "loadImcData: %s is not in IMC format.\n", fname);
+		fclose(sfile);
+		return NULL;		
+	}
+
+	ret = fscanf(sfile, "ver %f\n", &version);
+	ret = fscanf(sfile, "nwts %d\n", &nwts);
+
+	if (version < VERSION) fprintf(stderr, "loadImcData: version mismatch. Expected %f, found %f\n", VERSION, version);
+
+	// Time to alloc some memory
+	dt = allocImcData(nwts);
+	dt->tot_wts = nwts;
+
+	for (i = 0; i < dt->tot_wts; i++)
+		ret = fscanf(sfile, "WT %d %d %d %d %d %d %d\n", &(dt->wt[i].a.x), &(dt->wt[i].a.y), &(dt->wt[i].b.x), &(dt->wt[i].b.y), &(dt->wt[i].c.x), &(dt->wt[i].c.y), &(dt->wt[i].d.x), &(dt->wt[i].d.y));
+	
+	ret = fscanf(sfile, "qlt %d\n", &(dt->qlt_trk));
+	ret = fscanf(sfile, "bgr %d\n", &(dt->bgr_trk));
+	ret = fscanf(sfile, "avr %d\n", &(dt->avr_trk));
+	ret = fscanf(sfile, "msk %d\n", &(dt->msk_trk));
+
+	ret = fscanf(sfile, "%10s\n", bufstr);
+
+	if(strcmp(bufstr, "EOF") != 0)
+		fprintf(stderr, "loadImcData: file %s got truncated.\n", fname);
+
+	fclose(sfile);
+
+	return dt;
 }
