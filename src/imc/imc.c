@@ -14,6 +14,10 @@ imc_data *allocImcData(Uint32 wts) {
 }
 
 void freeImcData(imc_data **im) {
+	assert(im);
+	
+	if (*im == NULL) return;
+
 	free((*im)->wt);
 	free(*im);
 	*im = NULL;
