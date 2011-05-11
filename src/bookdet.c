@@ -306,8 +306,8 @@ int main(int argc, char *argv[]) {
 	dt->wt[0].c.x = cb.x;
 	dt->wt[0].c.y = cb.y;
 
-	dt->wt[0].d.x = d.x;
-	dt->wt[0].d.y = d.y;
+	dt->wt[0].d.x = c.x;
+	dt->wt[0].d.y = c.y;
 
 	dt->wt[1].a.x = ca.x;
 	dt->wt[1].a.y = ca.y;
@@ -315,8 +315,8 @@ int main(int argc, char *argv[]) {
 	dt->wt[1].b.x = b.x;
 	dt->wt[1].b.y = b.y;
 
-	dt->wt[1].c.x = c.x;
-	dt->wt[1].c.y = c.y;
+	dt->wt[1].c.x = d.x;
+	dt->wt[1].c.y = d.y;
 
 	dt->wt[1].d.x = cb.x;
 	dt->wt[1].d.y = cb.y;
