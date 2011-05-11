@@ -14,7 +14,6 @@ void prev_mouseHandler(int event, int x, int y, int flags, void *param) {
 	IplImage *rprev;
 
 	int sres;
-	Sint8 cur_chan = 0;
 	Uint32 nwidth, nheight;
 
 	char tmp_file[STR_BUF_SIZE];
@@ -26,6 +25,8 @@ void prev_mouseHandler(int event, int x, int y, int flags, void *param) {
 	Sint32 qlt_pos = cvGetTrackbarPos(PREV_TRK_QLT, CNTRL_WIN);
 	Sint32 msk_pos = cvGetTrackbarPos(PREV_TRK_MSK, CNTRL_WIN);
 	Sint32 avr_pos = cvGetTrackbarPos(PREV_TRK_AVR, CNTRL_WIN);
+	Sint8 cur_chan = cvGetTrackbarPos(PREV_TRK_BGR, CNTRL_WIN);
+
 	msk_pos = msk_pos * 2 + 1;
 	msk_pos = msk_pos < 3 ? 3 : msk_pos;
 	qlt_pos = (qlt_pos + 1) * 2;
@@ -38,7 +39,6 @@ void prev_mouseHandler(int event, int x, int y, int flags, void *param) {
 		strcat(tmp_file, dest_file);
 		strcat(tmp_file, winsrc);
 
-		cur_chan = cvGetTrackbarPos(PREV_TRK_BGR, CNTRL_WIN);
 		invt[cur_win] = build_transf_mat(&wt[cur_win], invt[cur_win], oimg, mw_img, prv_img[cur_win]->width * qlt_pos, prv_img[cur_win]->height * qlt_pos);
 		
 		if (event == CV_EVENT_MBUTTONDBLCLK) { // Save a color version
