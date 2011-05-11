@@ -4,7 +4,7 @@ BINDIR=bin
 CFLAGS=-O2 -Isrc/ -I/usr/include/opencv/ -g -std=c99 -Wextra -DDEBUG
 LDFLAGS=  -lm -lcv -lcvaux -lhighgui
 
-MODULES=$(BINDIR)/utils.o $(BINDIR)/wtrap.o $(BINDIR)/spotclear.o
+MODULES=$(BINDIR)/utils.o $(BINDIR)/wtrap.o $(BINDIR)/spotclear.o $(BINDIR)/imc.o
 		
 PR1MODULES=$(BINDIR)/handlers_anastizer.o $(BINDIR)/windraw_anastizer.o $(BINDIR)/anastizer.o $(BINDIR)/globs_anastizer.o
 PR2MODULES=$(BINDIR)/bookdet.o
@@ -56,4 +56,8 @@ $(BINDIR)/wtrap.o:	$(SRCDIR)/warptrap/wtrap.c
 
 $(BINDIR)/spotclear.o:	$(SRCDIR)/spotclear/spotclear.c
 	gcc -c $(CFLAGS) $(SRCDIR)/spotclear/spotclear.c -o $(BINDIR)/spotclear.o
+
+$(BINDIR)/imc.o:	$(SRCDIR)/imc/imc.c
+	gcc -c $(CFLAGS) $(SRCDIR)/imc/imc.c -o $(BINDIR)/imc.o
+
 
