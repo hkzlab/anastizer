@@ -20,6 +20,7 @@ int main(int argc, char *argv[]) {
 	// Vars needed for loading/saving
 	imc_data *dt = NULL;
 	int saveload_res;
+	char imc_file[STR_BUF_SIZE];
 
 	// Check parameters and load image file
 	if (argc < 2) {
@@ -119,7 +120,10 @@ int main(int argc, char *argv[]) {
 	cvCreateTrackbar(PREV_TRK_AVR, CNTRL_WIN, &avr_trkval, 255, cntrl_trk_avr_handler);
 
 	// Load image config file, if present!
-	dt = loadImcData("./test.imc");
+	imc_file[0] = '\0';
+	strcat(imc_file, dest_file);
+	strcat(imc_file, ".imc");
+	dt = loadImcData(imc_file);
 	if (dt) {
 		cvSetTrackbarPos(PREV_TRK_QLT, CNTRL_WIN, dt->qlt_trk);
 		cvSetTrackbarPos(PREV_TRK_MSK, CNTRL_WIN, dt->msk_trk);
@@ -138,6 +142,8 @@ int main(int argc, char *argv[]) {
 		}
 
 		freeImcData(&dt);
+
+		fprintf(stdout, "Successfully loaded image status file.\n");
 	}
 
 	// Build transform matrices
@@ -186,7 +192,7 @@ int main(int argc, char *argv[]) {
 				dt->wt[i].d.y = wt[i].d.y * oyratio;
 			}
 
-			saveload_res = saveImcData("./test.imc", dt);
+			saveload_res = saveImcData(imc_file, dt);
 			if (saveload_res >= 0) fprintf(stdout, "Successfully saved image status file.\n");
 			else fprintf(stdout, "Unable to save image status file.\n");
 
