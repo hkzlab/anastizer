@@ -40,7 +40,7 @@ int saveImcData(const char *fname, imc_data *dt) {
 
 	ret = fprintf(dfile, "nwts %d\n", dt->tot_wts);
 	for (i = 0; i < dt->tot_wts; i++)
-		ret = fprintf(dfile, "WT %d %d %d %d %d %d %d\n", dt->wt[i].a.x, dt->wt[i].a.y, dt->wt[i].b.x, dt->wt[i].b.y, dt->wt[i].c.x, dt->wt[i].c.y, dt->wt[i].d.x, dt->wt[i].d.y);
+		ret = fprintf(dfile, "WT %d %d %d %d %d %d %d %d\n", dt->wt[i].a.x, dt->wt[i].a.y, dt->wt[i].b.x, dt->wt[i].b.y, dt->wt[i].c.x, dt->wt[i].c.y, dt->wt[i].d.x, dt->wt[i].d.y);
 
 	ret = fprintf(dfile, "qlt %d\n", dt->qlt_trk);
 	ret = fprintf(dfile, "bgr %d\n", dt->bgr_trk);
@@ -91,7 +91,7 @@ imc_data *loadImcData(const char *fname) {
 	dt->tot_wts = nwts;
 
 	for (i = 0; i < dt->tot_wts; i++)
-		ret = fscanf(sfile, "WT %d %d %d %d %d %d %d\n", &(dt->wt[i].a.x), &(dt->wt[i].a.y), &(dt->wt[i].b.x), &(dt->wt[i].b.y), &(dt->wt[i].c.x), &(dt->wt[i].c.y), &(dt->wt[i].d.x), &(dt->wt[i].d.y));
+		ret = fscanf(sfile, "WT %d %d %d %d %d %d %d %d\n", &(dt->wt[i].a.x), &(dt->wt[i].a.y), &(dt->wt[i].b.x), &(dt->wt[i].b.y), &(dt->wt[i].c.x), &(dt->wt[i].c.y), &(dt->wt[i].d.x), &(dt->wt[i].d.y));
 	
 	ret = fscanf(sfile, "qlt %d\n", &(dt->qlt_trk));
 	ret = fscanf(sfile, "bgr %d\n", &(dt->bgr_trk));
