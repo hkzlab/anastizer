@@ -2,7 +2,7 @@
 
 #include "spotclear/spotclear.h"
 
-CvRect *getRoiFromPic(IplImage *in, Sint32 *tot_rois, Uint32 wmult);
+CvRect *getRoiFromPic(IplImage *in, Sint32 *tot_rois, Uint32 wmult, int agg);
 
 IplImage *whiteThresh(IplImage *in, Uint8 thresh, Uint8 tolerance, Uint8 inv) {
 	IplImage *ths = cvCreateImage(cvGetSize(in), 8, 1);
@@ -146,6 +146,7 @@ IplImage *anastize_image(IplImage *wimg, int msize, double mrem, Uint32 wmult, i
 
 	Sint32 tot_rois, i;
 	IplImage *tmpi;
+	CvRect *rois;
 
 	IplImage *mimg = cvCreateImage(cvGetSize(wimg), 8, 1);	
 
@@ -156,7 +157,8 @@ IplImage *anastize_image(IplImage *wimg, int msize, double mrem, Uint32 wmult, i
 	cvSaveImage("./fstep0.jpg", mimg, 0);
 #endif
 
-	CvRect *rois = getRoiFromPic(wimg, &tot_rois, wmult);
+if (agg > 3) {
+	rois = getRoiFromPic(wimg, &tot_rois, wmult, agg - 3);
 
 	tmpi = cvCreateImage(cvGetSize(mimg), mimg->depth, mimg->nChannels);
 	cvRectangle(tmpi, cvPoint(0, 0), cvPoint(tmpi->width - 1, tmpi->height - 1), cvScalar(255, 255, 255, 0), CV_FILLED, 8, 0);
@@ -176,50 +178,47 @@ IplImage *anastize_image(IplImage *wimg, int msize, double mrem, Uint32 wmult, i
 #ifdef DEBUG
 	cvSaveImage("./fstep1.jpg", mimg, 0);
 #endif
+}
 
+if (agg > 0) {
 	remove_spot_size(mimg, 1, 1 * wmult, Conn8); // Do a spot cleanup based on size
 #ifdef DEBUG
 	cvSaveImage("./fstep2.jpg", mimg, 0);
 #endif
+}
 
-//	remove_spot_intensity(mimg, wimg, 1, 8 * wmult, 15, 0, Conn8); // Do a cleanup based on intensity
-#ifdef DEBUG
-//	cvSaveImage("./fstep3.jpg", mimg, 0);
-#endif
-	
-//	remove_spot_intensity(mimg, wimg, 8 * wmult + 1, 400 * wmult, 100, 0, Conn8);
-#ifdef DEBUG
-//	cvSaveImage("./fstep4.jpg", mimg, 0);
-#endif
-
-//	remove_spot_intensity(mimg, wimg, 400 * wmult + 1, 600 * wmult, 80, 0, Conn8);
-#ifdef DEBUG
-//	cvSaveImage("./fstep5.jpg", mimg, 0);
-#endif
-
+if (agg > 1) {
 	remove_spot_neighbour_dist(mimg, 1, 2 * wmult, 3 * wmult, Conn8); // Do a cleanup based on distance
 #ifdef DEBUG
-	cvSaveImage("./fstep6.jpg", mimg, 0);
+	cvSaveImage("./fstep3.jpg", mimg, 0);
 #endif
-	
+}
+
+if (agg > 2) {
 	remove_spot_neighbour_dist(mimg, 2 * wmult + 1, 8 * wmult, 8 * wmult, Conn8); 
 #ifdef DEBUG
-	cvSaveImage("./fstep7.jpg", mimg, 0);
+	cvSaveImage("./fstep4.jpg", mimg, 0);
 #endif
-
-//	remove_spot_neighbour_dist(mimg, 8 * wmult + 1, 150 * wmult, 30 * wmult, Conn8);
-#ifdef DEBUG
-//	cvSaveImage("./fstep8.jpg", mimg, 0);
-#endif
-
-	//remove_spot_thin(mimg, 1, 5 * wmult, 0.6, Conn8); // Do a cleanup based on thinness of the element
+}
 
 	return mimg;
 }
 
-CvRect *getRoiFromPic(IplImage *in, Sint32 *tot_rois, Uint32 wmult) {
+CvRect *getRoiFromPic(IplImage *in, Sint32 *tot_rois, Uint32 wmult, int agg) {
 	assert(in);
 	assert(tot_rois);
+	assert(agg > 0);
+
+	double thval = 230;
+	int smoothval = 3;
+	int erodval = 16;
+
+	thval -= agg * 10;
+	smoothval += agg;
+	erodval -= agg * 2;
+
+	thval = thval < 0 ? 0 : thval;
+	erodval = erodval <= 0 ? 1 : erodval;
 
 	Uint32 nwidth, nheight;
 	float xratio, yratio;
@@ -242,14 +241,14 @@ CvRect *getRoiFromPic(IplImage *in, Sint32 *tot_rois, Uint32 wmult) {
 	xmin = xmax = -1;
 
 	cvAdaptiveThreshold(wpic, wpic, 255, /*CV_ADAPTIVE_THRESH_MEAN_C*/CV_ADAPTIVE_THRESH_GAUSSIAN_C, CV_THRESH_BINARY, 16 * wmult + 1, 40);
-	cvSmooth(wpic, wpic, CV_BLUR, 5, 0, 0, 0); // Smooth the input image, so only blobs remain
-	cvThreshold(wpic, wpic, 210, 255, CV_THRESH_BINARY);
+	cvSmooth(wpic, wpic, CV_BLUR, smoothval, 0, 0, 0); // Smooth the input image, so only blobs remain
+	cvThreshold(wpic, wpic, thval, 255, CV_THRESH_BINARY);
 
 #ifdef DEBUG
 	cvSaveImage("./testroiblur.jpg", wpic, 0);
 #endif
 
-	cvErode(wpic, wpic, NULL, 12); // And erode it so we get BIG black squares in place of text
+	cvErode(wpic, wpic, NULL, erodval); // And erode it so we get BIG black squares in place of text (uses the default 3x3 square)
 
 #ifdef DEBUG
 	cvSaveImage("./testroiero.jpg", wpic, 0);
