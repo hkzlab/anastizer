@@ -2,6 +2,7 @@
 #include "common/bookd_defs.h"
 #include "utils/utils.h"
 #include "spotclear/spotclear.h"
+#include "imc/imc.h"
 
 double get_optimum_angle(IplImage *img);
 
@@ -155,8 +156,6 @@ int main(int argc, char *argv[]) {
 	ca.y = fblack;
 	cb.y = lblack;
 
-	fprintf(stdout, "ca.x %d ca.y %d - cb.x %d cb.y %d\n", ca.x, ca.y, cb.x, cb.y);
-
 	// Try to find BORDER points
 	find_biggest_blob(timg, &box, Conn4);
 
@@ -205,8 +204,6 @@ int main(int argc, char *argv[]) {
 				}
 			}
 		}
-
-	fprintf(stdout, "a.x %d a.y %d - b.x %d b.y %d - c.x %d c.y %d - d.x %d d.y %d\n", a.x, a.y, b.x, b.y, c.x, c.y, d.x, d.y);
 
 	// We should now scale the points and rotate them back
 	a.x *= xratio; b.x *= xratio; c.x *= xratio; d.x *= xratio; ca.x *= xratio; cb.x *= xratio;
@@ -287,7 +284,7 @@ int main(int argc, char *argv[]) {
 	cvCircle(oimg, ca, 5, cvScalar(0, 0, 255, 0), 3, 8, 0);
 	cvCircle(oimg, cb, 5, cvScalar(0, 0, 255, 0), 3, 8, 0);
 
-	cvSaveImage("./orrore.jpg", oimg, 0);
+	cvSaveImage("./outpoints.jpg", oimg, 0);
 
 	cvReleaseMat(&pntm);
 	cvReleaseMat(&dpntm);
