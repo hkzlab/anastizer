@@ -2,5 +2,19 @@
 #define _IMC_HEADER_
 
 #include "common/defs.h"
+#include "warptrap/wtrap.h"
+
+typedef struct {
+	int qlt_trk;
+	int bgr_trk;
+	int avr_trk;
+	int msk_trk;
+
+	int tot_wts;
+	WTrap *wt;
+} imc_data;
+
+imc_data *allocImcData(Uint32 wts);
+void freeImcData(imc_data **im);
 
 #endif /* _IMC_HEADER_ */
