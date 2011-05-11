@@ -141,7 +141,7 @@ IplImage *gray_from_colour(IplImage *in, Uint8 chan) {
 	return grey;
 }
 
-IplImage *anastize_image(IplImage *wimg, int msize, double mrem, Uint32 wmult) {
+IplImage *anastize_image(IplImage *wimg, int msize, double mrem, Uint32 wmult, int agg) {
 	assert(wimg);
 
 	Sint32 tot_rois, i;

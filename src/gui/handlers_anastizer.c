@@ -65,7 +65,7 @@ void prev_mouseHandler(int event, int x, int y, int flags, void *param) {
 			gimg = return_warped_img(oimg, invt[cur_win], &wt[cur_win], prv_img[cur_win]->width * qlt_pos, prv_img[cur_win]->height * qlt_pos, cur_chan);
 		}
 
-		mimg = anastize_image(gimg, msk_pos, avr_pos, qlt_pos);
+		mimg = anastize_image(gimg, msk_pos, avr_pos, qlt_pos, agg_pos);
 
 		cvReleaseImage(&gimg);
 
