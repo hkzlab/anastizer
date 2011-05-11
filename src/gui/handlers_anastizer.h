@@ -9,5 +9,6 @@ void cntrl_trk_bgr_handler(int pos);
 void cntrl_trk_tmask_handler(int pos);
 void cntrl_trk_avr_handler(int pos);
 void cntrl_trk_qlt_handler(int pos);
+void cntrl_trk_agg_handler(int pos);
 
 #endif /* _HANDLERS_ANASTIZER_HEADER_ */

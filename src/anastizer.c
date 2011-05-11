@@ -118,7 +118,9 @@ int main(int argc, char *argv[]) {
 	int avr_trkval = DEFAULT_RMTH;
 	int qlt_trkval = WARP_MULT / 2 - 1;
 	int msk_trkval = (DEFAULT_TMASK * (qlt_trkval + 1)) / 2;
+	int agg_trkval = 5;
 	cvCreateTrackbar(PREV_TRK_QLT, CNTRL_WIN, &qlt_trkval, 2, cntrl_trk_qlt_handler);
+	cvCreateTrackbar(PREV_TRK_AGG, CNTRL_WIN, &agg_trkval, 9, cntrl_trk_agg_handler);
 	cvCreateTrackbar(PREV_TRK_BGR, CNTRL_WIN, &bgr_trkval, 2, cntrl_trk_bgr_handler);
 	cvCreateTrackbar(PREV_TRK_MSK, CNTRL_WIN, &msk_trkval, 1000, cntrl_trk_tmask_handler);
 	cvCreateTrackbar(PREV_TRK_AVR, CNTRL_WIN, &avr_trkval, 255, cntrl_trk_avr_handler);
@@ -140,7 +142,10 @@ int main(int argc, char *argv[]) {
 		
 		if (dt->bgr_trk >= 0)
 			cvSetTrackbarPos(PREV_TRK_BGR, CNTRL_WIN, dt->bgr_trk);
-	
+
+		if (dt->agg_trk >= 0)
+			cvSetTrackbarPos(PREV_TRK_AGG, CNTRL_WIN, dt->agg_trk);
+
 		for (i = 0; i < used_wts; i++) {
 				wt[i].a.x = dt->wt[i].a.x / (oxratio * pxratio);
 				wt[i].a.y = dt->wt[i].a.y / (oyratio * pyratio);

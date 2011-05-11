@@ -1,7 +1,7 @@
 #include "imc.h"
 
 #define HEADER "IMC_HEADER"
-#define VERSION 0.1
+#define VERSION 0.01
 
 imc_data *allocImcData(Uint32 wts) {
 	assert(wts);
@@ -15,6 +15,7 @@ imc_data *allocImcData(Uint32 wts) {
 	dt->bgr_trk = -1;
 	dt->avr_trk = -1;
 	dt->msk_trk = -1;
+	dt->agg_trk = -1;
 
 	return dt;
 }
@@ -52,6 +53,7 @@ int saveImcData(const char *fname, imc_data *dt) {
 	ret = fprintf(dfile, "bgr %d\n", dt->bgr_trk);
 	ret = fprintf(dfile, "avr %d\n", dt->avr_trk);
 	ret = fprintf(dfile, "msk %d\n", dt->msk_trk);
+	ret = fprintf(dfile, "agg %d\n", dt->agg_trk);
 
 	ret = fprintf(dfile, "EOF\n");
 
@@ -103,6 +105,7 @@ imc_data *loadImcData(const char *fname) {
 	ret = fscanf(sfile, "bgr %d\n", &(dt->bgr_trk));
 	ret = fscanf(sfile, "avr %d\n", &(dt->avr_trk));
 	ret = fscanf(sfile, "msk %d\n", &(dt->msk_trk));
+	ret = fscanf(sfile, "agg %d\n", &(dt->agg_trk));
 
 	ret = fscanf(sfile, "%10s\n", bufstr);
 

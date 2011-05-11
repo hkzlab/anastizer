@@ -327,4 +327,8 @@ void cntrl_trk_qlt_handler(int pos) {
 	cvSetTrackbarPos(PREV_TRK_MSK, CNTRL_WIN, msk_trkval);
 }
 
+void cntrl_trk_agg_handler(int pos) {
+	;
+}
+
 

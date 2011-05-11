@@ -9,6 +9,7 @@ typedef struct {
 	int bgr_trk;
 	int avr_trk;
 	int msk_trk;
+	int agg_trk;
 
 	int tot_wts;
 	WTrap *wt;
