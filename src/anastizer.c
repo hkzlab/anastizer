@@ -6,6 +6,7 @@
 #include "warptrap/wtrap.h"
 #include "gui/handlers_anastizer.h"
 #include "gui/windraw_anastizer.h"
+#include "imc/imc.h"
 
 void init_wts(Uint32 wtn);
 
@@ -14,6 +15,7 @@ void init_wts(Uint32 wtn);
 int main(int argc, char *argv[]) {
 	Uint32 nwidth, nheight;
 	Uint32 i;
+	float oxratio, oyratio; // Original ratios of image, which gets resized at startup
 
 	// Check parameters and load image file
 	if (argc < 2) {
@@ -60,6 +62,10 @@ int main(int argc, char *argv[]) {
 	tmp_img = cvCreateImage(cvSize(nwidth , nheight), oimg->depth, oimg->nChannels); // Create a resized image
 	cvResize(oimg, tmp_img, CV_INTER_CUBIC); // Resize
 
+	// Save the ratios
+	oxratio = (float)oimg->width / (float)tmp_img->width;
+	oyratio = (float)oimg->height / (float)tmp_img->height;
+
 	// Save as new original image
 	cvReleaseImage(&oimg);
 	oimg = tmp_img;
@@ -102,7 +108,7 @@ int main(int argc, char *argv[]) {
 	int bgr_trkval = 1;
 	int avr_trkval = DEFAULT_RMTH;
 	int qlt_trkval = WARP_MULT / 2 - 1;
-	int msk_trkval = (DEFAULT_TMASK * (qlt_trkval + 1))/2;
+	int msk_trkval = (DEFAULT_TMASK * (qlt_trkval + 1)) / 2;
 	cvCreateTrackbar(PREV_TRK_QLT, CNTRL_WIN, &qlt_trkval, 2, cntrl_trk_qlt_handler);
 	cvCreateTrackbar(PREV_TRK_BGR, CNTRL_WIN, &bgr_trkval, 2, cntrl_trk_bgr_handler);
 	cvCreateTrackbar(PREV_TRK_MSK, CNTRL_WIN, &msk_trkval, 1000, cntrl_trk_tmask_handler);
@@ -127,7 +133,11 @@ int main(int argc, char *argv[]) {
 		cvSetMouseCallback(win_str, prev_mouseHandler, &wtcode[i]);
 	}
 
-	// wait for a key
+	// Vars needed for loading/saving
+	imc_data *dt = NULL;
+	int saveload_res;
+
+	// Manage keyboard input
 	char key;
 	while (1) {
 		key = cvWaitKey(125);
@@ -135,8 +145,33 @@ int main(int argc, char *argv[]) {
 
 		// Put some key management code in here
 		switch (key) {
-			default:
-				break;
+		case 's': // Save the data
+			dt = allocImcData(used_wts);
+			dt->qlt_trk = cvGetTrackbarPos(PREV_TRK_QLT, CNTRL_WIN);
+			dt->msk_trk = cvGetTrackbarPos(PREV_TRK_MSK, CNTRL_WIN);
+			dt->avr_trk = cvGetTrackbarPos(PREV_TRK_AVR, CNTRL_WIN);
+			dt->bgr_trk = cvGetTrackbarPos(PREV_TRK_BGR, CNTRL_WIN);
+
+			for (i = 0; i < used_wts; i++) {
+				// The coords gets saved in reference to the original, unscaled image
+				dt->wt[i].a.x = wt[i].a.x * oxratio;
+				dt->wt[i].a.y = wt[i].a.y * oyratio;
+				dt->wt[i].b.x = wt[i].b.x * oxratio;
+				dt->wt[i].b.y = wt[i].b.y * oyratio;
+				dt->wt[i].c.x = wt[i].c.x * oxratio;
+				dt->wt[i].c.y = wt[i].c.y * oyratio;
+				dt->wt[i].d.x = wt[i].d.x * oxratio;
+				dt->wt[i].d.y = wt[i].d.y * oyratio;
+			}
+
+			saveload_res = saveImcData("./test.imc", dt);
+			if (saveload_res >= 0) fprintf(stdout, "Successfully saved image status file.\n");
+			else fprintf(stdout, "Unable to save image status file.\n");
+
+			freeImcData(&dt);
+			break;
+		default:
+			break;
 		}
 	}
 
