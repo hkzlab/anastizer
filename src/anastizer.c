@@ -195,6 +195,7 @@ int main(int argc, char *argv[]) {
 			dt->msk_trk = cvGetTrackbarPos(PREV_TRK_MSK, CNTRL_WIN);
 			dt->avr_trk = cvGetTrackbarPos(PREV_TRK_AVR, CNTRL_WIN);
 			dt->bgr_trk = cvGetTrackbarPos(PREV_TRK_BGR, CNTRL_WIN);
+			dt->agg_trk = cvGetTrackbarPos(PREV_TRK_AGG, CNTRL_WIN);
 
 			for (i = 0; i < used_wts; i++) {
 				// The coords gets saved in reference to the original, unscaled image
