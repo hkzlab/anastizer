@@ -53,6 +53,23 @@ int main(int argc, char *argv[]) {
 	remove_spot_size(timg, 1, spotsize - 1, Conn4);
 	cvSaveImage("./06testrem.jpg", timg, 0);
 
+	// Fill the white blobs inside the book silouette
+	for (j = 0; j < timg->width; j++) {
+		fblack = -1;
+		lblack = -1;
+
+		for (i = 0; i < timg->height; i++) {
+			if (!timg->imageData[(i * timg->widthStep) + (j * timg->nChannels) + 0]) {
+				if (fblack < 0) {
+					fblack = lblack = i;
+				} else lblack = i;
+			}
+		}
+
+		if (fblack > 0)
+			cvLine(timg, cvPoint(j, fblack), cvPoint(j, lblack), cvScalarAll(0), 1, 8, 0);
+	}
+
 	// Try to find the optimum rotation angle for the book
 	optangle = get_optimum_angle(timg);
 	fprintf(stdout, "opt. rot. angle %f\n", optangle);
@@ -65,23 +82,6 @@ int main(int argc, char *argv[]) {
 	rot_mat = cv2DRotationMatrix(center, optangle, 1.0, rot_mat);
 	cvWarpAffine(timg, rot_img, rot_mat, CV_INTER_NN | CV_WARP_FILL_OUTLIERS, cvScalarAll(255));
 	cvReleaseMat(&rot_mat);
-
-	// Fill the white blobs inside the book silouette
-	for (j = 0; j < rot_img->width; j++) {
-		fblack = -1;
-		lblack = -1;
-
-		for (i = 0; i < rot_img->height; i++) {
-			if (!rot_img->imageData[(i * rot_img->widthStep) + (j * rot_img->nChannels) + 0]) {
-				if (fblack < 0) {
-					fblack = lblack = i;
-				} else lblack = i;
-			}
-		}
-
-		if (fblack > 0)
-			cvLine(rot_img, cvPoint(j, fblack), cvPoint(j, lblack), cvScalarAll(0), 1, 8, 0);
-	}
 
 	cvSaveImage("./savedbw.jpg", rot_img, 0);
 
