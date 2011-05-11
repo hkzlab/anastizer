@@ -16,6 +16,7 @@ int main(int argc, char *argv[]) {
 	Uint32 nwidth, nheight;
 	Uint32 i;
 	float oxratio, oyratio; // Original ratios of image, which gets resized at startup
+	float pxratio, pyratio;
 
 	// Vars needed for loading/saving
 	imc_data *dt = NULL;
@@ -83,6 +84,9 @@ int main(int argc, char *argv[]) {
 	mw_img = cvCreateImage(cvSize(nwidth , nheight), oimg->depth, oimg->nChannels); // Create a resized image
 	cvResize(oimg, mw_img, CV_INTER_LINEAR); // Resize
 
+	// Save the ratios
+	pxratio = (float)oimg->width / (float)mw_img->width;
+	pyratio = (float)oimg->height / (float)mw_img->height;
 
 	// Create images for preview
 	for (i = 0; i < MAX_WTS; i++) {
@@ -138,14 +142,14 @@ int main(int argc, char *argv[]) {
 			cvSetTrackbarPos(PREV_TRK_BGR, CNTRL_WIN, dt->bgr_trk);
 	
 		for (i = 0; i < used_wts; i++) {
-				wt[i].a.x = dt->wt[i].a.x / oxratio;
-				wt[i].a.y = dt->wt[i].a.y / oyratio;
-				wt[i].b.x = dt->wt[i].b.x / oxratio;
-				wt[i].b.y = dt->wt[i].b.y / oyratio;
-				wt[i].c.x = dt->wt[i].c.x / oxratio;
-				wt[i].c.y = dt->wt[i].c.y / oyratio;
-				wt[i].d.x = dt->wt[i].d.x / oxratio;
-				wt[i].d.y = dt->wt[i].d.y / oyratio;
+				wt[i].a.x = dt->wt[i].a.x / (oxratio * pxratio);
+				wt[i].a.y = dt->wt[i].a.y / (oyratio * pyratio);
+				wt[i].b.x = dt->wt[i].b.x / (oxratio * pxratio);
+				wt[i].b.y = dt->wt[i].b.y / (oyratio * pyratio);
+				wt[i].c.x = dt->wt[i].c.x / (oxratio * pxratio);
+				wt[i].c.y = dt->wt[i].c.y / (oyratio * pyratio);
+				wt[i].d.x = dt->wt[i].d.x / (oxratio * pxratio);
+				wt[i].d.y = dt->wt[i].d.y / (oyratio * pyratio);
 		}
 
 		freeImcData(&dt);
@@ -189,14 +193,14 @@ int main(int argc, char *argv[]) {
 
 			for (i = 0; i < used_wts; i++) {
 				// The coords gets saved in reference to the original, unscaled image
-				dt->wt[i].a.x = wt[i].a.x * oxratio;
-				dt->wt[i].a.y = wt[i].a.y * oyratio;
-				dt->wt[i].b.x = wt[i].b.x * oxratio;
-				dt->wt[i].b.y = wt[i].b.y * oyratio;
-				dt->wt[i].c.x = wt[i].c.x * oxratio;
-				dt->wt[i].c.y = wt[i].c.y * oyratio;
-				dt->wt[i].d.x = wt[i].d.x * oxratio;
-				dt->wt[i].d.y = wt[i].d.y * oyratio;
+				dt->wt[i].a.x = wt[i].a.x * oxratio * pxratio;
+				dt->wt[i].a.y = wt[i].a.y * oyratio * pyratio;
+				dt->wt[i].b.x = wt[i].b.x * oxratio * pxratio;
+				dt->wt[i].b.y = wt[i].b.y * oyratio * pyratio;
+				dt->wt[i].c.x = wt[i].c.x * oxratio * pxratio;
+				dt->wt[i].c.y = wt[i].c.y * oyratio * pyratio;
+				dt->wt[i].d.x = wt[i].d.x * oxratio * pxratio;
+				dt->wt[i].d.y = wt[i].d.y * oyratio * pyratio;
 			}
 
 			saveload_res = saveImcData(imc_file, dt);

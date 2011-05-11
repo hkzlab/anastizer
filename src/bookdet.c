@@ -294,6 +294,36 @@ int main(int argc, char *argv[]) {
 	cvReleaseImage(&smimg);
 	cvReleaseImage(&timg);
 	cvReleaseImage(&oimg);
+
+	// Save the points
+	imc_data *dt = allocImcData(2);
+	dt->wt[0].a.x = a.x;
+	dt->wt[0].a.y = a.y;
+
+	dt->wt[0].b.x = ca.x;
+	dt->wt[0].b.y = ca.y;
+
+	dt->wt[0].c.x = cb.x;
+	dt->wt[0].c.y = cb.y;
+
+	dt->wt[0].d.x = d.x;
+	dt->wt[0].d.y = d.y;
+
+	dt->wt[1].a.x = ca.x;
+	dt->wt[1].a.y = ca.y;
+
+	dt->wt[1].b.x = b.x;
+	dt->wt[1].b.y = b.y;
+
+	dt->wt[1].c.x = c.x;
+	dt->wt[1].c.y = c.y;
+
+	dt->wt[1].d.x = cb.x;
+	dt->wt[1].d.y = cb.y;
+
+	saveImcData("./test.imc", dt);
+	freeImcData(&dt);
+
 	return 0;
 }
 
