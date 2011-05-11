@@ -234,7 +234,7 @@ CvRect *getRoiFromPic(IplImage *in, Sint32 *tot_rois, Uint32 wmult) {
 	IplImage *wpic = cvCreateImage(cvSize(nwidth , nheight), in->depth, in->nChannels);
 	cvResize(in, wpic, CV_INTER_NN);
 	Uint8 *wpic_dat = wpic->imageData;
-	Sint32 max_rects = 512;
+	Sint32 max_rects = 1024;
 	Sint32 trois = -1;
 	CvRect *drois = (CvRect*)malloc(sizeof(CvRect) * max_rects);
 	Sint32 xmin, xmax, i, j, whites;
@@ -267,7 +267,7 @@ CvRect *getRoiFromPic(IplImage *in, Sint32 *tot_rois, Uint32 wmult) {
 			} else if (xmin != -1) {
 				whites++;
 
-				if (whites >= 60) {
+				if (whites >= 60 && trois + 1 < max_rects) {
 					drois[trois + 1].x = xmin;
 					drois[trois + 1].y = i;
 					drois[trois + 1].width = xmax-xmin;
