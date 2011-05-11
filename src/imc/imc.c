@@ -1,6 +1,6 @@
 #include "imc.h"
 
-#define HEADER "*** IMC HEADER ***"
+#define HEADER "IMC_HEADER"
 #define VERSION 0.1
 
 imc_data *allocImcData(Uint32 wts) {
@@ -75,6 +75,7 @@ imc_data *loadImcData(const char *fname) {
 	ret = fscanf(sfile, "%63s\n", bufstr);
 	
 	if(strcmp(bufstr, HEADER) != 0) {
+		fprintf(stdout, "bufstr %s\n", bufstr);
 		fprintf(stderr, "loadImcData: %s is not in IMC format.\n", fname);
 		fclose(sfile);
 		return NULL;		
