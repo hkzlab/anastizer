@@ -215,6 +215,18 @@ int main(int argc, char *argv[]) {
 
 			freeImcData(&dt);
 			break;
+		case 'z':
+			prev_mouseHandler(CV_EVENT_RBUTTONDBLCLK, 0, 0, 0, &wtcode[0]);
+			break;
+		case 'x':
+			prev_mouseHandler(CV_EVENT_RBUTTONDBLCLK, 0, 0, 0, &wtcode[1]);
+			break;
+		case 'c':
+			prev_mouseHandler(CV_EVENT_MBUTTONDBLCLK, 0, 0, 0, &wtcode[0]);
+			break;
+		case 'v':
+			prev_mouseHandler(CV_EVENT_MBUTTONDBLCLK, 0, 0, 0, &wtcode[1]);
+			break;
 		default:
 			break;
 		}
