@@ -7,8 +7,14 @@ imc_data *allocImcData(Uint32 wts) {
 	assert(wts);
 
 	imc_data *dt = (imc_data*) malloc(sizeof(imc_data));
+
 	dt->wt = (WTrap *) malloc (sizeof(WTrap) * wts);
 	dt->tot_wts = wts;
+
+	dt->qlt_trk = -1;
+	dt->bgr_trk = -1;
+	dt->avr_trk = -1;
+	dt->msk_trk = -1;
 
 	return dt;
 }

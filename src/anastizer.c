@@ -125,10 +125,17 @@ int main(int argc, char *argv[]) {
 	strcat(imc_file, ".imc");
 	dt = loadImcData(imc_file);
 	if (dt) {
-		cvSetTrackbarPos(PREV_TRK_QLT, CNTRL_WIN, dt->qlt_trk);
-		cvSetTrackbarPos(PREV_TRK_MSK, CNTRL_WIN, dt->msk_trk);
-		cvSetTrackbarPos(PREV_TRK_AVR, CNTRL_WIN, dt->avr_trk);
-		cvSetTrackbarPos(PREV_TRK_BGR, CNTRL_WIN, dt->bgr_trk);
+		if (dt->qlt_trk >= 0)
+			cvSetTrackbarPos(PREV_TRK_QLT, CNTRL_WIN, dt->qlt_trk);
+		
+		if (dt->msk_trk >= 0)
+			cvSetTrackbarPos(PREV_TRK_MSK, CNTRL_WIN, dt->msk_trk);
+		
+		if (dt->avr_trk >= 0)
+			cvSetTrackbarPos(PREV_TRK_AVR, CNTRL_WIN, dt->avr_trk);
+		
+		if (dt->bgr_trk >= 0)
+			cvSetTrackbarPos(PREV_TRK_BGR, CNTRL_WIN, dt->bgr_trk);
 	
 		for (i = 0; i < used_wts; i++) {
 				wt[i].a.x = dt->wt[i].a.x / oxratio;
