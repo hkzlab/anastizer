@@ -1,7 +1,7 @@
 #include "imc.h"
 
 #define HEADER "IMC_HEADER"
-#define VERSION 0.01
+#define VERSION 0
 
 imc_data *allocImcData(Uint32 wts) {
 	assert(wts);
@@ -43,7 +43,7 @@ int saveImcData(const char *fname, imc_data *dt) {
 	}
 
 	ret = fprintf(dfile, "%s\n", HEADER);
-	ret = fprintf(dfile, "ver %f\n", VERSION);
+	ret = fprintf(dfile, "ver %d\n", VERSION);
 
 	ret = fprintf(dfile, "nwts %d\n", dt->tot_wts);
 	for (i = 0; i < dt->tot_wts; i++)
@@ -72,7 +72,7 @@ imc_data *loadImcData(const char *fname) {
 	imc_data *dt = NULL;
 	int ret, i, nwts;
 
-	float version; 
+	Sint32 version; 
 
 	FILE *sfile = fopen(fname, "r");
 	if (sfile == NULL) {
@@ -89,18 +89,29 @@ imc_data *loadImcData(const char *fname) {
 		return NULL;		
 	}
 
-	ret = fscanf(sfile, "ver %f\n", &version);
+	ret = fscanf(sfile, "ver %d\n", &version);
 	ret = fscanf(sfile, "nwts %d\n", &nwts);
 
-	if (version < VERSION) fprintf(stderr, "loadImcData: version mismatch. Expected %f, found %f\n", VERSION, version);
+	if (version < VERSION) fprintf(stderr, "loadImcData: version mismatch. Expected %d, found %d\n", VERSION, version);
 
 	// Time to alloc some memory
 	dt = allocImcData(nwts);
 	dt->tot_wts = nwts;
 
-	for (i = 0; i < dt->tot_wts; i++)
+	if (dt->tot_wts <= 0 || ret < 0) { // We've got a problem...
+		freeImcData(&dt);
+		return NULL;
+	}
+
+	for (i = 0; i < dt->tot_wts; i++) {
 		ret = fscanf(sfile, "WT %d %d %d %d %d %d %d %d\n", &(dt->wt[i].a.x), &(dt->wt[i].a.y), &(dt->wt[i].b.x), &(dt->wt[i].b.y), &(dt->wt[i].c.x), &(dt->wt[i].c.y), &(dt->wt[i].d.x), &(dt->wt[i].d.y));
-	
+		
+		if (ret < 0) {
+			freeImcData(&dt);
+			return NULL;
+		}
+	}
+
 	ret = fscanf(sfile, "qlt %d\n", &(dt->qlt_trk));
 	ret = fscanf(sfile, "bgr %d\n", &(dt->bgr_trk));
 	ret = fscanf(sfile, "avr %d\n", &(dt->avr_trk));
@@ -109,8 +120,11 @@ imc_data *loadImcData(const char *fname) {
 
 	ret = fscanf(sfile, "%10s\n", bufstr);
 
-	if(strcmp(bufstr, "EOF") != 0)
+	if(strcmp(bufstr, "EOF") != 0 || ret < 0) {
 		fprintf(stderr, "loadImcData: file %s got truncated.\n", fname);
+		freeImcData(&dt);
+		return NULL;		
+	}
 
 	fclose(sfile);
 
