@@ -92,16 +92,14 @@ imc_data *loadImcData(const char *fname) {
 	ret = fscanf(sfile, "ver %d\n", &version);
 	ret = fscanf(sfile, "nwts %d\n", &nwts);
 
+	if (nwts <= 0 || ret < 0) // We've got a problem...
+		return NULL;
+
 	if (version < VERSION) fprintf(stderr, "loadImcData: version mismatch. Expected %d, found %d\n", VERSION, version);
 
 	// Time to alloc some memory
 	dt = allocImcData(nwts);
 	dt->tot_wts = nwts;
-
-	if (dt->tot_wts <= 0 || ret < 0) { // We've got a problem...
-		freeImcData(&dt);
-		return NULL;
-	}
 
 	for (i = 0; i < dt->tot_wts; i++) {
 		ret = fscanf(sfile, "WT %d %d %d %d %d %d %d %d\n", &(dt->wt[i].a.x), &(dt->wt[i].a.y), &(dt->wt[i].b.x), &(dt->wt[i].b.y), &(dt->wt[i].c.x), &(dt->wt[i].c.y), &(dt->wt[i].d.x), &(dt->wt[i].d.y));
