@@ -241,16 +241,18 @@ CvRect *getRoiFromPic(IplImage *in, Sint32 *tot_rois, Uint32 wmult, int agg) {
 	xmin = xmax = -1;
 
 	cvAdaptiveThreshold(wpic, wpic, 255, /*CV_ADAPTIVE_THRESH_MEAN_C*/CV_ADAPTIVE_THRESH_GAUSSIAN_C, CV_THRESH_BINARY, 16 * wmult + 1, 40);
+	
 	cvSmooth(wpic, wpic, CV_BLUR, smoothval, 0, 0, 0); // Smooth the input image, so only blobs remain
 #ifdef DEBUG
 	cvSaveImage("./getRoi-smooth.jpg", wpic, 0);
 #endif
+	
 	cvErode(wpic, wpic, NULL, erodval);
 #ifdef DEBUG
 	cvSaveImage("./getRoi-erode.jpg", wpic, 0);
 #endif
-	cvThreshold(wpic, wpic, thval, 255, CV_THRESH_BINARY);
 
+	cvThreshold(wpic, wpic, thval, 255, CV_THRESH_BINARY);
 #ifdef DEBUG
 	cvSaveImage("./getRoi-thresh.jpg", wpic, 0);
 #endif
