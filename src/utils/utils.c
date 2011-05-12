@@ -211,7 +211,7 @@ CvRect *getRoiFromPic(IplImage *in, Sint32 *tot_rois, Uint32 wmult, int agg) {
 
 	double thval = 230;
 	int smoothval = 3;
-	int erodval = 6;
+	int erodval = 7;
 
 	thval -= agg * 10;
 	smoothval += agg;
