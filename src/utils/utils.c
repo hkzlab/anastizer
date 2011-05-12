@@ -211,11 +211,11 @@ CvRect *getRoiFromPic(IplImage *in, Sint32 *tot_rois, Uint32 wmult, int agg) {
 
 	double thval = 230;
 	int smoothval = 3;
-	int erodval = 16;
+	int erodval = 6;
 
 	thval -= agg * 10;
 	smoothval += agg;
-	erodval -= agg * 2;
+	erodval -= agg;
 
 	thval = thval < 0 ? 0 : thval;
 	erodval = erodval <= 0 ? 1 : erodval;
@@ -242,16 +242,14 @@ CvRect *getRoiFromPic(IplImage *in, Sint32 *tot_rois, Uint32 wmult, int agg) {
 
 	cvAdaptiveThreshold(wpic, wpic, 255, /*CV_ADAPTIVE_THRESH_MEAN_C*/CV_ADAPTIVE_THRESH_GAUSSIAN_C, CV_THRESH_BINARY, 16 * wmult + 1, 40);
 	cvSmooth(wpic, wpic, CV_BLUR, smoothval, 0, 0, 0); // Smooth the input image, so only blobs remain
+	cvErode(wpic, wpic, NULL, erodval);
+#ifdef DEBUG
+	cvSaveImage("./testroiero.jpg", wpic, 0);
+#endif
 	cvThreshold(wpic, wpic, thval, 255, CV_THRESH_BINARY);
 
 #ifdef DEBUG
 	cvSaveImage("./testroiblur.jpg", wpic, 0);
-#endif
-
-	cvErode(wpic, wpic, NULL, erodval); // And erode it so we get BIG black squares in place of text (uses the default 3x3 square)
-
-#ifdef DEBUG
-	cvSaveImage("./testroiero.jpg", wpic, 0);
 #endif
 
 	// Go through the image
