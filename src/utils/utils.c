@@ -70,7 +70,7 @@ CvMat *build_transf_mat(WTrap *w, CvMat *mm, IplImage *or, IplImage *pw, Uint32 
 	dst[3].x = 0;
 	dst[3].y = dheight;
 
-	return cvWarpPerspectiveQMatrix(dst, src, mm);
+	return cvGetPerspectiveTransform(dst, src, mm);
 }
 
 IplImage *return_warped_img(IplImage *oim, CvMat *tm, WTrap *wt, Uint32 dwidth, Uint32 dheight, Sint8 chan) {
