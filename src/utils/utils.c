@@ -233,7 +233,7 @@ CvRect *getRoiFromPic(IplImage *in, Sint32 *tot_rois, Uint32 wmult, int agg) {
 	IplImage *wpic = cvCreateImage(cvSize(nwidth , nheight), in->depth, in->nChannels);
 	cvResize(in, wpic, CV_INTER_NN);
 	Uint8 *wpic_dat = wpic->imageData;
-	Sint32 max_rects = 1024;
+	Sint32 max_rects = 512 * wmult;
 	Sint32 trois = -1;
 	CvRect *drois = (CvRect*)malloc(sizeof(CvRect) * max_rects);
 	Sint32 xmin, xmax, i, j, whites;
