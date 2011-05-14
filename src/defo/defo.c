@@ -89,4 +89,15 @@ void moveDefoPoint(Sint32 xdiff, Sint32 ydiff, defo_point *dp, defo_grid *grid) 
 
 	// Now, for all the remaining points we can identify 8 other points in their neighbourhood, we must make sure
 	// we don't move past those points coords
+	CvPoint2D32f *ul, *u, *ur, *r, *dr, *d, *dl, *l;
+
+	ul = &(grid->pnt[(dp->py - 1) * grid->width + (dp->px - 1)]);
+	u = &(grid->pnt[(dp->py - 1) * grid->width + (dp->px)]);
+	ur = &(grid->pnt[(dp->py - 1) * grid->width + (dp->px + 1)]);
+	r = &(grid->pnt[(dp->py) * grid->width + (dp->px + 1)]);
+	dr = &(grid->pnt[(dp->py + 1) * grid->width + (dp->px + 1)]);
+	d = &(grid->pnt[(dp->py + 1) * grid->width + (dp->px)]);
+	dl = &(grid->pnt[(dp->py + 1) * grid->width + (dp->px - 1)]);
+	l = &(grid->pnt[(dp->py) * grid->width + (dp->px - 1)]);
+
 }
