@@ -3,13 +3,24 @@
 
 #include "common/defs.h"
 
+// Deformation grid
 typedef struct {
-	Uint32 width;
-	Uint32 height;
+	Sint32 width;
+	Sint32 height;
 	CvPoint2D32f *pnt;
 } defo_grid;
 
-defo_grid *allocDefoGrid(Uint32 width, Uint32 height);
+// Identifies a single defor.
+// point in the grid
+typedef struct {
+	Sint32 px;
+	Sint32 py;
+	CvPoint2D32f *pnt;
+} defo_point;
+
+defo_grid *allocDefoGrid(Sint32 width, Sint32 height);
 void *freeDefoGrid(defo_grid **dg);
+void initDefoGrid(IplImage *img, defo_grid *grid);
+defo_point *findDevoPoint(Sint32 xclick, Sint32 yclick, defo_grid *grid);
 
 #endif /* _DEFO_HEADER_ */
