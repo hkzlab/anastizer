@@ -79,3 +79,14 @@ defo_point *findDevoPoint(Sint32 xclick, Sint32 yclick, defo_grid *grid) {
 
 	return dp;
 }
+
+void moveDefoPoint(Sint32 xdiff, Sint32 ydiff, defo_point *dp, defo_grid *grid) {
+	assert(dp);
+	assert(grid);
+
+	// First of all, if the point is on a border, it cannot be moved at all.
+	if (dp->px == 0 || dp->px == grid->width - 1 || dp->py == 0 || dp->py == grid->height - 1) return;
+
+	// Now, for all the remaining points we can identify 8 other points in their neighbourhood, we must make sure
+	// we don't move past those points coords
+}
