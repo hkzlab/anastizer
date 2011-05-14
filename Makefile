@@ -6,7 +6,7 @@ LDFLAGS=  -lm -lcv -lcvaux -lhighgui
 
 MODULES=$(BINDIR)/utils.o $(BINDIR)/wtrap.o $(BINDIR)/spotclear.o $(BINDIR)/imc.o
 		
-PR1MODULES=$(BINDIR)/handlers_anastizer.o $(BINDIR)/windraw_anastizer.o $(BINDIR)/anastizer.o $(BINDIR)/globs_anastizer.o
+PR1MODULES=$(BINDIR)/handlers_anastizer.o $(BINDIR)/windraw_anastizer.o $(BINDIR)/anastizer.o $(BINDIR)/globs_anastizer.o $(BINDIR)/defo.o
 PR2MODULES=$(BINDIR)/bookdet.o
 
 PROG1=anastizer
@@ -41,6 +41,8 @@ $(BINDIR)/windraw_anastizer.o:	$(SRCDIR)/gui/windraw_anastizer.c
 $(BINDIR)/globs_anastizer.o:	$(SRCDIR)/common/globs_anastizer.c
 	gcc -c $(CFLAGS) $(SRCDIR)/common/globs_anastizer.c -o $(BINDIR)/globs_anastizer.o
 
+$(BINDIR)/defo.o:	$(SRCDIR)/defo/defo.c
+	gcc -c $(CFLAGS) $(SRCDIR)/defo/defo.c -o $(BINDIR)/defo.o
 
 # *** specific modules (BOOKDET)
 $(BINDIR)/bookdet.o:	$(SRCDIR)/bookdet.c
