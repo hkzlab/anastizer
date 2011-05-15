@@ -89,31 +89,31 @@ void moveDefoPoint(Sint32 xdiff, Sint32 ydiff, defo_point *dp, defo_grid *grid) 
 
 	// Now, for all the remaining points we can identify 8 other points in their neighbourhood, we must make sure
 	// we don't move past those points coords
-	CvPoint2D32f *ul, *u, *ur, *r, *dr, *d, *dl, *l;
-
-	ul = &(grid->pnt[(dp->py - 1) * grid->width + (dp->px - 1)]);
-	u = &(grid->pnt[(dp->py - 1) * grid->width + (dp->px)]);
-	ur = &(grid->pnt[(dp->py - 1) * grid->width + (dp->px + 1)]);
-	r = &(grid->pnt[(dp->py) * grid->width + (dp->px + 1)]);
-	dr = &(grid->pnt[(dp->py + 1) * grid->width + (dp->px + 1)]);
-	d = &(grid->pnt[(dp->py + 1) * grid->width + (dp->px)]);
-	dl = &(grid->pnt[(dp->py + 1) * grid->width + (dp->px - 1)]);
-	l = &(grid->pnt[(dp->py) * grid->width + (dp->px - 1)]);
 
 	CvMemStorage *ms = cvCreateMemStorage(0);
-	CvSeq *contour = cvCreateSeq(CV_SEQ_CONTOUR, sizeof(CvSeq), sizeof(CvPoint2D32f), ms);
+	CvSeq *contour = cvCreateSeq(CV_SEQ_ELTYPE_POINT, sizeof(CvSeq), sizeof(CvPoint), ms);
 
-	cvSeqPush(contour, ul);
-	cvSeqPush(contour, u);
-	cvSeqPush(contour, ur);
-	cvSeqPush(contour, r);
-	cvSeqPush(contour, dr);
-	cvSeqPush(contour, d);
-	cvSeqPush(contour, dl);
-	cvSeqPush(contour, l);
+	CvPoint pul, pu, pur, pr, pdr, pd, pdl, pl;
+	pul = cvPoint(grid->pnt[(dp->py - 1) * grid->width + (dp->px - 1)].x, grid->pnt[(dp->py - 1) * grid->width + (dp->px - 1)].y);
+	pu = cvPoint(grid->pnt[(dp->py - 1) * grid->width + dp->px].x, grid->pnt[(dp->py - 1) * grid->width + dp->px].y);
+	pur = cvPoint(grid->pnt[(dp->py - 1) * grid->width + (dp->px + 1)].x, grid->pnt[(dp->py - 1) * grid->width + (dp->px + 1)].y);
+	pr = cvPoint(grid->pnt[dp->py * grid->width + (dp->px + 1)].x, grid->pnt[dp->py * grid->width + (dp->px + 1)].y);
+	pdr = cvPoint(grid->pnt[(dp->py + 1) * grid->width + (dp->px + 1)].x, grid->pnt[(dp->py + 1) * grid->width + (dp->px + 1)].y);
+	pd = cvPoint(grid->pnt[(dp->py + 1) * grid->width + dp->px].x, grid->pnt[(dp->py + 1) * grid->width + dp->px].y);
+	pdl = cvPoint(grid->pnt[(dp->py + 1) * grid->width + (dp->px - 1)].x, grid->pnt[(dp->py + 1) * grid->width + (dp->px - 1)].y);
+	pl = cvPoint(grid->pnt[dp->py * grid->width + (dp->px - 1)].x, grid->pnt[dp->py * grid->width + (dp->px - 1)].y);
+
+	cvSeqPush(contour, &pul);
+	cvSeqPush(contour, &pu);
+	cvSeqPush(contour, &pur);
+	cvSeqPush(contour, &pr);
+	cvSeqPush(contour, &pdr);
+	cvSeqPush(contour, &pd);
+	cvSeqPush(contour, &pdl);
+	cvSeqPush(contour, &pl);
 
 	// See cvPointPolygonTest
-	double inside = cvPointPolygonTest(contour, cvPoint2D32f(dp->pnt->x + xdiff, dp->pnt->x + ydiff), 0);
+	double inside = cvPointPolygonTest(contour, cvPoint2D32f(dp->pnt->x + xdiff, dp->pnt->y + ydiff), 0);
 
 	cvClearSeq(contour);
 	cvClearMemStorage(ms);
