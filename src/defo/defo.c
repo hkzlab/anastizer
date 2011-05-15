@@ -129,16 +129,17 @@ void drawDefoGrid(IplImage *img, defo_grid *grid, CvScalar col) {
 
 	Sint32 i, j;
 
-	for (i = 1; i < grid->width - 1; i++)
-		for (j = 1; j < grid->height - 1; j++) {
-			cvCircle(img, cvPoint(grid->pnt[j * grid->width + i].x, grid->pnt[j * grid->width + i].y), 2, col, 2, 8, 0);
+	for (i = 1; i < grid->width; i++)
+		for (j = 1; j < grid->height; j++) {
 
-			if (i < grid->width - 2)
+			cvCircle(img, cvPoint(grid->pnt[j * grid->width + i].x, grid->pnt[j * grid->width + i].y), 1, col, 2, 8, 0);
+
+			if (i < grid->width - 1)
 				cvLine(img, cvPoint(grid->pnt[j * grid->width + i].x, grid->pnt[j * grid->width + i].y), \
 						cvPoint(grid->pnt[j * grid->width + (i + 1)].x, grid->pnt[j * grid->width + (i + 1)].y), \
 						col, 1, 8, 0);
 
-			if (j < grid->height - 2)
+			if (j < grid->height - 1)
 				cvLine(img, cvPoint(grid->pnt[j * grid->width + i].x, grid->pnt[j * grid->width + i].y), \
 						cvPoint(grid->pnt[(j + 1) * grid->width + i].x, grid->pnt[(j + 1) * grid->width + i].y), \
 						col, 1, 8, 0);
