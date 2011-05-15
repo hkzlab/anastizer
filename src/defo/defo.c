@@ -12,7 +12,7 @@ defo_grid *allocDefoGrid(Sint32 width, Sint32 height) {
 	return d;
 }
 
-void *freeDefoGrid(defo_grid **dg) {
+void freeDefoGrid(defo_grid **dg) {
 	assert(*dg);
 
 	free((*dg)->pnt);

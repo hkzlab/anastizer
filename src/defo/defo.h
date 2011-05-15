@@ -19,7 +19,7 @@ typedef struct {
 } defo_point;
 
 defo_grid *allocDefoGrid(Sint32 width, Sint32 height);
-void *freeDefoGrid(defo_grid **dg);
+void freeDefoGrid(defo_grid **dg);
 void initDefoGrid(IplImage *img, defo_grid *grid);
 defo_point *findDevoPoint(Sint32 xclick, Sint32 yclick, defo_grid *grid);
 void moveDefoPoint(Sint32 xdiff, Sint32 ydiff, defo_point *dp, defo_grid *grid);
