@@ -47,7 +47,7 @@ void initDefoGrid(IplImage *img, defo_grid *grid) {
 }
 
 #define MAXDIST 4
-defo_point *findDevoPoint(Sint32 xclick, Sint32 yclick, defo_grid *grid) {
+defo_point *findDefoPoint(Sint32 xclick, Sint32 yclick, defo_grid *grid) {
 	assert(xclick >= 0 && yclick >= 0);
 	assert(grid);
 
