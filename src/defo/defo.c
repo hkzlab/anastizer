@@ -1,7 +1,7 @@
 #include "defo.h"
 
 defo_grid *allocDefoGrid(Sint32 width, Sint32 height) {
-	assert(width > 0 && height > 0);
+	assert(width > 4 && height > 4);
 
 	defo_grid *d = (defo_grid*) malloc(sizeof(defo_grid));
 	d->width = width;
@@ -121,4 +121,26 @@ void moveDefoPoint(Sint32 xdiff, Sint32 ydiff, defo_point *dp, defo_grid *grid) 
 
 	// Destination is inside, we can move it
 	if (inside > 0) { dp->pnt->x += xdiff; dp->pnt->y += ydiff; }
+}
+
+void drawDefoGrid(IplImage *img, defo_grid *grid, CvScalar col) {
+	assert(img);
+	assert(grid);
+
+	Sint32 i, j;
+
+	for (i = 1; i < grid->width - 1; i++)
+		for (j = 1; j < grid->height - 1; j++) {
+			cvCircle(img, cvPoint(grid->pnt[j * grid->width + i].x, grid->pnt[j * grid->width + i].y), 2, col, 2, 8, 0);
+
+			if (i < grid->width - 2)
+				cvLine(img, cvPoint(grid->pnt[j * grid->width + i].x, grid->pnt[j * grid->width + i].y), \
+						cvPoint(grid->pnt[j * grid->width + (i + 1)].x, grid->pnt[j * grid->width + (i + 1)].y), \
+						col, 1, 8, 0);
+
+			if (j < grid->height - 2)
+				cvLine(img, cvPoint(grid->pnt[j * grid->width + i].x, grid->pnt[j * grid->width + i].y), \
+						cvPoint(grid->pnt[(j + 1) * grid->width + i].x, grid->pnt[(j + 1) * grid->width + i].y), \
+						col, 1, 8, 0);
+		}
 }
