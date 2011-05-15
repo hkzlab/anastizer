@@ -100,4 +100,25 @@ void moveDefoPoint(Sint32 xdiff, Sint32 ydiff, defo_point *dp, defo_grid *grid) 
 	dl = &(grid->pnt[(dp->py + 1) * grid->width + (dp->px - 1)]);
 	l = &(grid->pnt[(dp->py) * grid->width + (dp->px - 1)]);
 
+	CvMemStorage *ms = cvCreateMemStorage(0);
+	CvSeq *contour = cvCreateSeq(CV_SEQ_CONTOUR, sizeof(CvSeq), sizeof(CvPoint2D32f), ms);
+
+	cvSeqPush(contour, ul);
+	cvSeqPush(contour, u);
+	cvSeqPush(contour, ur);
+	cvSeqPush(contour, r);
+	cvSeqPush(contour, dr);
+	cvSeqPush(contour, d);
+	cvSeqPush(contour, dl);
+	cvSeqPush(contour, l);
+
+	// See cvPointPolygonTest
+	double inside = cvPointPolygonTest(contour, cvPoint2D32f(dp->pnt->x + xdiff, dp->pnt->x + ydiff), 0);
+
+	cvClearSeq(contour);
+	cvClearMemStorage(ms);
+	cvReleaseMemStorage(&ms);
+
+	// Destination is inside, we can move it
+	if (inside > 0) { dp->pnt->x += xdiff; dp->pnt->y += ydiff; }
 }
