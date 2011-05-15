@@ -229,6 +229,8 @@ int main(int argc, char *argv[]) {
 			if (used_wts > 0)
 				prev_mouseHandler(CV_EVENT_MBUTTONDBLCLK, 0, 0, 0, &wtcode[1]);
 			break;
+		case 'g': // Show preview deformation grids
+			break;
 		default:
 			break;
 		}
