@@ -30,18 +30,18 @@ void initDefoGrid(IplImage *img, defo_grid *grid) {
 	Sint32 g_width = grid->width;
 	Sint32 g_height = grid->height;
 
-	Sint32 wrem = img_width % g_width;
-	Sint32 hrem = img_height % g_height;
-	Sint32 wdist = img_width / g_width;
-	Sint32 hdist = img_height / g_height;
+	Sint32 wrem = img_width % (g_width - 1);
+	Sint32 hrem = img_height % (g_height - 1);
+	Sint32 wdist = img_width / (g_width - 1);
+	Sint32 hdist = img_height / (g_height - 1);
 
 	Sint32 i, j;
 
 	// Init the point values in the grid
 	for (i = 0; i < g_width; i++)
 		for (j = 0; j < g_height; j++) {
-			grid->pnt[j * g_width + i].x = wdist * i + wrem / 2;
-			grid->pnt[j * g_width + i].y = hdist * j + hrem / 2;
+			grid->pnt[j * g_width + i].x = wdist * i + (wrem / 2);
+			grid->pnt[j * g_width + i].y = hdist * j + (hrem / 2);
 		}
 
 }
@@ -129,17 +129,18 @@ void drawDefoGrid(IplImage *img, defo_grid *grid, CvScalar col) {
 
 	Sint32 i, j;
 
-	for (i = 1; i < grid->width; i++)
-		for (j = 1; j < grid->height; j++) {
+	for (i = 0; i < grid->width; i++)
+		for (j = 0; j < grid->height; j++) {
 
-			cvCircle(img, cvPoint(grid->pnt[j * grid->width + i].x, grid->pnt[j * grid->width + i].y), 1, col, 2, 8, 0);
-
-			if (i < grid->width - 1)
+			if (i > 0 && j > 0 && i < grid->width - 1 && j < grid->height - 1)
+				cvCircle(img, cvPoint(grid->pnt[j * grid->width + i].x, grid->pnt[j * grid->width + i].y), 1, col, 2, 8, 0);
+			
+			if (i + 1 < grid->width)
 				cvLine(img, cvPoint(grid->pnt[j * grid->width + i].x, grid->pnt[j * grid->width + i].y), \
 						cvPoint(grid->pnt[j * grid->width + (i + 1)].x, grid->pnt[j * grid->width + (i + 1)].y), \
 						col, 1, 8, 0);
 
-			if (j < grid->height - 1)
+			if (j + 1 < grid->height)
 				cvLine(img, cvPoint(grid->pnt[j * grid->width + i].x, grid->pnt[j * grid->width + i].y), \
 						cvPoint(grid->pnt[(j + 1) * grid->width + i].x, grid->pnt[(j + 1) * grid->width + i].y), \
 						col, 1, 8, 0);
