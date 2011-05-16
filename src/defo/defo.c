@@ -155,6 +155,87 @@ void warpDefoMaps(IplImage *mapx, IplImage *mapy, defo_grid *dgrid, defo_grid *o
 
 	assert(mapx->depth == IPL_DEPTH_32F && mapx->nChannels == 1);
 	assert(mapy->depth == IPL_DEPTH_32F && mapy->nChannels == 1);
+	assert(mapx->width == mapy->width && mapx->height == mapy->height);
 
-	
+	CvMemStorage *ms = cvCreateMemStorage(0);
+	CvSeq *contour = cvCreateSeq(CV_SEQ_ELTYPE_POINT, sizeof(CvSeq), sizeof(CvPoint), ms); // Memory storage for contour checking
+
+	CvPoint p1, p2, p3, p4; // These will be used for contour checking
+	CvPoint pmax, pmin;
+
+	float ax, bx, cx, dx; // linear interpolation coefficients
+	float ay, by, cy, dy;
+
+	float vx1, vx2, vx3, vx4; // Values at vertices, for interpolation
+	float vy1, vy2, vy3, vy4;
+
+	Sint32 i, j, k, n;
+
+	double inside;
+
+	// Initialize the maps
+	for (i = 0; i < mapx->height; i++)
+		for (j = 0; j < mapx->width; j++) {
+			cvSetReal2D(mapx, i, j, j);
+			cvSetReal2D(mapy, i, j, i);
+		}
+
+	// Go through all the grid rectangles
+	for (i = 0; i < ogrid->width - 1; i++)
+		for (j = 0; j < ogrid->height - 1; j++) {
+			vx1 = ogrid->pnt[j * ogrid->width + i].x;
+			vx2 = ogrid->pnt[j * ogrid->width + (i + 1)].x;
+			vx3 = ogrid->pnt[(j + 1) * ogrid->width + (i + 1)].x;
+			vx4 = ogrid->pnt[(j + 1) * ogrid->width + i].x;
+
+			// Calculate the coefficients
+			ax = vx2 - vx1;
+			bx = vx4 - vx1;
+			cx = vx3 + vx1 - vx4 - vx2;
+			dx = vx1;
+
+			vy1 = ogrid->pnt[j * ogrid->width + i].y;
+			vy2 = ogrid->pnt[j * ogrid->width + (i + 1)].y;
+			vy3 = ogrid->pnt[(j + 1) * ogrid->width + (i + 1)].y;
+			vy4 = ogrid->pnt[(j + 1) * ogrid->width + i].y;
+
+			// Calculate the coefficients
+			ay = vy2 - vy1;
+			by = vy4 - vy1;
+			cy = vy3 + vy1 - vy4 - vy2;
+			dy = vy1;
+
+			// Save point coordinates for warped grid rectangle
+			p1.x = dgrid->pnt[j * dgrid->width + i].x;
+			p1.y = dgrid->pnt[j * dgrid->width + i].y;
+			p2.x = dgrid->pnt[j * dgrid->width + (i + 1)].x;
+			p2.y = dgrid->pnt[j * dgrid->width + (i + 1)].y;
+			p3.x = dgrid->pnt[(j + 1) * dgrid->width + (i + 1)].x;
+			p3.y = dgrid->pnt[(j + 1) * dgrid->width + (i + 1)].y;
+			p4.x = dgrid->pnt[(j + 1) * dgrid->width + i].x;
+			p4.y = dgrid->pnt[(j + 1) * dgrid->width + i].y;
+
+			pmax.x = MAX(p1.x, p2.x); pmax.x = MAX(pmax.x, p3.x); pmax.x = MAX(pmax.x, p4.x);
+			pmax.y = MAX(p1.y, p2.y); pmax.y = MAX(pmax.y, p3.y); pmax.y = MAX(pmax.y, p4.y);
+
+			pmin.x = MIN(p1.x, p2.x); pmin.x = MIN(pmin.x, p3.x); pmin.x = MIN(pmin.x, p4.x);
+			pmin.y = MIN(p1.y, p2.y); pmin.y = MIN(pmin.y, p3.y); pmin.y = MIN(pmin.y, p4.y);
+
+			for (k = pmin.x; k <= pmax.x; k++)
+				for (n = pmin.y; n <= pmax.y; n++) {
+					inside = cvPointPolygonTest(contour, cvPoint2D32f(k, n), 0); // Check if we're inside the warped rect
+					if (inside >= 0) {
+						// Save the interpolated points in the maps
+						cvSetReal2D(mapx, k, n, ax * k + bx * n + cx * n * k + dx);
+						cvSetReal2D(mapy, k, n, ay * k + by * n + cy * n * k + dy);
+					}
+				}
+
+			cvClearSeq(contour);
+		}
+
+
+	cvClearMemStorage(ms);
+	cvReleaseMemStorage(&ms);
+
 }
