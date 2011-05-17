@@ -11,6 +11,7 @@ void prev_mouseHandler(int event, int x, int y, int flags, void *param) {
 	Uint16 cur_win = *(Uint16*)param;
 	
 	static defo_point *dp = NULL;
+	static Uint16 dp_win;
 	static int oldx, oldy;
 
 	Sint32 xdiff, ydiff;
@@ -41,6 +42,7 @@ void prev_mouseHandler(int event, int x, int y, int flags, void *param) {
 	switch (event) {
 	case CV_EVENT_LBUTTONDOWN:
 		dp = findDefoPoint(x, y, dgrid[cur_win]);
+		dp_win = cur_win;
 		break;
 
 	case CV_EVENT_LBUTTONUP:
@@ -55,9 +57,9 @@ void prev_mouseHandler(int event, int x, int y, int flags, void *param) {
 		ydiff = y - oldy;
 
 		if (dp) {
-			win_str[19] = 49 + cur_win;
-			moveDefoPoint(xdiff, ydiff, dp, dgrid[cur_win]);
-			redraw_preview_win(prv_img[cur_win], win_str, oimg, invt[cur_win], &wt[cur_win], dgrid[cur_win]);
+			win_str[19] = 49 + dp_win;
+			moveDefoPoint(xdiff, ydiff, dp, dgrid[dp_win]);
+			redraw_preview_win(prv_img[dp_win], win_str, oimg, invt[dp_win], &wt[dp_win], dgrid[dp_win]);
 		}
 
 		oldx = x;
