@@ -13,6 +13,8 @@ void prev_mouseHandler(int event, int x, int y, int flags, void *param) {
 	static defo_point *dp = NULL;
 	static int oldx, oldy;
 
+	Sint32 xdiff, ydiff;
+
 	IplImage *gimg;
 	IplImage *mimg;
 	IplImage *rprev;
@@ -49,6 +51,17 @@ void prev_mouseHandler(int event, int x, int y, int flags, void *param) {
 		break;
 
 	case CV_EVENT_MOUSEMOVE:
+		xdiff = x - oldx;
+		ydiff = y - oldy;
+
+		if (dp) {
+			win_str[19] = 49 + cur_win;
+			moveDefoPoint(xdiff, ydiff, dp, dgrid[cur_win]);
+			redraw_preview_win(prv_img[cur_win], win_str, oimg, invt[cur_win], &wt[cur_win], dgrid[cur_win]);
+		}
+
+		oldx = x;
+		oldy = y;
 	break;
 
 	case CV_EVENT_MBUTTONDBLCLK:
@@ -132,7 +145,7 @@ void main_mouseHandler(int event, int x, int y, int flags, void *param) {
 	static Sint32 cur_wts = -1;
 
 	static int oldx, oldy;
-	int xdiff, ydiff;
+	Sint32 xdiff, ydiff;
 
 	Uint32 i;
 
