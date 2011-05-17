@@ -88,12 +88,18 @@ int main(int argc, char *argv[]) {
 	pxratio = (float)oimg->width / (float)mw_img->width;
 	pyratio = (float)oimg->height / (float)mw_img->height;
 
-	// Create images for preview
+	// Alloc the default grid
+	def_grid = allocDefoGrid(5, 15);
+
+	// Create images for preview and defo grids
 	for (i = 0; i < MAX_WTS; i++) {
-		if (i < used_wts)
+		if (i < used_wts) {
+			dgrid[i] = allocDefoGrid(5, 15);
 			prv_img[i] = cvCreateImage(cvSize(PREV_W, PREV_H), oimg->depth, oimg->nChannels);
-		else
+		} else {
 			prv_img[i] = NULL;
+			dgrid[i] = NULL;
+		}
 	}
 
 	// Create windows
@@ -240,11 +246,13 @@ int main(int argc, char *argv[]) {
 	cvDestroyAllWindows();
 
 	// Release memory
+	freeDefoGrid(&def_grid);
 	cvReleaseImage(&oimg);
 	cvReleaseImage(&mw_img);
 	for (i = 0; i < used_wts; i++) {
 		cvReleaseImage(&prv_img[i]);
 		cvReleaseMat(&invt[i]);
+		freeDefoGrid(&dgrid[i]);
 	}
 
 	return 0;
