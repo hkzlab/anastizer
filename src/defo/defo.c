@@ -215,6 +215,11 @@ void warpDefoMaps(IplImage *mapx, IplImage *mapy, defo_grid *dgrid, defo_grid *o
 			p4.x = dgrid->pnt[(j + 1) * dgrid->width + i].x;
 			p4.y = dgrid->pnt[(j + 1) * dgrid->width + i].y;
 
+			cvSeqPush(contour, &p1);
+			cvSeqPush(contour, &p2);
+			cvSeqPush(contour, &p3);
+			cvSeqPush(contour, &p4);
+
 			pmax.x = MAX(p1.x, p2.x); pmax.x = MAX(pmax.x, p3.x); pmax.x = MAX(pmax.x, p4.x);
 			pmax.y = MAX(p1.y, p2.y); pmax.y = MAX(pmax.y, p3.y); pmax.y = MAX(pmax.y, p4.y);
 
@@ -226,8 +231,8 @@ void warpDefoMaps(IplImage *mapx, IplImage *mapy, defo_grid *dgrid, defo_grid *o
 					inside = cvPointPolygonTest(contour, cvPoint2D32f(k, n), 0); // Check if we're inside the warped rect
 					if (inside >= 0) {
 						// Save the interpolated points in the maps
-						cvSetReal2D(mapx, k, n, ax * k + bx * n + cx * n * k + dx);
-						cvSetReal2D(mapy, k, n, ay * k + by * n + cy * n * k + dy);
+						cvSetReal2D(mapx, n, k, ax * k + bx * n + cx * n * k + dx);
+						cvSetReal2D(mapy, n, k, ay * k + by * n + cy * n * k + dy);
 					}
 				}
 
