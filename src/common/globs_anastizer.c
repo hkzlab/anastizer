@@ -19,6 +19,7 @@ IplImage *mw_img;
 
 defo_grid *def_grid; // Default deformation grid, for comparisons
 defo_grid *dgrid[MAX_WTS];
+Uint8 show_dgrid = 0;
 
 char win_str[64];
 

@@ -5,7 +5,7 @@
 
 #include "defo/defo.h"
 
-void redraw_preview_win(IplImage *pim, const char *win, IplImage *oim, CvMat *tm, WTrap *wt) {
+void redraw_preview_win(IplImage *pim, const char *win, IplImage *oim, CvMat *tm, WTrap *wt, defo_grid *dgrid) {
 	assert(pim);
 	assert(oim);
 	assert(tm);
@@ -17,6 +17,10 @@ void redraw_preview_win(IplImage *pim, const char *win, IplImage *oim, CvMat *tm
 	Sint8 cur_chan = 0;
 	cur_chan = cvGetTrackbarPos(PREV_TRK_BGR, CNTRL_WIN);
 	mono = gray_from_colour(pim, cur_chan);
+
+	if (dgrid) // Show the grid
+		drawDefoGrid(mono, dgrid, cvScalarAll(0));
+
 	cvShowImage(win, mono);
 
 	cvReleaseImage(&mono);

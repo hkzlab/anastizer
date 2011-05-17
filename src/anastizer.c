@@ -89,18 +89,22 @@ int main(int argc, char *argv[]) {
 	pyratio = (float)oimg->height / (float)mw_img->height;
 
 	// Alloc the default grid
-	def_grid = allocDefoGrid(5, 15);
+	def_grid = allocDefoGrid(6, 15);
 
 	// Create images for preview and defo grids
 	for (i = 0; i < MAX_WTS; i++) {
 		if (i < used_wts) {
-			dgrid[i] = allocDefoGrid(5, 15);
 			prv_img[i] = cvCreateImage(cvSize(PREV_W, PREV_H), oimg->depth, oimg->nChannels);
+			dgrid[i] = allocDefoGrid(6, 15);
+			initDefoGrid(prv_img[i], dgrid[i]);
 		} else {
 			prv_img[i] = NULL;
 			dgrid[i] = NULL;
 		}
 	}
+
+	// Initialize default grid too
+	initDefoGrid(prv_img[0], def_grid);
 
 	// Create windows
 	cvNamedWindow(MAIN_WIN, CV_WINDOW_AUTOSIZE);
@@ -172,7 +176,11 @@ int main(int argc, char *argv[]) {
 	for (i = 0; i < used_wts; i++) {
 		win_str[19] = 49 + i;
 		invt[i] = build_transf_mat(&wt[i], invt[i], oimg, mw_img, prv_img[i]->width, prv_img[i]->height);
-		redraw_preview_win(prv_img[i], win_str, oimg, invt[i], &wt[i]);
+	
+		if (show_dgrid)
+			redraw_preview_win(prv_img[i], win_str, oimg, invt[i], &wt[i], dgrid[i]);
+		else
+			redraw_preview_win(prv_img[i], win_str, oimg, invt[i], &wt[i], NULL);
 	}
 
 	// Draw main window with warptraps
@@ -236,6 +244,17 @@ int main(int argc, char *argv[]) {
 				prev_mouseHandler(CV_EVENT_MBUTTONDBLCLK, 0, 0, 0, &wtcode[1]);
 			break;
 		case 'g': // Show preview deformation grids
+			show_dgrid = !show_dgrid;
+	
+			for (i = 0; i < used_wts; i++) {
+				win_str[19] = 49 + i;
+
+				if (show_dgrid)
+					redraw_preview_win(prv_img[i], win_str, oimg, invt[i], &wt[i], dgrid[i]);
+				else
+					redraw_preview_win(prv_img[i], win_str, oimg, invt[i], &wt[i], NULL);
+			}
+
 			break;
 		default:
 			break;

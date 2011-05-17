@@ -140,7 +140,11 @@ void main_mouseHandler(int event, int x, int y, int flags, void *param) {
 		if (curnode >= 0) { // And in this case we should update a preview window...
 			win_str[19] = 49 + cur_wts;
 			invt[cur_wts] = build_transf_mat(&wt[cur_wts], invt[cur_wts], oimg, mw_img, prv_img[cur_wts]->width, prv_img[cur_wts]->height);
-			redraw_preview_win(prv_img[cur_wts], win_str, oimg, invt[cur_wts], &wt[cur_wts]);
+
+			if (show_dgrid)
+				redraw_preview_win(prv_img[cur_wts], win_str, oimg, invt[cur_wts], &wt[cur_wts], dgrid[cur_wts]);
+			else
+				redraw_preview_win(prv_img[cur_wts], win_str, oimg, invt[cur_wts], &wt[cur_wts], NULL);
 		}
 
 		curnode = -1;
@@ -310,7 +314,11 @@ void cntrl_trk_bgr_handler(int pos) {
 	for (i = 0; i < used_wts; i++) {
 		win_str[19] = 49 + i;
 		invt[i] = build_transf_mat(&wt[i], invt[i], oimg, mw_img, prv_img[i]->width, prv_img[i]->height);
-		redraw_preview_win(prv_img[i], win_str, oimg, invt[i], &wt[i]);
+
+		if (show_dgrid)
+			redraw_preview_win(prv_img[i], win_str, oimg, invt[i], &wt[i], dgrid[i]);
+		else
+			redraw_preview_win(prv_img[i], win_str, oimg, invt[i], &wt[i], NULL);
 	}
 }
 
