@@ -5,9 +5,13 @@
 #include "common/globs_anastizer.h"
 #include "common/win_names_anastizer.h"
 #include "utils/utils.h"
+#include "defo/defo.h"
 
 void prev_mouseHandler(int event, int x, int y, int flags, void *param) {
 	Uint16 cur_win = *(Uint16*)param;
+	
+	static defo_point *dp = NULL;
+	static int oldx, oldy;
 
 	IplImage *gimg;
 	IplImage *mimg;
@@ -33,6 +37,20 @@ void prev_mouseHandler(int event, int x, int y, int flags, void *param) {
 	qlt_pos = (qlt_pos + 1) * 2;
 
 	switch (event) {
+	case CV_EVENT_LBUTTONDOWN:
+		dp = findDefoPoint(x, y, dgrid[cur_win]);
+		break;
+
+	case CV_EVENT_LBUTTONUP:
+		if (dp) {
+			free(dp);
+			dp = NULL;
+		}
+		break;
+
+	case CV_EVENT_MOUSEMOVE:
+	break;
+
 	case CV_EVENT_MBUTTONDBLCLK:
 	case CV_EVENT_LBUTTONDBLCLK:
 	case CV_EVENT_RBUTTONDBLCLK:
@@ -94,6 +112,9 @@ void prev_mouseHandler(int event, int x, int y, int flags, void *param) {
 
 		cvReleaseImage(&rprev);
 		cvReleaseImage(&mimg);
+
+		// Rebuild the old transform matrix for previews, needed to avoid viewing problems
+		invt[cur_win] = build_transf_mat(&wt[cur_win], invt[cur_win], oimg, mw_img, prv_img[cur_win]->width, prv_img[cur_win]->height);
 
 		fprintf(stdout, " DONE!\n\n");
 
