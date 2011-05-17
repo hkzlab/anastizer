@@ -3,6 +3,7 @@
 
 #include "common/defs.h"
 #include "warptrap/wtrap.h"
+#include "defo/defo.h"
 
 // These are global vars required by OpenCV gui handler's callbacks
 
@@ -17,6 +18,9 @@ extern CvMat *invt[MAX_WTS]; // Inversion matrices for screen warping
 extern IplImage *oimg; // Original image;
 extern IplImage *prv_img[MAX_WTS]; // Preview images
 extern IplImage *mw_img; // Main window resized image
+
+extern defo_grid *def_grid; // Default deformation grid, for comparisons
+extern defo_grid *dgrid[MAX_WTS];
 
 extern char win_str[64]; // Window title string for preview windows
 
