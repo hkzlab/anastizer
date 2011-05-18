@@ -24,6 +24,8 @@ int main(int argc, char *argv[]) {
 		fprintf(stdout, "Loaded image %s\n", argv[1]);
 	}
 
+	cvThreshold(oimg, oimg, 128, 255, CV_THRESH_BINARY_INV); // Make sure the image is binary!
+
 	cvReleaseImage(&oimg);
 
 	return 0;
