@@ -57,17 +57,17 @@ int main(int argc, char *argv[]) {
 	hkzBinPicSub(oimg, rub);
 	cvSaveImage("./test3.jpg", rub, 0);
 
-	int dkval[9] = {1, 1, -1, -1, 1, -1, -1, 1, 1};
-	ck = cvCreateStructuringElementEx(3, 3, 1, 1, CV_SHAPE_CUSTOM, dkval);
+	int dkval[9] = {-1, 1, -1, -1, 1, 1, -1, -1, 1};
+	ck = cvCreateStructuringElementEx(3, 3, 2, 2, CV_SHAPE_CUSTOM, dkval);
 	hkzBaseMorph(rub, rub2, ck, HKZ_ERODE, 1);
 	hkzBinPicSub(rub, rub2);
 	cvSaveImage("./test4.jpg", rub2, 0);
 
-	cvThreshold(rub, rub, 128, 255, CV_THRESH_BINARY_INV);
-	remove_spot_size(rub, 1, 20, Conn4);
-	cvThreshold(rub, rub, 128, 255, CV_THRESH_BINARY_INV); 
+	cvThreshold(rub2, rub2, 128, 255, CV_THRESH_BINARY_INV);
+	remove_spot_size(rub2, 1, 20, Conn4);
+	cvThreshold(rub2, rub2, 128, 255, CV_THRESH_BINARY_INV); 
 
-	cvSaveImage("./test5.jpg", rub, 0);
+	cvSaveImage("./test5.jpg", rub2, 0);
 
 	cvReleaseImage(&rub);
 	cvReleaseImage(&rub2);
