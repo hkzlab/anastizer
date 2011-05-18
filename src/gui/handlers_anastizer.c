@@ -47,6 +47,7 @@ void prev_mouseHandler(int event, int x, int y, int flags, void *param) {
 
 	case CV_EVENT_LBUTTONUP:
 		if (dp) {
+			redraw_preview_win(prv_img[dp_win], win_str, oimg, invt[dp_win], &wt[dp_win], dgrid[dp_win], def_grid, 1, 1);
 			free(dp);
 			dp = NULL;
 		}
@@ -59,7 +60,7 @@ void prev_mouseHandler(int event, int x, int y, int flags, void *param) {
 		if (dp) {
 			win_str[19] = 49 + dp_win;
 			moveDefoPoint(xdiff, ydiff, dp, dgrid[dp_win]);
-			redraw_preview_win(prv_img[dp_win], win_str, oimg, invt[dp_win], &wt[dp_win], dgrid[dp_win], def_grid);
+			redraw_preview_win(prv_img[dp_win], win_str, oimg, invt[dp_win], &wt[dp_win], dgrid[dp_win], def_grid, 0, 1);
 		}
 
 		oldx = x;
@@ -178,9 +179,9 @@ void main_mouseHandler(int event, int x, int y, int flags, void *param) {
 			invt[cur_wts] = build_transf_mat(&wt[cur_wts], invt[cur_wts], oimg, mw_img, prv_img[cur_wts]->width, prv_img[cur_wts]->height);
 
 			if (show_dgrid)
-				redraw_preview_win(prv_img[cur_wts], win_str, oimg, invt[cur_wts], &wt[cur_wts], dgrid[cur_wts], def_grid);
+				redraw_preview_win(prv_img[cur_wts], win_str, oimg, invt[cur_wts], &wt[cur_wts], dgrid[cur_wts], def_grid, 1, 1);
 			else
-				redraw_preview_win(prv_img[cur_wts], win_str, oimg, invt[cur_wts], &wt[cur_wts], NULL, NULL);
+				redraw_preview_win(prv_img[cur_wts], win_str, oimg, invt[cur_wts], &wt[cur_wts], dgrid[cur_wts], def_grid, 1, 0);
 		}
 
 		curnode = -1;
@@ -352,9 +353,9 @@ void cntrl_trk_bgr_handler(int pos) {
 		invt[i] = build_transf_mat(&wt[i], invt[i], oimg, mw_img, prv_img[i]->width, prv_img[i]->height);
 
 		if (show_dgrid)
-			redraw_preview_win(prv_img[i], win_str, oimg, invt[i], &wt[i], dgrid[i], def_grid);
+			redraw_preview_win(prv_img[i], win_str, oimg, invt[i], &wt[i], dgrid[i], def_grid, 1, 1);
 		else
-			redraw_preview_win(prv_img[i], win_str, oimg, invt[i], &wt[i], NULL, NULL);
+			redraw_preview_win(prv_img[i], win_str, oimg, invt[i], &wt[i], dgrid[i], def_grid, 1, 0);
 	}
 }
 

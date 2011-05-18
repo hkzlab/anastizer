@@ -178,9 +178,9 @@ int main(int argc, char *argv[]) {
 		invt[i] = build_transf_mat(&wt[i], invt[i], oimg, mw_img, prv_img[i]->width, prv_img[i]->height);
 	
 		if (show_dgrid)
-			redraw_preview_win(prv_img[i], win_str, oimg, invt[i], &wt[i], dgrid[i], def_grid);
+			redraw_preview_win(prv_img[i], win_str, oimg, invt[i], &wt[i], dgrid[i], def_grid, 0, 1);
 		else
-			redraw_preview_win(prv_img[i], win_str, oimg, invt[i], &wt[i], NULL, NULL);
+			redraw_preview_win(prv_img[i], win_str, oimg, invt[i], &wt[i], dgrid[i], def_grid, 0, 0);
 	}
 
 	// Draw main window with warptraps
@@ -250,9 +250,9 @@ int main(int argc, char *argv[]) {
 				win_str[19] = 49 + i;
 
 				if (show_dgrid)
-					redraw_preview_win(prv_img[i], win_str, oimg, invt[i], &wt[i], dgrid[i], def_grid);
+					redraw_preview_win(prv_img[i], win_str, oimg, invt[i], &wt[i], dgrid[i], def_grid, 1, 1);
 				else
-					redraw_preview_win(prv_img[i], win_str, oimg, invt[i], &wt[i], NULL, NULL);
+					redraw_preview_win(prv_img[i], win_str, oimg, invt[i], &wt[i], dgrid[i], def_grid, 1, 0);
 			}
 
 			break;
