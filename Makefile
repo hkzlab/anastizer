@@ -8,9 +8,11 @@ MODULES=$(BINDIR)/utils.o $(BINDIR)/wtrap.o $(BINDIR)/spotclear.o $(BINDIR)/imc.
 		
 PR1MODULES=$(BINDIR)/handlers_anastizer.o $(BINDIR)/windraw_anastizer.o $(BINDIR)/anastizer.o $(BINDIR)/globs_anastizer.o $(BINDIR)/defo.o
 PR2MODULES=$(BINDIR)/bookdet.o
+PR3MODULES=$(BINDIR)/strline.o
 
 PROG1=anastizer
 PROG2=bookdet
+PROG3=strline
 
 all: bin/$(PROG1) bin/$(PROG2)
 
@@ -27,6 +29,8 @@ bin/$(PROG1): $(MODULES) $(PR1MODULES)
 bin/$(PROG2): $(MODULES) $(PR2MODULES)
 	gcc $(CFLAGS) $(MODULES) $(PR2MODULES) $(LDFLAGS) -o $(BINDIR)/$(PROG2)
 
+bin/$(PROG3): $(MODULES) $(PR3MODULES)
+	gcc $(CFLAGS) $(MODULES) $(PR3MODULES) $(LDFLAGS) -o $(BINDIR)/$(PROG3)
 
 # *** specific modules (ANASTIZER)
 $(BINDIR)/anastizer.o:	$(SRCDIR)/anastizer.c
@@ -48,6 +52,9 @@ $(BINDIR)/defo.o:	$(SRCDIR)/defo/defo.c
 $(BINDIR)/bookdet.o:	$(SRCDIR)/bookdet.c
 	gcc -c $(CFLAGS) $(SRCDIR)/bookdet.c -o $(BINDIR)/bookdet.o
 
+# *** specific modules (STRLINE)
+$(BINDIR)/strline.o:	$(SRCDIR)/strline.c
+	gcc -c $(CFLAGS) $(SRCDIR)/strline.c -o $(BINDIR)/strline.o
 
 # generic modules
 $(BINDIR)/utils.o:	$(SRCDIR)/utils/utils.c
