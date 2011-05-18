@@ -147,7 +147,7 @@ void drawDefoGrid(IplImage *img, defo_grid *grid, CvScalar col) {
 		}
 }
 
-void warpDefoMaps(IplImage *img, defo_grid *dgrid, defo_grid *ogrid) {
+void warpDefoImg(IplImage *img, defo_grid *dgrid, defo_grid *ogrid) {
 	assert(img);
 	assert(dgrid);
 	assert(ogrid);
