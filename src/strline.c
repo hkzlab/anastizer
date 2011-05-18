@@ -1,5 +1,6 @@
 #include "common/defs.h"
 #include "morphology/morph.h"
+#include "spotclear/spotclear.h"
 
 #define STR_BUF_SIZE 256
 
@@ -45,6 +46,29 @@ int main(int argc, char *argv[]) {
 
 	hkzMorphFullThin(oimg, oimg);
 	cvSaveImage("./test2.jpg", oimg, 0);
+
+	IplImage *rub = cvCloneImage(oimg);
+	IplImage *rub2 = cvCloneImage(oimg);
+	int bkval[9] = {-1, 1, 1, -1, 1, -1, 1, 1, -1};
+	ck = cvCreateStructuringElementEx(3, 3, 1, 1, CV_SHAPE_CUSTOM, bkval);
+	hkzBaseMorph(oimg, rub, ck, HKZ_ERODE, 1);
+	hkzBinPicSub(oimg, rub);
+	cvSaveImage("./test3.jpg", rub, 0);
+
+	int dkval[9] = {1, 1, -1, -1, 1, -1, -1, 1, 1};
+	ck = cvCreateStructuringElementEx(3, 3, 1, 1, CV_SHAPE_CUSTOM, dkval);
+	hkzBaseMorph(rub, rub2, ck, HKZ_ERODE, 1);
+	hkzBinPicSub(rub, rub2);
+	cvSaveImage("./test4.jpg", rub2, 0);
+
+	cvThreshold(rub, rub, 128, 255, CV_THRESH_BINARY_INV);
+	remove_spot_size(rub, 1, 20, Conn4);
+	cvThreshold(rub, rub, 128, 255, CV_THRESH_BINARY_INV); 
+
+	cvSaveImage("./test5.jpg", rub, 0);
+
+	cvReleaseImage(&rub);
+	cvReleaseImage(&rub2);
 
 	// Now we need to find spurs, purge them and maybe avoid different lines joining together
 
