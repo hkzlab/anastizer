@@ -24,6 +24,6 @@ void initDefoGrid(IplImage *img, defo_grid *grid);
 defo_point *findDefoPoint(Sint32 xclick, Sint32 yclick, defo_grid *grid);
 void moveDefoPoint(Sint32 xdiff, Sint32 ydiff, defo_point *dp, defo_grid *grid);
 void drawDefoGrid(IplImage *img, defo_grid *grid, CvScalar col);
-void warpDefoMaps(IplImage *mapx, IplImage *mapy, defo_grid *dgrid, defo_grid *ogrid);
+void warpDefoMaps(IplImage *img, defo_grid *dgrid, defo_grid *ogrid);
 
 #endif /* _DEFO_HEADER_ */

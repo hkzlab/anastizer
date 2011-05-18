@@ -147,18 +147,12 @@ void drawDefoGrid(IplImage *img, defo_grid *grid, CvScalar col) {
 		}
 }
 
-void warpDefoMaps(IplImage *mapx, IplImage *mapy, defo_grid *dgrid, defo_grid *ogrid) {
-	assert(mapx);
-	assert(mapy);
+void warpDefoMaps(IplImage *img, defo_grid *dgrid, defo_grid *ogrid) {
+	assert(img);
 	assert(dgrid);
 	assert(ogrid);
 
-	assert(mapx->depth == IPL_DEPTH_32F && mapx->nChannels == 1);
-	assert(mapy->depth == IPL_DEPTH_32F && mapy->nChannels == 1);
-	assert(mapx->width == mapy->width && mapx->height == mapy->height);
-
-	CvMemStorage *ms = cvCreateMemStorage(0);
-	CvSeq *contour = cvCreateSeq(CV_SEQ_ELTYPE_POINT, sizeof(CvSeq), sizeof(CvPoint), ms); // Memory storage for contour checking
+	IplImage *cimg = cvCloneImage(img);
 
 	CvPoint p1, p2, p3, p4; // These will be used for contour checking
 	CvPoint pmax, pmin;
@@ -166,17 +160,7 @@ void warpDefoMaps(IplImage *mapx, IplImage *mapy, defo_grid *dgrid, defo_grid *o
 	float vx1, vx2, vx3, vx4; // Values at vertices, for interpolation
 	float vy1, vy2, vy3, vy4;
 
-	Sint32 i, j, k, n;
-
-	double inside;
-	double interx, intery;
-
-	// Initialize the maps
-	for (i = 0; i < mapx->height; i++)
-		for (j = 0; j < mapx->width; j++) {
-			cvSetReal2D(mapx, i, j, j);
-			cvSetReal2D(mapy, i, j, i);
-		}
+	Sint32 i, j;
 
 	// Go through all the grid rectangles
 	for (i = 0; i < ogrid->width - 1; i++)
@@ -202,11 +186,6 @@ void warpDefoMaps(IplImage *mapx, IplImage *mapy, defo_grid *dgrid, defo_grid *o
 			p4.x = dgrid->pnt[(j + 1) * dgrid->width + i].x;
 			p4.y = dgrid->pnt[(j + 1) * dgrid->width + i].y;
 
-			cvSeqPush(contour, &p1);
-			cvSeqPush(contour, &p2);
-			cvSeqPush(contour, &p3);
-			cvSeqPush(contour, &p4);
-
 			pmax.x = MAX(p1.x, p2.x); pmax.x = MAX(pmax.x, p3.x); pmax.x = MAX(pmax.x, p4.x);
 			pmax.y = MAX(p1.y, p2.y); pmax.y = MAX(pmax.y, p3.y); pmax.y = MAX(pmax.y, p4.y);
 
@@ -217,23 +196,8 @@ void warpDefoMaps(IplImage *mapx, IplImage *mapy, defo_grid *dgrid, defo_grid *o
 			// copy the rect in a temp image, set the corresponding result ROI in the dest image,
 			// warp the temp image (perspective warp) into destination WITHOUT filling outliers
 
-#if 0
-			for (k = pmin.x; k <= pmax.x; k++)
-				for (n = pmin.y; n <= pmax.y; n++) {
-					inside = cvPointPolygonTest(contour, cvPoint2D32f(k, n), 0); // Check if we're inside the warped rect
-					if (inside >= 0) {
-						;
-						// Save the interpolated points in the maps
-						//cvSetReal2D(mapx, n, k, ax * xint + bx * yint + cx * yint * xint + dx);
-						//cvSetReal2D(mapy, n, k, ay * xint + by * yint + cy * yint * xint + dy);
-					}
-				}
-#endif
-			cvClearSeq(contour);
 		}
 
-
-	cvClearMemStorage(ms);
-	cvReleaseMemStorage(&ms);
-
+	cvReleaseImage(&img);
+	img = cimg;
 }
