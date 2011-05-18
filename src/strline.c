@@ -2,6 +2,8 @@
 
 #define STR_BUF_SIZE 256
 
+void hkzBaseMorph(const IplImage *src, IplImage *dst, IplConvKernel *se, Uint8 func, Uint32 iterations);
+
 int main(int argc, char *argv[]) {
 	IplImage *oimg;
 
@@ -26,6 +28,16 @@ int main(int argc, char *argv[]) {
 
 	cvThreshold(oimg, oimg, 128, 255, CV_THRESH_BINARY_INV); // Make sure the image is binary!
 
+	IplImage *tst = cvCloneImage(oimg);
+
+	int ckval[9] = {1, 1, 1, 1, 1 ,1 ,1 ,1 ,1};
+	IplConvKernel *ck = cvCreateStructuringElementEx(3, 3, 0, 0, CV_SHAPE_CUSTOM, ckval);
+	hkzBaseMorph(oimg, tst, ck, 1, 1);
+	cvSaveImage("./test0.jpg", tst, 0);
+	cvDilate(oimg, tst, ck, 1);
+	cvSaveImage("./test1.jpg", tst, 0);
+	cvReleaseStructuringElement(&ck);
+
 	cvReleaseImage(&oimg);
 
 	return 0;
@@ -45,6 +57,7 @@ void hkzBaseMorph(const IplImage *src, IplImage *dst, IplConvKernel *se, Uint8 f
 	Sint32 i, j, n;
 	Sint32 sei, sej, ax, ay;
 	Uint8 good_el, cval, cont;
+	Sint32 seval;
 
 	Sint32 wpad = MAX(se->nCols - (se->nCols - se->anchorX), se->nCols - se->anchorX);
 	Sint32 hpad = MAX(se->nRows - (se->nRows - se->anchorY), se->nRows - se->anchorY);
@@ -73,9 +86,10 @@ void hkzBaseMorph(const IplImage *src, IplImage *dst, IplConvKernel *se, Uint8 f
 					cont = 1;
 					for (sei = 0; sei < se->nCols && cont; sei++)
 						for (sej = 0; sej < se->nRows && cont; sej++) {
-							if (se->values[sej * se->nRows + sei] == 0) continue;
-							else if (se->values[sej * se->nRows + sei] < 0) { // This element in the image must be 0
-								cval = tmpia->imageData[((sej + ax) * tmpia->widthStep) + ((sei + ay) * tmpia->nChannels) + n];
+							seval = se->values[sej * se->nCols + sei];
+							if (seval == 0) continue;
+							else if (seval < 0) { // This element in the image must be 0
+								cval = tmpia->imageData[((sej + ay) * tmpia->widthStep) + ((sei + ax) * tmpia->nChannels) + n];
 							
 								if (cval > 0 && func != 1) { // Eroding... pixel isn't good
 									good_el = 0;
@@ -86,7 +100,7 @@ void hkzBaseMorph(const IplImage *src, IplImage *dst, IplConvKernel *se, Uint8 f
 								}
 
 							} else { // > 0, this MUST be 255
-								cval = tmpia->imageData[((sej + ax) * tmpia->widthStep) + ((sei + ay) * tmpia->nChannels) + n];
+								cval = tmpia->imageData[((sej + ay) * tmpia->widthStep) + ((sei + ax) * tmpia->nChannels) + n];
 
 								if (cval < 255 && func != 1) { // Eroding... pixel isn't good
 									good_el = 0;
