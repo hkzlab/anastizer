@@ -6,7 +6,7 @@ int main(int argc, char *argv[]) {
 	IplImage *oimg;
 
 	char src_file[STR_BUF_SIZE];
-	imc_file[0] = '\0';
+	src_file[0] = '\0';
 
 	// Prepare file path, removing last 4 chars (extension)
 	strncat(src_file, argv[1], strlen(argv[1]) - 4);
