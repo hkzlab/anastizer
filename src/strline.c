@@ -37,12 +37,8 @@ int main(int argc, char *argv[]) {
 	cvSaveImage("./test0.jpg", oimg, 0);
 	cvReleaseStructuringElement(&ck);
 
-	int akval[9] = {-1, -1, -1, 0, 1, 0, 1, 1, 1};
-	ck = cvCreateStructuringElementEx(3, 3, 1, 1, CV_SHAPE_CUSTOM, ckval);
-	hkzMorphThin(oimg, oimg, ck);
+	hkzMorphFullThin(oimg, oimg);
 	cvSaveImage("./test1.jpg", oimg, 0);
-	cvReleaseStructuringElement(&ck);
-
 
 	cvReleaseImage(&oimg);
 

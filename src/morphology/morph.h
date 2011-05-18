@@ -9,5 +9,6 @@ void hkzBaseMorph(const IplImage *src, IplImage *dst, IplConvKernel *se, enum Mo
 Sint8 hkzMorphComparePics(const IplImage *im1, const IplImage *im2);
 void hkzMorphThin(const IplImage *src, IplImage *dst, IplConvKernel *se);
 void hkzBinPicSub(const IplImage *im1, IplImage *im2);
+void hkzMorphFullThin(const IplImage *src, IplImage *dst);
 
 #endif /* _MORPH_HEADER_ */

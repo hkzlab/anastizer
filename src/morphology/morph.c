@@ -134,3 +134,95 @@ void hkzMorphThin(const IplImage *src, IplImage *dst, IplConvKernel *se) {
 
 	cvReleaseImage(&tmpi);
 }
+
+void hkzMorphFullThin(const IplImage *src, IplImage *dst) {
+	assert(src);
+	assert(dst);
+	assert(src->depth == 8 && src->nChannels == 1);
+
+	Sint8 cont = -1;
+
+	// The SEs matrices
+	int b1[9] = { -1, -1, -1, \
+				   0,  1,  0, \
+				   1,  1,  1  };
+
+	int b2[9] = {  0, -1, -1, \
+				   1,  1, -1, \
+				   1,  1,  0  };
+
+	int b3[9] = {  1,  0, -1, \
+				   1,  1, -1, \
+				   1,  0, -1  };
+
+	int b4[9] = {  1,  1,  0, \
+				   1,  1, -1, \
+				   0, -1, -1  };
+
+	int b5[9] = {  1,  1,  1, \
+				   0,  1,  0, \
+				  -1, -1, -1  };
+
+	int b6[9] = {  0,  1,  1, \
+				  -1,  1,  1, \
+				  -1, -1,  0  };
+
+	int b7[9] = { -1,  0,  1, \
+				  -1,  1,  1, \
+				  -1,  0,  1  };
+
+	int b8[9] = { -1, -1,  0, \
+				  -1,  1,  1, \
+				   0,  1,  1  };
+
+	IplConvKernel *sb1, *sb2, *sb3, *sb4, *sb5, *sb6, *sb7, *sb8;
+
+	// Create the SEs
+	sb1 = cvCreateStructuringElementEx(3, 3, 1, 1, CV_SHAPE_CUSTOM, b1);
+	sb2 = cvCreateStructuringElementEx(3, 3, 1, 1, CV_SHAPE_CUSTOM, b2);
+	sb3 = cvCreateStructuringElementEx(3, 3, 1, 1, CV_SHAPE_CUSTOM, b3);
+	sb4 = cvCreateStructuringElementEx(3, 3, 1, 1, CV_SHAPE_CUSTOM, b4);
+	sb5 = cvCreateStructuringElementEx(3, 3, 1, 1, CV_SHAPE_CUSTOM, b5);
+	sb6 = cvCreateStructuringElementEx(3, 3, 1, 1, CV_SHAPE_CUSTOM, b6);
+	sb7 = cvCreateStructuringElementEx(3, 3, 1, 1, CV_SHAPE_CUSTOM, b7);
+	sb8 = cvCreateStructuringElementEx(3, 3, 1, 1, CV_SHAPE_CUSTOM, b8);
+
+	IplImage *oldt, *tmp;
+
+	oldt = cvCloneImage(src);
+	tmp = cvCloneImage(src);
+
+	// Start thinning
+	while (cont < 0) {
+		hkzMorphThin(oldt, tmp, sb1);
+		hkzMorphThin(tmp, tmp, sb2);
+		hkzMorphThin(tmp, tmp, sb3);
+		hkzMorphThin(tmp, tmp, sb4);
+		hkzMorphThin(tmp, tmp, sb5);
+		hkzMorphThin(tmp, tmp, sb6);
+		hkzMorphThin(tmp, tmp, sb7);
+		hkzMorphThin(tmp, tmp, sb8);
+
+		cont = hkzMorphComparePics(oldt, tmp);
+
+		if (cont < 0) {
+			cvReleaseImage(&oldt);
+			oldt = cvCloneImage(tmp);
+		}
+	}
+
+	// Done thinning
+	cvReleaseStructuringElement(&sb1);
+	cvReleaseStructuringElement(&sb2);
+	cvReleaseStructuringElement(&sb3);
+	cvReleaseStructuringElement(&sb4);
+	cvReleaseStructuringElement(&sb5);
+	cvReleaseStructuringElement(&sb6);
+	cvReleaseStructuringElement(&sb7);
+	cvReleaseStructuringElement(&sb8);
+
+	cvCopy(tmp, dst, 0);
+
+	cvReleaseImage(&oldt);
+	cvReleaseImage(&tmp);
+}
