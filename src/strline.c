@@ -29,7 +29,7 @@ int main(int argc, char *argv[]) {
 
 	int ckval[9] = {1, 1, 1, 1, 1, 1, 1, 1, 1};
 	IplConvKernel *ck = cvCreateStructuringElementEx(6, 1, 3, 0, CV_SHAPE_CUSTOM, ckval);
-	hkzBaseMorph(oimg, oimg, ck, HKZ_DILATE, 5);
+	hkzBaseMorph(oimg, oimg, ck, HKZ_DILATE, 8);
 	cvReleaseStructuringElement(&ck);
 
 	ck = cvCreateStructuringElementEx(1, 5, 0, 2, CV_SHAPE_CUSTOM, ckval);
@@ -37,8 +37,14 @@ int main(int argc, char *argv[]) {
 	cvSaveImage("./test0.jpg", oimg, 0);
 	cvReleaseStructuringElement(&ck);
 
-	hkzMorphFullThin(oimg, oimg);
+	ck = cvCreateStructuringElementEx(3, 3, 1, 1, CV_SHAPE_CUSTOM, ckval);
+	hkzBaseMorph(oimg, oimg, ck, HKZ_DILATE, 1);
+	hkzBaseMorph(oimg, oimg, ck, HKZ_ERODE, 1);
 	cvSaveImage("./test1.jpg", oimg, 0);
+	cvReleaseStructuringElement(&ck);
+
+	hkzMorphFullThin(oimg, oimg);
+	cvSaveImage("./test2.jpg", oimg, 0);
 
 	cvReleaseImage(&oimg);
 
