@@ -46,6 +46,8 @@ int main(int argc, char *argv[]) {
 	hkzMorphFullThin(oimg, oimg);
 	cvSaveImage("./test2.jpg", oimg, 0);
 
+	// Now we need to find spurs, purge them and maybe avoid different lines joining together
+
 	cvReleaseImage(&oimg);
 
 	return 0;
