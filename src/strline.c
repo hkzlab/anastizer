@@ -27,13 +27,22 @@ int main(int argc, char *argv[]) {
 
 	cvThreshold(oimg, oimg, 128, 255, CV_THRESH_BINARY_INV); // Make sure the image is binary!
 
-	IplImage *tst = cvCloneImage(oimg);
-
-	int ckval[9] = {-1, -1, 0, -1, 1, 0, 0, 0, 0};
-	IplConvKernel *ck = cvCreateStructuringElementEx(3, 3, 1, 1, CV_SHAPE_CUSTOM, ckval);
-	hkzBaseMorph(oimg, tst, ck, HKZ_ERODE, 1);
-	cvSaveImage("./test0.jpg", tst, 0);
+	int ckval[9] = {1, 1, 1, 1, 1, 1, 1, 1, 1};
+	IplConvKernel *ck = cvCreateStructuringElementEx(6, 1, 3, 0, CV_SHAPE_CUSTOM, ckval);
+	hkzBaseMorph(oimg, oimg, ck, HKZ_DILATE, 5);
 	cvReleaseStructuringElement(&ck);
+
+	ck = cvCreateStructuringElementEx(1, 5, 0, 2, CV_SHAPE_CUSTOM, ckval);
+	hkzBaseMorph(oimg, oimg, ck, HKZ_ERODE, 2);
+	cvSaveImage("./test0.jpg", oimg, 0);
+	cvReleaseStructuringElement(&ck);
+
+	int akval[9] = {-1, -1, -1, 0, 1, 0, 1, 1, 1};
+	ck = cvCreateStructuringElementEx(3, 3, 1, 1, CV_SHAPE_CUSTOM, ckval);
+	hkzMorphThin(oimg, oimg, ck);
+	cvSaveImage("./test1.jpg", oimg, 0);
+	cvReleaseStructuringElement(&ck);
+
 
 	cvReleaseImage(&oimg);
 

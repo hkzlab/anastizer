@@ -103,3 +103,34 @@ Sint8 hkzMorphComparePics(const IplImage *im1, const IplImage *im2) {
 
 	return 0;
 }
+
+void hkzBinPicSub(const IplImage *im1, IplImage *im2) {
+	assert(im1 && im2);
+	assert(im1->depth == 8 && im2->depth == 8);
+	assert(im1->width == im2->width && im2->height == im1->height);
+
+	Sint32 i, j;
+	Uint8 *im1_data, *im2_data;
+
+	im1_data = im1->imageData;
+	im2_data = im2->imageData;
+
+	for (i = 0; i < im1->width; i++)
+		for (j = 0; j < im1->height; j++)
+			im2_data[(j * im2->widthStep) + (i * im2->nChannels)] = \
+				im2_data[(j * im2->widthStep) + (i * im2->nChannels)] && im1_data[(j * im1->widthStep) + (i * im1->nChannels)] ? 0 : im1->imageData[(j * im1->widthStep) + (i * im1->nChannels)];
+}
+
+void hkzMorphThin(const IplImage *src, IplImage *dst, IplConvKernel *se) {
+	assert(src);
+	assert(dst);
+	assert(se);
+	assert(src->depth == 8 && src->nChannels == 1);
+
+	IplImage *tmpi = cvCloneImage(src);
+
+	hkzBaseMorph(src, dst, se, HKZ_ERODE, 1);
+	hkzBinPicSub(tmpi, dst);
+
+	cvReleaseImage(&tmpi);
+}
