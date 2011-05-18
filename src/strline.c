@@ -28,6 +28,8 @@ int main(int argc, char *argv[]) {
 
 	cvThreshold(oimg, oimg, 128, 255, CV_THRESH_BINARY_INV); // Make sure the image is binary!
 
+	// FIXME: cleanup this mess and write something decent here
+	// This is just test code for now
 	int ckval[9] = {1, 1, 1, 1, 1, 1, 1, 1, 1};
 	IplConvKernel *ck = cvCreateStructuringElementEx(6, 1, 3, 0, CV_SHAPE_CUSTOM, ckval);
 	hkzBaseMorph(oimg, oimg, ck, HKZ_DILATE, 8);
