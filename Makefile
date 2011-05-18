@@ -14,7 +14,7 @@ PROG1=anastizer
 PROG2=bookdet
 PROG3=strline
 
-all: bin/$(PROG1) bin/$(PROG2)
+all: bin/$(PROG1) bin/$(PROG2) bin/$(PROG3)
 
 clean:
 	rm $(BINDIR)/*.o
