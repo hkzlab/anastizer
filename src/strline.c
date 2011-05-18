@@ -1,5 +1,5 @@
 #include "common/defs.h"
-#include "utils/utils.h"
+#include "morphology/morph.h"
 
 #define STR_BUF_SIZE 256
 
@@ -30,10 +30,10 @@ int main(int argc, char *argv[]) {
 	IplImage *tst = cvCloneImage(oimg);
 
 	int ckval[9] = {1, 1, 1, 1, 1 ,1 ,1 ,1 ,1};
-	IplConvKernel *ck = cvCreateStructuringElementEx(3, 3, 0, 0, CV_SHAPE_CUSTOM, ckval);
-	hkzBaseMorph(oimg, tst, ck, 0, 1);
+	IplConvKernel *ck = cvCreateStructuringElementEx(3, 1, 1, 0, CV_SHAPE_CUSTOM, ckval);
+	hkzBaseMorph(oimg, tst, ck, HKZ_ERODE, 1);
 	cvSaveImage("./test0.jpg", tst, 0);
-	cvErode(oimg, tst, ck, 1);
+	cvDilate(oimg, tst, ck, 5);
 	cvSaveImage("./test1.jpg", tst, 0);
 	cvReleaseStructuringElement(&ck);
 
