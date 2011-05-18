@@ -147,19 +147,21 @@ void drawDefoGrid(IplImage *img, defo_grid *grid, CvScalar col) {
 		}
 }
 
-void warpDefoImg(IplImage *img, defo_grid *dgrid, defo_grid *ogrid) {
+IplImage *warpDefoImg(IplImage *img, defo_grid *dgrid, defo_grid *ogrid) {
 	assert(img);
 	assert(dgrid);
 	assert(ogrid);
 
 	IplImage *cimg = cvCloneImage(img);
-	CvMat *wmat = cvCreateMat(3, 3, CV_32FC1);
-	CvPoint2D32f srcp[4], dstp[4];
+	IplImage *temp_img = NULL;
 
-	float vx1, vx2, vx3, vx4; // Values at vertices, for interpolation
-	float vy1, vy2, vy3, vy4;
+	CvMat *wmat = cvCreateMat(3, 3, CV_32FC1);
+	CvPoint2D32f srcp[4], dstp[4], tmpp[4];
 
 	Sint32 i, j;
+
+	tmpp[0].x = tmpp[3].x = 0;
+	tmpp[0].y = tmpp[1].y = 0;
 
 	// Go through all the grid rectangles
 	for (i = 0; i < ogrid->width - 1; i++)
@@ -175,13 +177,25 @@ void warpDefoImg(IplImage *img, defo_grid *dgrid, defo_grid *ogrid) {
 			dstp[2] = dgrid->pnt[(j + 1) * dgrid->width + (i + 1)];
 			dstp[3] = dgrid->pnt[(j + 1) * dgrid->width + i];
 
-			// TODO
-			// copy the rect in a temp image, set the corresponding result ROI in the dest image,
-			// warp the temp image (perspective warp) into destination WITHOUT filling outliers
+			if (srcp[0].x == dstp[0].x && srcp[1].x == dstp[1].x && srcp[2].x == dstp[2].x && srcp[3].x == dstp[3].x && \
+				srcp[0].y == dstp[0].y && srcp[1].y == dstp[1].y && srcp[2].y == dstp[2].y && srcp[3].y == dstp[3].y) continue;
 
+			cvSetImageROI(img, cvRect(srcp[0].x, srcp[0].y, (srcp[2].x - srcp[0].x) + 1, (srcp[2].y - srcp[0].y) + 1));
+			temp_img = cvCreateImage(cvGetSize(img), img->depth, img->nChannels); // Create a subimage the same size of the ROI
+			cvCopy(img, temp_img, NULL);
+			cvResetImageROI(img); // Reset the ROI
+
+			tmpp[2].y = tmpp[3].y = (srcp[2].y - srcp[0].y) + 1;
+			tmpp[1].x = tmpp[2].x = (srcp[2].x - srcp[0].x) + 1;
+
+			wmat = cvGetPerspectiveTransform(tmpp, dstp, wmat);
+
+			cvWarpPerspective(temp_img, cimg, wmat, CV_INTER_CUBIC, cvScalarAll(0));
+
+			cvReleaseImage(&temp_img);
 		}
 
 	cvReleaseMat(&wmat);
-	cvReleaseImage(&img);
-	img = cimg;
+
+	return cimg;
 }
