@@ -89,3 +89,17 @@ void hkzBaseMorph(const IplImage *src, IplImage *dst, IplConvKernel *se, enum Mo
 	cvReleaseImage(&tmpib);
 }
 
+Sint8 hkzMorphComparePics(const IplImage *im1, const IplImage *im2) {
+	assert(im1 && im2);
+	assert(im1->depth == 8 && im2->depth == 8);
+
+	if (im1->width != im2->width || im1->height != im2->height) return -1;
+
+	Sint32 i, j, n;
+	for (i = 0; i < im1->width; i++)
+		for (j = 0; j < im1->height; j++)
+			for (n = 0; n < im1->nChannels; n++)
+				if (im1->imageData[(j * im1->widthStep) + (i * im1->nChannels) + n] != im2->imageData[(j * im2->widthStep) + (i * im2->nChannels) + n]) return -1;
+
+	return 0;
+}

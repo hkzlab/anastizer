@@ -29,12 +29,10 @@ int main(int argc, char *argv[]) {
 
 	IplImage *tst = cvCloneImage(oimg);
 
-	int ckval[9] = {1, 1, 1, 1, 1 ,1 ,1 ,1 ,1};
-	IplConvKernel *ck = cvCreateStructuringElementEx(3, 1, 1, 0, CV_SHAPE_CUSTOM, ckval);
+	int ckval[9] = {-1, -1, 0, -1, 1, 0, 0, 0, 0};
+	IplConvKernel *ck = cvCreateStructuringElementEx(3, 3, 1, 1, CV_SHAPE_CUSTOM, ckval);
 	hkzBaseMorph(oimg, tst, ck, HKZ_ERODE, 1);
 	cvSaveImage("./test0.jpg", tst, 0);
-	cvDilate(oimg, tst, ck, 5);
-	cvSaveImage("./test1.jpg", tst, 0);
 	cvReleaseStructuringElement(&ck);
 
 	cvReleaseImage(&oimg);
