@@ -84,43 +84,29 @@ void moveDefoPoint(Sint32 xdiff, Sint32 ydiff, defo_point *dp, defo_grid *grid) 
 	assert(dp);
 	assert(grid);
 
+	Sint32 i;
+
 	// First of all, if the point is on a border, it cannot be moved at all.
 	if (dp->px == 0 || dp->px == grid->width - 1 || dp->py == 0 || dp->py == grid->height - 1) return;
 
-	// Now, for all the remaining points we can identify 8 other points in their neighbourhood, we must make sure
-	// we don't move past those points coords
+	CvPoint2D32f *pnt, *pu, *pd, *pl, *pr;
 
-	CvMemStorage *ms = cvCreateMemStorage(0);
-	CvSeq *contour = cvCreateSeq(CV_SEQ_ELTYPE_POINT, sizeof(CvSeq), sizeof(CvPoint), ms);
+	pu = &(grid->pnt[(dp->py - 1) * grid->width + (dp->px)]);
+	pd = &(grid->pnt[(dp->py + 1) * grid->width + (dp->px)]);
+	pl = &(grid->pnt[(dp->py) * grid->width + (dp->px - 1)]);
+	pr = &(grid->pnt[(dp->py) * grid->width + (dp->px + 1)]);
 
-	CvPoint pul, pu, pur, pr, pdr, pd, pdl, pl;
-	pul = cvPoint(grid->pnt[(dp->py - 1) * grid->width + (dp->px - 1)].x, grid->pnt[(dp->py - 1) * grid->width + (dp->px - 1)].y);
-	pu = cvPoint(grid->pnt[(dp->py - 1) * grid->width + dp->px].x, grid->pnt[(dp->py - 1) * grid->width + dp->px].y);
-	pur = cvPoint(grid->pnt[(dp->py - 1) * grid->width + (dp->px + 1)].x, grid->pnt[(dp->py - 1) * grid->width + (dp->px + 1)].y);
-	pr = cvPoint(grid->pnt[dp->py * grid->width + (dp->px + 1)].x, grid->pnt[dp->py * grid->width + (dp->px + 1)].y);
-	pdr = cvPoint(grid->pnt[(dp->py + 1) * grid->width + (dp->px + 1)].x, grid->pnt[(dp->py + 1) * grid->width + (dp->px + 1)].y);
-	pd = cvPoint(grid->pnt[(dp->py + 1) * grid->width + dp->px].x, grid->pnt[(dp->py + 1) * grid->width + dp->px].y);
-	pdl = cvPoint(grid->pnt[(dp->py + 1) * grid->width + (dp->px - 1)].x, grid->pnt[(dp->py + 1) * grid->width + (dp->px - 1)].y);
-	pl = cvPoint(grid->pnt[dp->py * grid->width + (dp->px - 1)].x, grid->pnt[dp->py * grid->width + (dp->px - 1)].y);
+	if (dp->pnt->x + xdiff <= pl->x || dp->pnt->x + xdiff >= pr->x || dp->pnt->y + ydiff <= pu->y || dp->pnt->y + ydiff >= pd->y) return;
 
-	cvSeqPush(contour, &pul);
-	cvSeqPush(contour, &pu);
-	cvSeqPush(contour, &pur);
-	cvSeqPush(contour, &pr);
-	cvSeqPush(contour, &pdr);
-	cvSeqPush(contour, &pd);
-	cvSeqPush(contour, &pdl);
-	cvSeqPush(contour, &pl);
+	for (i = 0; i < grid->width; i++) {
+		pnt = &(grid->pnt[dp->py * grid->width + i]);
+		pnt->y += ydiff;
+	}
 
-	// See cvPointPolygonTest
-	double inside = cvPointPolygonTest(contour, cvPoint2D32f(dp->pnt->x + xdiff, dp->pnt->y + ydiff), 0);
-
-	cvClearSeq(contour);
-	cvClearMemStorage(ms);
-	cvReleaseMemStorage(&ms);
-
-	// Destination is inside, we can move it
-	if (inside > 0) { dp->pnt->x += xdiff; dp->pnt->y += ydiff; }
+	for (i = 0; i < grid->height; i++) {
+		pnt = &(grid->pnt[i * grid->width + dp->px]);
+		pnt->x += xdiff;
+	}
 }
 
 void drawDefoGrid(IplImage *img, defo_grid *grid, CvScalar col) {
