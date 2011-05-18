@@ -5,12 +5,12 @@
 
 #include "defo/defo.h"
 
-void redraw_preview_win(IplImage *pim, const char *win, IplImage *oim, CvMat *tm, WTrap *wt, defo_grid *dgrid) {
+void redraw_preview_win(IplImage *pim, const char *win, IplImage *oim, CvMat *tm, WTrap *wt, defo_grid *dgrid, defo_grid *ogrid) {
 	assert(pim);
 	assert(oim);
 	assert(tm);
 
-	IplImage *mono;
+	IplImage *mono, *pwarp, *dwarp;
 
 	cvWarpPerspective(oim, pim, tm, /*CV_INTER_LINEAR +*/ CV_WARP_FILL_OUTLIERS + CV_WARP_INVERSE_MAP, cvScalarAll(0));
 
@@ -18,12 +18,25 @@ void redraw_preview_win(IplImage *pim, const char *win, IplImage *oim, CvMat *tm
 	cur_chan = cvGetTrackbarPos(PREV_TRK_BGR, CNTRL_WIN);
 	mono = gray_from_colour(pim, cur_chan);
 
+	if (dgrid) {
+		pwarp = cvCreateImage(cvGetSize(mono), 8, 3);
+		cvCvtColor(mono, pwarp, CV_GRAY2BGR);
+		cvReleaseImage(&mono);
+	} else
+		pwarp = mono;
+
+	if (ogrid && dgrid) {
+		dwarp = warpDefoImg(pwarp, dgrid, ogrid);
+		cvReleaseImage(&pwarp);
+		pwarp = dwarp;
+	}
+
 	if (dgrid) // Show the grid
-		drawDefoGrid(mono, dgrid, cvScalarAll(0));
+		drawDefoGrid(pwarp, dgrid, cvScalar(0, 0, 200, 0));
 
-	cvShowImage(win, mono);
+	cvShowImage(win, pwarp);
 
-	cvReleaseImage(&mono);
+	cvReleaseImage(&pwarp);
 }
 
 void draw_wt_win(char *win, IplImage *in, WTrap *wt, Uint32 tot_wt) {
