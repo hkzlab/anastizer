@@ -153,9 +153,8 @@ void warpDefoImg(IplImage *img, defo_grid *dgrid, defo_grid *ogrid) {
 	assert(ogrid);
 
 	IplImage *cimg = cvCloneImage(img);
-
-	CvPoint p1, p2, p3, p4; // These will be used for contour checking
-	CvPoint pmax, pmin;
+	CvMat *wmat = cvCreateMat(3, 3, CV_32FC1);
+	CvPoint2D32f srcp[4], dstp[4];
 
 	float vx1, vx2, vx3, vx4; // Values at vertices, for interpolation
 	float vy1, vy2, vy3, vy4;
@@ -166,31 +165,15 @@ void warpDefoImg(IplImage *img, defo_grid *dgrid, defo_grid *ogrid) {
 	for (i = 0; i < ogrid->width - 1; i++)
 		for (j = 0; j < ogrid->height - 1; j++) {
 			// Obtain the coords of original points
-			vx1 = ogrid->pnt[j * ogrid->width + i].x;
-			vx2 = ogrid->pnt[j * ogrid->width + (i + 1)].x;
-			vx3 = ogrid->pnt[(j + 1) * ogrid->width + (i + 1)].x;
-			vx4 = ogrid->pnt[(j + 1) * ogrid->width + i].x;
+			srcp[0] = ogrid->pnt[j * ogrid->width + i];
+			srcp[1] = ogrid->pnt[j * ogrid->width + (i + 1)];
+			srcp[2] = ogrid->pnt[(j + 1) * ogrid->width + (i + 1)];
+			srcp[3] = ogrid->pnt[(j + 1) * ogrid->width + i];
 
-			vy1 = ogrid->pnt[j * ogrid->width + i].y;
-			vy2 = ogrid->pnt[j * ogrid->width + (i + 1)].y;
-			vy3 = ogrid->pnt[(j + 1) * ogrid->width + (i + 1)].y;
-			vy4 = ogrid->pnt[(j + 1) * ogrid->width + i].y;
-
-			// Save point coordinates for warped grid rectangle
-			p1.x = dgrid->pnt[j * dgrid->width + i].x;
-			p1.y = dgrid->pnt[j * dgrid->width + i].y;
-			p2.x = dgrid->pnt[j * dgrid->width + (i + 1)].x;
-			p2.y = dgrid->pnt[j * dgrid->width + (i + 1)].y;
-			p3.x = dgrid->pnt[(j + 1) * dgrid->width + (i + 1)].x;
-			p3.y = dgrid->pnt[(j + 1) * dgrid->width + (i + 1)].y;
-			p4.x = dgrid->pnt[(j + 1) * dgrid->width + i].x;
-			p4.y = dgrid->pnt[(j + 1) * dgrid->width + i].y;
-
-			pmax.x = MAX(p1.x, p2.x); pmax.x = MAX(pmax.x, p3.x); pmax.x = MAX(pmax.x, p4.x);
-			pmax.y = MAX(p1.y, p2.y); pmax.y = MAX(pmax.y, p3.y); pmax.y = MAX(pmax.y, p4.y);
-
-			pmin.x = MIN(p1.x, p2.x); pmin.x = MIN(pmin.x, p3.x); pmin.x = MIN(pmin.x, p4.x);
-			pmin.y = MIN(p1.y, p2.y); pmin.y = MIN(pmin.y, p3.y); pmin.y = MIN(pmin.y, p4.y);
+			dstp[0] = dgrid->pnt[j * dgrid->width + i];
+			dstp[1] = dgrid->pnt[j * dgrid->width + (i + 1)];
+			dstp[2] = dgrid->pnt[(j + 1) * dgrid->width + (i + 1)];
+			dstp[3] = dgrid->pnt[(j + 1) * dgrid->width + i];
 
 			// TODO
 			// copy the rect in a temp image, set the corresponding result ROI in the dest image,
@@ -198,6 +181,7 @@ void warpDefoImg(IplImage *img, defo_grid *dgrid, defo_grid *ogrid) {
 
 		}
 
+	cvReleaseMat(&wmat);
 	cvReleaseImage(&img);
 	img = cimg;
 }
