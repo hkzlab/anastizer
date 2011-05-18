@@ -133,7 +133,8 @@ void drawDefoGrid(IplImage *img, defo_grid *grid, CvScalar col) {
 		}
 }
 
-IplImage *warpDefoImg(IplImage *img, defo_grid *dgrid, defo_grid *ogrid) {
+IplImage *warpDefoImg(IplImage *img, defo_grid *dgrid, defo_grid *ogrid, Uint32 multiplier) {
+	assert(multiplier);
 	assert(img);
 	assert(dgrid);
 	assert(ogrid);
@@ -165,6 +166,14 @@ IplImage *warpDefoImg(IplImage *img, defo_grid *dgrid, defo_grid *ogrid) {
 
 			if (srcp[0].x == dstp[0].x && srcp[1].x == dstp[1].x && srcp[2].x == dstp[2].x && srcp[3].x == dstp[3].x && \
 				srcp[0].y == dstp[0].y && srcp[1].y == dstp[1].y && srcp[2].y == dstp[2].y && srcp[3].y == dstp[3].y) continue;
+
+			// Take care of the scaling, if needed
+			if (multiplier > 1) {
+				srcp[0].x *= multiplier; srcp[1].x *= multiplier; srcp[2].x *= multiplier; srcp[3].x *= multiplier;
+				srcp[0].y *= multiplier; srcp[1].y *= multiplier; srcp[2].y *= multiplier; srcp[3].y *= multiplier;
+				dstp[0].x *= multiplier; dstp[1].x *= multiplier; dstp[2].x *= multiplier; dstp[3].x *= multiplier;
+				dstp[0].y *= multiplier; dstp[1].y *= multiplier; dstp[2].y *= multiplier; dstp[3].y *= multiplier;
+			}
 
 			cvSetImageROI(img, cvRect(srcp[0].x, srcp[0].y, (srcp[2].x - srcp[0].x) + 1, (srcp[2].y - srcp[0].y) + 1));
 			temp_img = cvCreateImage(cvGetSize(img), img->depth, img->nChannels); // Create a subimage the same size of the ROI

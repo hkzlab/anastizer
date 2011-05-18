@@ -27,7 +27,7 @@ void redraw_preview_win(IplImage *pim, const char *win, IplImage *oim, CvMat *tm
 		pwarp = mono;
 
 	if (enable_warp) { // Warp the picture
-		dwarp = warpDefoImg(pwarp, dgrid, ogrid);
+		dwarp = warpDefoImg(pwarp, dgrid, ogrid, 1);
 		cvReleaseImage(&pwarp);
 		pwarp = dwarp;
 	}

@@ -16,9 +16,7 @@ void prev_mouseHandler(int event, int x, int y, int flags, void *param) {
 
 	Sint32 xdiff, ydiff;
 
-	IplImage *gimg;
-	IplImage *mimg;
-	IplImage *rprev;
+	IplImage *gimg, *mimg, *rprev, *wimg;
 
 	int sres;
 	Uint32 nwidth, nheight;
@@ -99,6 +97,11 @@ void prev_mouseHandler(int event, int x, int y, int flags, void *param) {
 			gimg = return_warped_img(oimg, invt[cur_win], &wt[cur_win], prv_img[cur_win]->width * qlt_pos, prv_img[cur_win]->height * qlt_pos, cur_chan);
 		}
 
+		fprintf(stdout, " warping the image...\n");
+		wimg = warpDefoImg(gimg, dgrid[cur_win], def_grid, qlt_pos);
+		cvReleaseImage(&gimg);
+		gimg = wimg;
+		
 		mimg = anastize_image(gimg, msk_pos, avr_pos, qlt_pos, agg_pos);
 
 		cvReleaseImage(&gimg);
