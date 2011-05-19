@@ -10,5 +10,6 @@ void remove_spot_neighbour_dist(IplImage *in, Uint32 minsize, Uint32 maxsize, Ui
 void remove_spot_thin(IplImage *in, Uint32 minsize, Uint32 maxsize, float edge_mult, enum PConn pc);
 
 Uint32 find_biggest_blob(IplImage *in, CvRect *box, enum PConn pc);
+double find_spot_medium_size(IplImage *in, enum PConn pc);
 
 #endif /* _SPOTCLEAR_HEADER_ */

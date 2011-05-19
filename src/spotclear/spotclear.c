@@ -23,6 +23,24 @@ typedef struct {
 
 /***/
 
+double find_spot_medium_size(IplImage *in, enum PConn pc) {
+	IplImage *cin = cvCloneImage(in);
+	Uint8 *cin_dat = cin->imageData;
+	Uint32 spotsize = 0;
+	Uint32 tot_spots = 0;
+	Sint32 i, j;
+
+    for (i = 0; i < cin->height; i++)
+        for (j = 0; j < cin->width; j++)
+            if (cin_dat[(i * cin->widthStep) + (j * cin->nChannels) + 0] == 0) {
+				tot_spots++;
+                spotsize += size_spot(j, i, cin, pc, 1, NULL, NULL, NULL, NULL);
+            }
+
+	cvReleaseImage(&cin);
+	return (double)spotsize / (double)tot_spots;
+}
+
 Uint32 find_biggest_blob(IplImage *in, CvRect *box, enum PConn pc) {
 	IplImage *cin = cvCloneImage(in);
 	Uint8 *cin_dat = cin->imageData;
