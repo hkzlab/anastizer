@@ -12,5 +12,7 @@ void hkzBinPicSub(const IplImage *im1, IplImage *im2);
 void hkzMorphFullThin(const IplImage *src, IplImage *dst);
 void hkzMorphOpen(const IplImage *src, IplImage *dst, IplConvKernel *se);
 void hkzMorphClose(const IplImage *src, IplImage *dst, IplConvKernel *se);
+void hkzBinPicIntersect(const IplImage *im1, IplImage *im2);
+void hkzBinPicUnite(const IplImage *im1, IplImage *im2);
 
 #endif /* _MORPH_HEADER_ */
