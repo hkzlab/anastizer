@@ -93,15 +93,15 @@ Sint8 hkzMorphComparePics(const IplImage *im1, const IplImage *im2) {
 	assert(im1 && im2);
 	assert(im1->depth == 8 && im2->depth == 8);
 
-	if (im1->width != im2->width || im1->height != im2->height) return -1;
+	if (im1->width != im2->width || im1->height != im2->height) return 0;
 
 	Sint32 i, j, n;
 	for (i = 0; i < im1->width; i++)
 		for (j = 0; j < im1->height; j++)
 			for (n = 0; n < im1->nChannels; n++)
-				if (im1->imageData[(j * im1->widthStep) + (i * im1->nChannels) + n] != im2->imageData[(j * im2->widthStep) + (i * im2->nChannels) + n]) return -1;
+				if (im1->imageData[(j * im1->widthStep) + (i * im1->nChannels) + n] != im2->imageData[(j * im2->widthStep) + (i * im2->nChannels) + n]) return 0;
 
-	return 0;
+	return 1;
 }
 
 void hkzBinPicSub(const IplImage *im1, IplImage *im2) {
@@ -174,7 +174,7 @@ void hkzMorphFullThin(const IplImage *src, IplImage *dst) {
 	assert(dst);
 	assert(src->depth == 8 && src->nChannels == 1);
 
-	Sint8 cont = -1;
+	Sint8 equal = 0;
 
 	// The SEs matrices
 	int b1[9] = { -1, -1, -1, \
@@ -227,7 +227,7 @@ void hkzMorphFullThin(const IplImage *src, IplImage *dst) {
 	tmp = cvCloneImage(src);
 
 	// Start thinning
-	while (cont < 0) {
+	while (!equal) {
 		hkzMorphThin(oldt, tmp, sb1);
 		hkzMorphThin(tmp, tmp, sb2);
 		hkzMorphThin(tmp, tmp, sb3);
@@ -237,9 +237,9 @@ void hkzMorphFullThin(const IplImage *src, IplImage *dst) {
 		hkzMorphThin(tmp, tmp, sb7);
 		hkzMorphThin(tmp, tmp, sb8);
 
-		cont = hkzMorphComparePics(oldt, tmp);
+		equal = hkzMorphComparePics(oldt, tmp);
 
-		if (cont < 0) {
+		if (!equal) {
 			cvReleaseImage(&oldt);
 			oldt = cvCloneImage(tmp);
 		}
