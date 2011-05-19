@@ -226,3 +226,27 @@ void hkzMorphFullThin(const IplImage *src, IplImage *dst) {
 	cvReleaseImage(&oldt);
 	cvReleaseImage(&tmp);
 }
+
+void hkzMorphOpen(const IplImage *src, IplImage *dst, IplConvKernel *se) {
+	assert(src);
+	assert(dst);
+	assert(se);
+
+	assert(src->width == dst->width && src->height == dst->height);
+	assert(src->depth == 8 && src->nChannels == 1);
+
+	hkzBaseMorph(src, dst, se, HKZ_ERODE, 1);
+	hkzBaseMorph(dst, dst, se, HKZ_DILATE, 1);
+}
+
+void hkzMorphClose(const IplImage *src, IplImage *dst, IplConvKernel *se) {
+	assert(src);
+	assert(dst);
+	assert(se);
+
+	assert(src->width == dst->width && src->height == dst->height);
+	assert(src->depth == 8 && src->nChannels == 1);
+
+	hkzBaseMorph(src, dst, se, HKZ_DILATE, 1);
+	hkzBaseMorph(dst, dst, se, HKZ_ERODE, 1);
+}
