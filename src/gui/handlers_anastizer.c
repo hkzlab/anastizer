@@ -91,6 +91,10 @@ void prev_mouseHandler(int event, int x, int y, int flags, void *param) {
 			fprintf(stdout, " DONE!\n\n");
 
 			cvReleaseImage(&gimg);
+
+			// Rebuild the old transform matrix for previews, needed to avoid viewing problems
+			invt[cur_win] = build_transf_mat(&wt[cur_win], invt[cur_win], oimg, mw_img, prv_img[cur_win]->width, prv_img[cur_win]->height);
+
 			break;
 
 		} else {
