@@ -233,14 +233,14 @@ int main(int argc, char *argv[]) {
 			prev_mouseHandler(CV_EVENT_RBUTTONDBLCLK, 0, 0, 0, &wtcode[0]);
 			break;
 		case 'x':
-			if (used_wts > 0)
-				prev_mouseHandler(CV_EVENT_RBUTTONDBLCLK, 0, 0, 0, &wtcode[1]);
-			break;
-		case 'c':
 			prev_mouseHandler(CV_EVENT_MBUTTONDBLCLK, 0, 0, 0, &wtcode[0]);
 			break;
+		case 'c':
+			if (used_wts >= 2)
+				prev_mouseHandler(CV_EVENT_RBUTTONDBLCLK, 0, 0, 0, &wtcode[1]);
+			break;
 		case 'v':
-			if (used_wts > 0)
+			if (used_wts >= 2)
 				prev_mouseHandler(CV_EVENT_MBUTTONDBLCLK, 0, 0, 0, &wtcode[1]);
 			break;
 		case 'g': // Show preview deformation grids
