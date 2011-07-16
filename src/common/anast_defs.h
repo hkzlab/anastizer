@@ -15,4 +15,6 @@
 #define DEFAULT_TMASK 320
 #define DEFAULT_RMTH 20 // Default filter options for local thresholding
 
+#define MAIN_CONFIG ".anastizer-rc"
+
 #endif /* _ANAST_DEFS_HEADER_ */

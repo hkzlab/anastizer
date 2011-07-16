@@ -139,7 +139,12 @@ int main(int argc, char *argv[]) {
 	imc_file[0] = '\0';
 	strcat(imc_file, dest_file);
 	strcat(imc_file, ".imc");
+	
+	dt = NULL;
 	dt = loadImcData(imc_file);
+	if (!dt) // If no conf file loaded, load the default
+		dt = loadImcData(MAIN_CONFIG);
+
 	if (dt) {
 		if (dt->qlt_trk >= 0)
 			cvSetTrackbarPos(PREV_TRK_QLT, CNTRL_WIN, dt->qlt_trk);
@@ -169,7 +174,7 @@ int main(int argc, char *argv[]) {
 
 		freeImcData(&dt);
 
-		fprintf(stdout, "Successfully loaded image status file.\n");
+		fprintf(stdout, "Successfully loaded status file.\n");
 	}
 
 	// Build transform matrices
@@ -203,6 +208,21 @@ int main(int argc, char *argv[]) {
 
 		// Put some key management code in here
 		switch (key) {
+		case 'd': // Save generic data
+			dt = allocImcData(1);
+			dt->qlt_trk = cvGetTrackbarPos(PREV_TRK_QLT, CNTRL_WIN);
+			dt->msk_trk = cvGetTrackbarPos(PREV_TRK_MSK, CNTRL_WIN);
+			dt->avr_trk = cvGetTrackbarPos(PREV_TRK_AVR, CNTRL_WIN);
+			dt->bgr_trk = cvGetTrackbarPos(PREV_TRK_BGR, CNTRL_WIN);
+			dt->agg_trk = cvGetTrackbarPos(PREV_TRK_AGG, CNTRL_WIN);
+			dt->tot_wts = 0;
+
+			saveload_res = saveImcData(MAIN_CONFIG, dt);
+			if (saveload_res >= 0) fprintf(stdout, "Successfully saved default status file.\n");
+			else fprintf(stdout, "Unable to save default status file.\n");
+
+			freeImcData(&dt);
+			break;
 		case 's': // Save the data
 			dt = allocImcData(used_wts);
 			dt->qlt_trk = cvGetTrackbarPos(PREV_TRK_QLT, CNTRL_WIN);
