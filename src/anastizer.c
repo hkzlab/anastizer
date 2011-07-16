@@ -22,12 +22,20 @@ int main(int argc, char *argv[]) {
 	imc_data *dt = NULL;
 	int saveload_res;
 	char imc_file[STR_BUF_SIZE];
+	char def_config[STR_BUF_SIZE];
+	Uint8 using_default_config = 0; // Using default configration
 
 	// Check parameters and load image file
 	if (argc < 2) {
 		fprintf(stdout, "%s imagefile [-a]\n", argv[0]);
 		return 1;
 	}
+
+	// Calculate default config name
+	def_config[0] = '\0';
+	strncat(def_config, getenv("HOME"), STR_BUF_SIZE - 1);
+	strncat(def_config, "/", STR_BUF_SIZE - 1);
+	strncat(def_config, MAIN_CONFIG, STR_BUF_SIZE - 1);
 
 	if (!(oimg = cvLoadImage(argv[1], CV_LOAD_IMAGE_UNCHANGED))) {
 		fprintf(stderr, "Unable to load image %s\n", argv[1]);
@@ -41,7 +49,11 @@ int main(int argc, char *argv[]) {
 		used_wts = 1;
 
 	// Prepare file path, removing last 4 chars (extension)
-	strncat(dest_file, argv[1], strlen(argv[1]) - 4);
+	strncat(dest_file, argv[1], strlen(argv[1]) - 4);	// Check parameters and load image file
+	if (argc < 2) {
+		fprintf(stdout, "%s imagefile\n", argv[0]);
+		return 1;
+	}
 
 	// Load preview win names
 	strncpy(win_str, PREV_WIN_1, 64);
@@ -142,8 +154,10 @@ int main(int argc, char *argv[]) {
 	
 	dt = NULL;
 	dt = loadImcData(imc_file);
-	if (!dt) // If no conf file loaded, load the default
-		dt = loadImcData(MAIN_CONFIG);
+	if (!dt) { // If no conf file loaded, load the default
+		dt = loadImcData(def_config);
+		if (dt) using_default_config = 1;
+	}
 
 	if (dt) {
 		if (dt->qlt_trk >= 0)
@@ -161,7 +175,7 @@ int main(int argc, char *argv[]) {
 		if (dt->agg_trk >= 0)
 			cvSetTrackbarPos(PREV_TRK_AGG, CNTRL_WIN, dt->agg_trk);
 
-		for (i = 0; i < used_wts; i++) {
+		for (i = 0; i < used_wts && !using_default_config; i++) {
 				wt[i].a.x = dt->wt[i].a.x / (oxratio * pxratio);
 				wt[i].a.y = dt->wt[i].a.y / (oyratio * pyratio);
 				wt[i].b.x = dt->wt[i].b.x / (oxratio * pxratio);
@@ -217,7 +231,7 @@ int main(int argc, char *argv[]) {
 			dt->agg_trk = cvGetTrackbarPos(PREV_TRK_AGG, CNTRL_WIN);
 			dt->tot_wts = 0;
 
-			saveload_res = saveImcData(MAIN_CONFIG, dt);
+			saveload_res = saveImcData(def_config, dt);
 			if (saveload_res >= 0) fprintf(stdout, "Successfully saved default status file.\n");
 			else fprintf(stdout, "Unable to save default status file.\n");
 
