@@ -23,15 +23,15 @@ int main(int argc, char *argv[]) {
 	char imc_file[STR_BUF_SIZE];
 	imc_file[0] = '\0';
 
-	// Prepare file path, removing last 4 chars (extension)
-	strncat(imc_file, argv[1], strlen(argv[1]) - 4);
-	strcat(imc_file, ".imc"); // And add extension for IMC
-
 	// Check parameters and load image file
 	if (argc < 2) {
 		fprintf(stdout, "%s imagefile\n", argv[0]);
 		return 1;
 	}
+
+	// Prepare file path, removing last 4 chars (extension)
+	strncat(imc_file, argv[1], strlen(argv[1]) - 4);
+	strcat(imc_file, ".imc"); // And add extension for IMC
 
 	if (!(oimg = cvLoadImage(argv[1], CV_LOAD_IMAGE_UNCHANGED))) {
 		fprintf(stderr, "Unable to load image %s\n", argv[1]);
