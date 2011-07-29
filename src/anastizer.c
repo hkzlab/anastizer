@@ -24,6 +24,7 @@ int main(int argc, char *argv[]) {
 	char imc_file[STR_BUF_SIZE];
 	char def_config[STR_BUF_SIZE];
 	Uint8 using_default_config = 0; // Using default configration
+	show_dgrid = 0; // Don't show defo grid by default
 
 	// Check parameters and load image file
 	if (argc < 2) {
@@ -196,10 +197,7 @@ int main(int argc, char *argv[]) {
 		win_str[19] = 49 + i;
 		invt[i] = build_transf_mat(&wt[i], invt[i], oimg, mw_img, prv_img[i]->width, prv_img[i]->height);
 	
-		if (show_dgrid)
-			redraw_preview_win(prv_img[i], win_str, oimg, invt[i], &wt[i], dgrid[i], def_grid, 0, 1);
-		else
-			redraw_preview_win(prv_img[i], win_str, oimg, invt[i], &wt[i], dgrid[i], def_grid, 0, 0);
+		redraw_preview_win(prv_img[i], win_str, oimg, invt[i], &wt[i], dgrid[i], def_grid, 0, show_dgrid);
 	}
 
 	// Draw main window with warptraps
