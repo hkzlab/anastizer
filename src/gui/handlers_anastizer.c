@@ -39,6 +39,7 @@ void prev_mouseHandler(int event, int x, int y, int flags, void *param) {
 
 	switch (event) {
 	case CV_EVENT_LBUTTONDOWN:
+		if (!show_dgrid) break; // Don't do anything if defo grid aren't shown
 		dp = findDefoPoint(x, y, dgrid[cur_win]);
 		dp_win = cur_win;
 		break;

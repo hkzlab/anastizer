@@ -21,7 +21,7 @@ extern IplImage *mw_img; // Main window resized image
 
 extern defo_grid *def_grid; // Default deformation grid, for comparisons
 extern defo_grid *dgrid[MAX_WTS];
-extern Uint8 show_dgrid;
+extern Uint8 show_dgrid; // Used for deform. grid, in prev_mouseHandler, main
 
 extern char win_str[64]; // Window title string for preview windows
 
