@@ -281,10 +281,7 @@ int main(int argc, char *argv[]) {
 			for (i = 0; i < used_wts; i++) {
 				win_str[19] = 49 + i;
 
-				if (show_dgrid)
-					redraw_preview_win(prv_img[i], win_str, oimg, invt[i], &wt[i], dgrid[i], def_grid, 1, 1);
-				else
-					redraw_preview_win(prv_img[i], win_str, oimg, invt[i], &wt[i], dgrid[i], def_grid, 1, 0);
+				redraw_preview_win(prv_img[i], win_str, oimg, invt[i], &wt[i], dgrid[i], def_grid, 1, show_dgrid);
 			}
 
 			break;
