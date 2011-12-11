@@ -7,7 +7,7 @@
 
 // OpenCV headers
 #include <cv.h>
-#include <cvaux.h>
+//#include <cvaux.h> // Disabled inclusion: useless for OpenCV 2.3
 #include <highgui.h>
 
 typedef unsigned char Uint8;

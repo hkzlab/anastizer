@@ -3,7 +3,8 @@ BINDIR=bin
 
 CFLAGS=-O2 -Isrc/ -I/usr/include/opencv/ -g -std=c99 -Wextra
 #CFLAGS+= -DDEBUG
-LDFLAGS=  -lm -lcxcore -lcv -lcvaux -lhighgui
+#LDFLAGS=  -lm -lcxcore -lcv -lcvaux -lhighgui
+LDFLAGS= -lm -lopencv_core -lopencv_highgui -lopencv_imgproc
 
 MODULES=$(BINDIR)/utils.o $(BINDIR)/wtrap.o $(BINDIR)/spotclear.o $(BINDIR)/imc.o $(BINDIR)/morph.o
 		
