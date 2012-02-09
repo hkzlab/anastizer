@@ -6,9 +6,10 @@
 #include <stdlib.h>
 
 // OpenCV headers
-#include <cv.h>
+#include <core/core_c.h>
 //#include <cvaux.h> // Disabled inclusion: useless for OpenCV 2.3
-#include <highgui.h>
+#include <highgui/highgui_c.h>
+#include <imgproc/imgproc_c.h>
 
 typedef unsigned char Uint8;
 typedef signed char Sint8;

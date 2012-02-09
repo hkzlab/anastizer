@@ -1,5 +1,6 @@
-#include "utils.h"
+#include <imgproc/imgproc_c.h>
 
+#include "utils.h"
 #include "spotclear/spotclear.h"
 
 CvRect *getRoiFromPic(IplImage *in, Sint32 *tot_rois, Uint32 wmult, int agg);

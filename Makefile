@@ -1,7 +1,7 @@
 SRCDIR=src
 BINDIR=bin
 
-CFLAGS=-O2 -Isrc/ -I/usr/include/opencv/ -g -std=c99 -Wextra
+CFLAGS=-O2 -Isrc/ -I/usr/include/opencv2/ -g -std=c99 -Wextra
 #CFLAGS+= -DDEBUG
 #LDFLAGS=  -lm -lcxcore -lcv -lcvaux -lhighgui
 LDFLAGS= -lm -lopencv_core -lopencv_highgui -lopencv_imgproc
