@@ -1,5 +1,7 @@
 #include "windraw_anastizer.h"
 
+#include "common/anast_defs.h"
+#include "common/globs_anastizer.h"
 #include "common/win_names_anastizer.h"
 #include "utils/utils.h"
 
@@ -11,7 +13,7 @@ void redraw_preview_win(IplImage *pim, const char *win, IplImage *oim, CvMat *tm
 	assert(oim);
 	assert(tm);
 
-	IplImage *mono, *pwarp, *dwarp;
+	IplImage *mono, *pwarp, *dwarp, *arwarp;
 
 	cvWarpPerspective(oim, pim, tm, /*CV_INTER_LINEAR +*/ CV_WARP_FILL_OUTLIERS + CV_WARP_INVERSE_MAP, cvScalarAll(0));
 
@@ -35,9 +37,16 @@ void redraw_preview_win(IplImage *pim, const char *win, IplImage *oim, CvMat *tm
 	if (draw_grid) // Show the grid
 		drawDefoGrid(pwarp, dgrid, cvScalar(0, 0, 200, 0));
 
-	cvShowImage(win, pwarp);
+	if (rat_mod != 1000) {
+		arwarp = cvCreateImage(cvSize(pwarp->width, pwarp->height * ((float)rat_mod/1000)), pwarp->depth, pwarp->nChannels);
+		cvResize(pwarp, arwarp, CV_INTER_LINEAR);
+		cvReleaseImage(&pwarp);
+	} else 
+		arwarp = pwarp;
 
-	cvReleaseImage(&pwarp);
+	cvShowImage(win, arwarp);
+
+	cvReleaseImage(&arwarp);
 }
 
 void draw_wt_win(char *win, IplImage *in, WTrap *wt, Uint32 tot_wt) {
