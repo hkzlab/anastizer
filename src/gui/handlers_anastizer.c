@@ -73,10 +73,10 @@ void prev_mouseHandler(int event, int x, int y, int flags, void *param) {
 		strcat(tmp_file, dest_file);
 		strcat(tmp_file, winsrc);
 
-		invt[cur_win] = build_transf_mat(&wt[cur_win], invt[cur_win], oimg, mw_img, prv_img[cur_win]->width * qlt_pos, prv_img[cur_win]->height * qlt_pos);
+		invt[cur_win] = build_transf_mat(&wt[cur_win], invt[cur_win], oimg, mw_img, prv_img[cur_win]->width * qlt_pos, prv_img[cur_win]->height * qlt_pos * ((float)rat_mod/1000));
 		
 		if (event == CV_EVENT_MBUTTONDBLCLK) { // Save a color version
-			gimg = return_warped_img(oimg, invt[cur_win], &wt[cur_win], prv_img[cur_win]->width * qlt_pos, prv_img[cur_win]->height * qlt_pos, -1);
+			gimg = return_warped_img(oimg, invt[cur_win], &wt[cur_win], prv_img[cur_win]->width * qlt_pos, prv_img[cur_win]->height * qlt_pos * ((float)rat_mod/1000), -1);
 
 			// Calculate output filename (JPG format)
 			strcat(tmp_file, "_WARPED.jpg");
@@ -99,7 +99,7 @@ void prev_mouseHandler(int event, int x, int y, int flags, void *param) {
 			break;
 
 		} else {
-			gimg = return_warped_img(oimg, invt[cur_win], &wt[cur_win], prv_img[cur_win]->width * qlt_pos, prv_img[cur_win]->height * qlt_pos, cur_chan);
+			gimg = return_warped_img(oimg, invt[cur_win], &wt[cur_win], prv_img[cur_win]->width * qlt_pos, prv_img[cur_win]->height * qlt_pos * ((float)rat_mod/1000), cur_chan);
 		}
 
 		fprintf(stdout, " warping the image...\n");
