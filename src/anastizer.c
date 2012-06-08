@@ -26,6 +26,8 @@ int main(int argc, char *argv[]) {
 	Uint8 using_default_config = 0; // Using default configration
 	show_dgrid = 0; // Don't show defo grid by default
 
+	rat_mod = 1450; // ratio mod
+
 	// Check parameters and load image file
 	if (argc < 2) {
 		fprintf(stdout, "%s imagefile [-a]\n", argv[0]);

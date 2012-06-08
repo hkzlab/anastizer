@@ -25,4 +25,6 @@ extern Uint8 show_dgrid; // Used for deform. grid, in prev_mouseHandler, main
 
 extern char win_str[64]; // Window title string for preview windows
 
+extern Uint32 rat_mod; // ratio modifier
+
 #endif /* _GLOBS_ANASTIZER_HEADER_ */

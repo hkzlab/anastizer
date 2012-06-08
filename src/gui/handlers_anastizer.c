@@ -386,6 +386,6 @@ void cntrl_trk_agg_handler(int pos) {
 }
 
 void cntrl_trk_rat_handler(int pos) {
-	;
+	rat_mod = pos <= 0 ? 1 : pos;
 }
 

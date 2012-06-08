@@ -9,12 +9,8 @@ LDFLAGS= -lm -lopencv_core -lopencv_highgui -lopencv_imgproc
 MODULES=$(BINDIR)/utils.o $(BINDIR)/wtrap.o $(BINDIR)/spotclear.o $(BINDIR)/imc.o $(BINDIR)/morph.o
 		
 PR1MODULES=$(BINDIR)/handlers_anastizer.o $(BINDIR)/windraw_anastizer.o $(BINDIR)/anastizer.o $(BINDIR)/globs_anastizer.o $(BINDIR)/defo.o
-PR2MODULES=$(BINDIR)/bookdet.o
-PR3MODULES=$(BINDIR)/strline.o
 
 PROG1=anastizer
-PROG2=bookdet
-PROG3=strline
 
 all: bin/$(PROG1) bin/$(PROG2) bin/$(PROG3)
 
@@ -27,12 +23,6 @@ clean:
 # Programs
 bin/$(PROG1): $(MODULES) $(PR1MODULES)
 	gcc $(CFLAGS) $(MODULES) $(PR1MODULES) $(LDFLAGS) -o $(BINDIR)/$(PROG1)
-
-bin/$(PROG2): $(MODULES) $(PR2MODULES)
-	gcc $(CFLAGS) $(MODULES) $(PR2MODULES) $(LDFLAGS) -o $(BINDIR)/$(PROG2)
-
-bin/$(PROG3): $(MODULES) $(PR3MODULES)
-	gcc $(CFLAGS) $(MODULES) $(PR3MODULES) $(LDFLAGS) -o $(BINDIR)/$(PROG3)
 
 # *** specific modules (ANASTIZER)
 $(BINDIR)/anastizer.o:	$(SRCDIR)/anastizer.c
