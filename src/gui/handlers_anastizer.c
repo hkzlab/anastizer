@@ -16,7 +16,7 @@ void prev_mouseHandler(int event, int x, int y, int flags, void *param) {
 
 	Sint32 xdiff, ydiff;
 
-	IplImage *gimg, *mimg, *rprev, *wimg;
+	IplImage *gimg, *mimg, *rprev, *wimg, *arimg;
 
 	int sres;
 	Uint32 nwidth, nheight;
@@ -73,10 +73,10 @@ void prev_mouseHandler(int event, int x, int y, int flags, void *param) {
 		strcat(tmp_file, dest_file);
 		strcat(tmp_file, winsrc);
 
-		invt[cur_win] = build_transf_mat(&wt[cur_win], invt[cur_win], oimg, mw_img, prv_img[cur_win]->width * qlt_pos, prv_img[cur_win]->height * qlt_pos * ((float)rat_mod/1000));
+		invt[cur_win] = build_transf_mat(&wt[cur_win], invt[cur_win], oimg, mw_img, prv_img[cur_win]->width * qlt_pos, prv_img[cur_win]->height * qlt_pos);
 		
 		if (event == CV_EVENT_MBUTTONDBLCLK) { // Save a color version
-			gimg = return_warped_img(oimg, invt[cur_win], &wt[cur_win], prv_img[cur_win]->width * qlt_pos, prv_img[cur_win]->height * qlt_pos * ((float)rat_mod/1000), -1);
+			gimg = return_warped_img(oimg, invt[cur_win], &wt[cur_win], prv_img[cur_win]->width * qlt_pos, prv_img[cur_win]->height * qlt_pos, -1);
 
 			// Calculate output filename (JPG format)
 			strcat(tmp_file, "_WARPED.jpg");
@@ -99,7 +99,7 @@ void prev_mouseHandler(int event, int x, int y, int flags, void *param) {
 			break;
 
 		} else {
-			gimg = return_warped_img(oimg, invt[cur_win], &wt[cur_win], prv_img[cur_win]->width * qlt_pos, prv_img[cur_win]->height * qlt_pos * ((float)rat_mod/1000), cur_chan);
+			gimg = return_warped_img(oimg, invt[cur_win], &wt[cur_win], prv_img[cur_win]->width * qlt_pos, prv_img[cur_win]->height * qlt_pos, cur_chan);
 		}
 
 		fprintf(stdout, " warping the image...\n");
@@ -107,9 +107,13 @@ void prev_mouseHandler(int event, int x, int y, int flags, void *param) {
 		cvReleaseImage(&gimg);
 		gimg = wimg;
 		
-		mimg = anastize_image(gimg, msk_pos, avr_pos, qlt_pos, agg_pos);
-
+		arimg = cvCreateImage(cvSize(gimg->width, gimg->height * ((float)rat_mod/1000)), gimg->depth, gimg->nChannels);
+		cvResize(gimg, arimg, CV_INTER_CUBIC);
 		cvReleaseImage(&gimg);
+
+		mimg = anastize_image(arimg, msk_pos, avr_pos, qlt_pos, agg_pos);
+
+		cvReleaseImage(&arimg);
 
 		// Show it...
 		nwidth = mimg->width;

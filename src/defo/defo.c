@@ -159,6 +159,8 @@ IplImage *warpDefoImg(IplImage *img, defo_grid *dgrid, defo_grid *ogrid, Uint32 
 			srcp[2] = ogrid->pnt[(j + 1) * ogrid->width + (i + 1)];
 			srcp[3] = ogrid->pnt[(j + 1) * ogrid->width + i];
 
+
+
 			dstp[0] = dgrid->pnt[j * dgrid->width + i];
 			dstp[1] = dgrid->pnt[j * dgrid->width + (i + 1)];
 			dstp[2] = dgrid->pnt[(j + 1) * dgrid->width + (i + 1)];
