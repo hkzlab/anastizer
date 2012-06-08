@@ -16,6 +16,7 @@ imc_data *allocImcData(Uint32 wts) {
 	dt->avr_trk = -1;
 	dt->msk_trk = -1;
 	dt->agg_trk = -1;
+	dt->rat_trk = -1;
 
 	return dt;
 }
@@ -54,6 +55,7 @@ int saveImcData(const char *fname, imc_data *dt) {
 	ret = fprintf(dfile, "avr %d\n", dt->avr_trk);
 	ret = fprintf(dfile, "msk %d\n", dt->msk_trk);
 	ret = fprintf(dfile, "agg %d\n", dt->agg_trk);
+	ret = fprintf(dfile, "rat %d\n", dt->rat_trk);
 
 	ret = fprintf(dfile, "EOF\n");
 
@@ -115,6 +117,7 @@ imc_data *loadImcData(const char *fname) {
 	ret = fscanf(sfile, "avr %d\n", &(dt->avr_trk));
 	ret = fscanf(sfile, "msk %d\n", &(dt->msk_trk));
 	ret = fscanf(sfile, "agg %d\n", &(dt->agg_trk));
+	ret = fscanf(sfile, "agg %d\n", &(dt->rat_trk));
 
 	ret = fscanf(sfile, "%10s\n", bufstr);
 

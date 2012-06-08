@@ -10,5 +10,6 @@
 #define PREV_TRK_AVR "Aver. rem."
 #define PREV_TRK_QLT "Out. Res."
 #define PREV_TRK_AGG "Aggr."
+#define PREV_TRK_RAT "Ratio"
 
 #endif /* _WIN_NAMES_ANASTIZER_HEADER_ */
