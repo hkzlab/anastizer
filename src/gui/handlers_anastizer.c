@@ -395,5 +395,7 @@ void cntrl_trk_agg_handler(int pos) {
 
 void cntrl_trk_rat_handler(int pos) {
 	rat_mod = pos <= 0 ? 1 : pos;
+
+	fprintf(stdout, "ratio is %1.2f:1.0\n", DEF_H_RATIO * ((float)pos / 1000));
 }
 

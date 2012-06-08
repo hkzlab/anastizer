@@ -4,9 +4,10 @@
 #define MAX_WTS 4 // Max warptraps on screen
 #define DEF_WTS 2 // Default warptraps on screen
 
+#define DEF_H_RATIO 1.45f
 #define ORIG_H 2048 // Size of original image
 #define PREV_H 512 // Preview windows sizes
-#define PREV_W (PREV_H / 1.45)
+#define PREV_W (PREV_H / DEF_H_RATIO)
 
 #define WARP_MULT 2 // Multiplier for resized/anastized images in respect to preview size
 
