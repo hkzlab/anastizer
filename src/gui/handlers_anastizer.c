@@ -397,5 +397,16 @@ void cntrl_trk_rat_handler(int pos) {
 	rat_mod = pos <= 0 ? 1 : pos;
 
 	fprintf(stdout, "ratio is %1.2f:1.0\n", DEF_H_RATIO * ((float)pos / 1000));
+
+	Uint32 i;
+	for (i = 0; i < used_wts; i++) {
+		win_str[19] = 49 + i;
+		invt[i] = build_transf_mat(&wt[i], invt[i], oimg, mw_img, prv_img[i]->width, prv_img[i]->height);
+
+		if (show_dgrid)
+			redraw_preview_win(prv_img[i], win_str, oimg, invt[i], &wt[i], dgrid[i], def_grid, 1, 1);
+		else
+			redraw_preview_win(prv_img[i], win_str, oimg, invt[i], &wt[i], dgrid[i], def_grid, 1, 0);
+	}
 }
 
