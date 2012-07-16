@@ -89,7 +89,7 @@ void prev_mouseHandler(int event, int x, int y, int flags, void *param) {
 			// Calculate output filename (JPG format)
 			strcat(tmp_file, "_WARPED.jpg");
 			
-			fprintf(stdout, " saving [%ux%u] image to %s ...", gimg->width, gimg->height, tmp_file);
+			fprintf(stdout, " saving [%ux%u] image to %s ...", arimg->width, arimg->height, tmp_file);
 			sres = cvSaveImage(tmp_file, arimg, 0);
 
 			if (sres)
