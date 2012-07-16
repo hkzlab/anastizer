@@ -78,6 +78,14 @@ void prev_mouseHandler(int event, int x, int y, int flags, void *param) {
 		if (event == CV_EVENT_MBUTTONDBLCLK) { // Save a color version
 			gimg = return_warped_img(oimg, invt[cur_win], &wt[cur_win], prv_img[cur_win]->width * qlt_pos, prv_img[cur_win]->height * qlt_pos, -1);
 
+			if (rat_mod != 1000) {
+				arimg = cvCreateImage(cvSize(gimg->width, gimg->height * ((float)rat_mod/1000)), gimg->depth, gimg->nChannels);
+				cvResize(gimg, arimg, CV_INTER_LINEAR);
+				cvReleaseImage(&gimg);
+			} else {
+				arimg = gimg;
+			}
+
 			// Calculate output filename (JPG format)
 			strcat(tmp_file, "_WARPED.jpg");
 			
@@ -97,7 +105,6 @@ void prev_mouseHandler(int event, int x, int y, int flags, void *param) {
 			invt[cur_win] = build_transf_mat(&wt[cur_win], invt[cur_win], oimg, mw_img, prv_img[cur_win]->width, prv_img[cur_win]->height);
 
 			break;
-
 		} else {
 			gimg = return_warped_img(oimg, invt[cur_win], &wt[cur_win], prv_img[cur_win]->width * qlt_pos, prv_img[cur_win]->height * qlt_pos, cur_chan);
 		}
