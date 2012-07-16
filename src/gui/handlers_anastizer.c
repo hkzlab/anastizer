@@ -90,7 +90,7 @@ void prev_mouseHandler(int event, int x, int y, int flags, void *param) {
 			strcat(tmp_file, "_WARPED.jpg");
 			
 			fprintf(stdout, " saving [%ux%u] image to %s ...", gimg->width, gimg->height, tmp_file);
-			sres = cvSaveImage(tmp_file, gimg, 0);
+			sres = cvSaveImage(tmp_file, arimg, 0);
 
 			if (sres)
 				fprintf(stdout, "OK!\n");
@@ -99,7 +99,7 @@ void prev_mouseHandler(int event, int x, int y, int flags, void *param) {
 
 			fprintf(stdout, " DONE!\n\n");
 
-			cvReleaseImage(&gimg);
+			cvReleaseImage(&arimg);
 
 			// Rebuild the old transform matrix for previews, needed to avoid viewing problems
 			invt[cur_win] = build_transf_mat(&wt[cur_win], invt[cur_win], oimg, mw_img, prv_img[cur_win]->width, prv_img[cur_win]->height);
